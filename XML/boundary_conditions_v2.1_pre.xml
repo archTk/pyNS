@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Vascular Network Model: boundary conditions description-->
+<BoundaryConditionsGraph id="1" version="2.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:noNamespaceSchemaLocation="boundary_conditions_v2.0.xsd">
+  <boundaryconditions>
+    <boundarycondition id="1" type="transmural pressures">
+      <parameters>
+        <pressure unit="Pa">
+           <scalar>0.0</scalar>
+        </pressure>
+      </parameters>  
+      <entities>
+        <entity id="aorta"/>
+        <entity id="innominate"/>
+        <entity id="carotid"/>
+        <entity id="subclavian"/>
+        <entity id="vertebral"/>
+        <entity id="axillarian"/>
+        <entity id="brachial"/>
+        <entity id="radial"/>
+        <entity id="ulnar"/>
+        <entity id="interosseous"/>
+        <entity id="end_segment"/>
+      </entities>
+    </boundarycondition>
+    <boundarycondition id="2" type="inflow" name="heart">
+      <parameters>
+        <A0>
+          <scalar>9.4770816e-5</scalar>
+        </A0>
+        <fourier_coeffs n="2" m="10">
+          <matrix_nxm>
+          6.1485305e+01 -1.2775553e+02 -4.8233671e+01 -9.3718052e+01 -6.9296550e+01 -7.7674753e+00 -1.7668595e+01 1.5214214e+01 -1.7582760e+01 4.8404099e+00 -6.5620490e+00 1.2307691e+01 -1.9786359e+00 4.8468029e+00 -2.2902527e+00 3.3653012e+00 -1.2768902e+00 3.0761554e+00 -5.5060383e-01 1.2390679e+00
+          </matrix_nxm>  
+        </fourier_coeffs>
+      </parameters>  
+      <entities>
+        <entity id="aorta" node_id="1"/>
+      </entities>  
+    </boundarycondition>
+  </boundaryconditions>
+  <simulation_parameters>
+    <parameter id="aorta_ratio" unit="">
+      <scalar>0.15</scalar>
+    </parameter>
+    <parameter id="carotid_ratio" unit="">
+      <scalar>0.24</scalar>
+    </parameter>
+    <parameter id="upper_arm_ratio" unit="">
+      <scalar>0.15</scalar>
+    </parameter>
+    <parameter id="vertebral_ratio" unit="">
+      <scalar>0.33</scalar>
+    </parameter>
+    <parameter id="lower_arm_ratio" unit="">
+      <scalar>0.2</scalar>
+    </parameter>
+    <parameter id="interosseous_ratio" unit="">
+      <scalar>0.43</scalar>
+    </parameter>
+    <parameter id="innominate_ratio" unit="">
+      <scalar>0.18</scalar>
+    </parameter>
+    <parameter id="dynamic_viscosity" unit="Pa*S">
+      <scalar>3.0e-3</scalar>
+    </parameter>
+    <parameter id="blood_density" unit="Kg/m^3">
+      <scalar>1.05e3</scalar>
+    </parameter>
+    <parameter id="poisson_ratio" unit="">
+      <scalar>0.5</scalar>
+    </parameter>
+    <parameter id="frequency" unit="Hz">
+      <scalar>1</scalar>
+    </parameter>
+    <parameter id="timestep" unit="s">
+      <scalar>0.005</scalar>
+    </parameter>
+    <parameter id="period" unit="s">
+      <scalar>1.0</scalar>
+    </parameter>
+    <parameter id="cycles" unit="">
+      <scalar>30</scalar>
+    </parameter>
+    <parameter id="cardiac_output" unit="mL/min">
+      <scalar>5.686e3</scalar>
+    </parameter>     
+    <parameter id="mean_pressure" unit="mmHg">
+      <scalar>115</scalar>
+    </parameter> 
+    <parameter id="brachial_flow" unit="mL/min">
+      <scalar>190</scalar>
+    </parameter> 
+	<parameter id="radial_flow" unit="mL/min">
+      <scalar>20</scalar>
+    </parameter> 
+    <parameter id="ulnar_flow" unit="mL/min">
+      <scalar>28</scalar>
+    </parameter>
+  </simulation_parameters>
+</BoundaryConditionsGraph>    

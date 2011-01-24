@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Vascular Network Model: graph description-->
+<NetworkGraph id="1" version="3.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:noNamespaceSchemaLocation="vascular_network_v2.3.xsd">  
+ <case>
+   <patient_id>10001</patient_id>
+   <visit>V0 (pre-OP)</visit>
+ </case>  
+ <nodes>
+   <node id="1" type="inflow" name="heart"/>
+   <node id="2" type="downstream network" name="end_tube">
+     <properties>
+       <windkessel>
+         <expression>$WindkesselRel[end_tube] = (($mean_pressure[])/($cardiac_output[]))*(133.3223684211*6.0e7)</expression>
+       </windkessel>
+     </properties>
+   </node>
+ </nodes>
+ <superedges>  
+   <superedge id="1" name="tube">
+     <edgesIds>
+       <edgeIds edge_id="1"/>
+     </edgesIds>
+   </superedge>
+ </superedges>
+ <edges>
+   <edge id="1" node1_id="1" node2_id="2" side="arterial" name="tube">
+     <geometry transformation_id="1">
+	     <length unit="m" accuracy="10%" source="US">
+	       <scalar>0.414</scalar>
+	     </length>
+     </geometry>
+     <properties>
+       <radius unit="m" accuracy="10%" source="US">
+         <scalar>8.0e-3</scalar>
+       </radius>
+       <wall_thickness unit="m" accuracy="10%" source="US">
+         <scalar>8.0e-4</scalar>
+       </wall_thickness>
+       <young_modulus unit="Pa" accuracy="10%" source="US">
+         <scalar>4e5</scalar>
+       </young_modulus>
+     </properties>
+   </edge>
+ </edges>
+ <transformations>
+   <transformation id="1" type="pat2vox" seriesID="1301">
+    <matrix_4x4>
+    3.0 0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0
+    </matrix_4x4>  
+   </transformation>
+   <transformation id="2" type="pat2vox" seriesID="1302">
+    <matrix_4x4>
+    2.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0
+    </matrix_4x4>
+   </transformation> 
+ </transformations> 
+</NetworkGraph>

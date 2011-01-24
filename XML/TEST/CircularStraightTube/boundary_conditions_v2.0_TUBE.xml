@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Vascular Network Model: boundary conditions description-->
+<BoundaryConditionsGraph id="1" version="2.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:noNamespaceSchemaLocation="boundary_conditions_v2.0.xsd">
+  <boundaryconditions>
+    <boundarycondition id="1" type="transmural pressures">
+      <parameters>
+        <pressure unit="Pa">
+           <scalar>0.0</scalar>
+        </pressure>
+      </parameters>  
+      <entities>
+        <entity id="tube"/>
+        <entity id="end_segment"/>
+      </entities>
+    </boundarycondition>
+    <boundarycondition id="2" type="inflow" name="heart">
+      <parameters>
+        
+      </parameters>  
+      <entities>
+        <entity id="tube" node_id="1"/>
+      </entities>  
+    </boundarycondition>
+  </boundaryconditions>
+  <simulation_parameters>
+    <parameter id="dynamic_viscosity" unit="Pa*S">
+      <scalar>3.0e-3</scalar>
+    </parameter>
+    <parameter id="blood_density" unit="Kg/m^3">
+      <scalar>1.05e3</scalar>
+    </parameter>
+    <parameter id="poisson_ratio" unit="">
+      <scalar>0.5</scalar>
+    </parameter>
+    <parameter id="frequency" unit="Hz">
+      <scalar>1</scalar>
+    </parameter>
+    <parameter id="timestep" unit="s">
+      <scalar>0.005</scalar>
+    </parameter>
+    <parameter id="period" unit="s">
+      <scalar>1.0</scalar>
+    </parameter>
+    <parameter id="cycles" unit="">
+      <scalar>30</scalar>
+    </parameter>
+    <parameter id="cardiac_output" unit="mL/min">
+      <scalar>5686</scalar>
+    </parameter>     
+    <parameter id="mean_pressure" unit="mmHg">
+      <scalar>110</scalar>
+    </parameter>  
+  </simulation_parameters>
+</BoundaryConditionsGraph>    

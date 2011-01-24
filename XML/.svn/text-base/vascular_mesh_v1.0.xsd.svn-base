@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--NetworkMesh: root element-->
+<!--"key" element: specifies attribute "id" as a key within the containing element in the XML instance-->
+<!--"keyref" element: allows to refer to an attribute "id"-->
+	<xsd:element name="NetworkMesh" type="NetworkMeshType">
+		<xsd:annotation>
+			<xsd:documentation>     XML Schema for the Vascular Mesh Model.
+     The first element declared (root element) is called NetworkMesh.
+     "Meshnode" and "element" elements are the leaf elements; each of these is identified by a unique ID.
+     The rest of the file contains the definition of all used types.
+     Last updated on 2010-01-18 by Simone Manini.</xsd:documentation>
+        </xsd:annotation>
+   
+		<xsd:key name="mn_id">
+			<xsd:selector xpath="meshnodes/meshnode"/>
+			<xsd:field xpath="@id"/>
+		</xsd:key>
+		
+		<xsd:key name="en_id">
+			<xsd:selector xpath="entities/entity"/>
+			<xsd:field xpath="@id"/>
+		</xsd:key>
+		
+        <xsd:key name="e_id">
+			<xsd:selector xpath="elements/element"/>
+			<xsd:field xpath="@id"/>
+		</xsd:key>
+		<xsd:keyref name="mn1_ref" refer="mn_id">
+			<xsd:selector xpath="elements/element"/>
+			<xsd:field xpath="@meshnode1_id"/>
+		</xsd:keyref>
+		<xsd:keyref name="mn2_ref" refer="mn_id">
+			<xsd:selector xpath="elements/element"/>
+			<xsd:field xpath="@meshnode2_id"/>
+		</xsd:keyref>
+	</xsd:element>
+	
+<!--NetworkMesh type-->
+	<xsd:complexType name="NetworkMeshType">
+		<xsd:all>
+			<xsd:element name="meshnodes" type="meshnodesType"/>
+			<xsd:element name="entities" type="entitiesType"/>
+			<xsd:element name="elements" type="elementsType"/>
+		</xsd:all>
+		<xsd:attribute name="id" type="xsd:integer" use="required"/>
+		<xsd:attribute name="version" type="xsd:string" use="required"/>
+	</xsd:complexType>
+
+<!--Meshnodes type-->
+<!--it contains a sequence of meshnodes ("meshnode" element)-->
+<!--each node is identified by an ID-->
+<!--at least two nodes are necessary-->
+<xsd:complexType name="meshnodesType">   
+ <xsd:sequence> 
+  <xsd:element name="meshnode" type="meshnodeType" minOccurs="2" maxOccurs="unbounded"/>
+ </xsd:sequence>
+</xsd:complexType>
+ 
+<xsd:complexType name="meshnodeType">    
+ <xsd:attribute name="id" type="xsd:integer" use="required"/>
+</xsd:complexType>
+
+<!--Entities type-->
+<!--it contains a sequence of entities ("entity" element)-->
+<!--each entity is identified by an ID-->
+<!--at least a mesh is necessary-->
+<xsd:complexType name="entitiesType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="entity" type="entityType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="entityType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="mesh" type="meshType"/>
+		</xsd:sequence>
+		<xsd:attribute name="id" type="xsd:string" use="required"/>
+	</xsd:complexType>
+	
+	<xsd:complexType name="meshType">
+		<xsd:attribute name="id" type="xsd:string" use="required"/>
+	</xsd:complexType>
+	
+<!--Elements type-->
+<!--it contains a sequence of elements-->
+<!--each of these is identified by an ID and by n nodes id-->
+<!--at least an element is necessary-->
+<!--each element is described by mesh_classification and parameters-->
+	<xsd:complexType name="elementsType">
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="element" type="elementType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="elementType">
+		<xsd:all>
+			<xsd:element maxOccurs="1" minOccurs="0" name="pcoord" type="pcoordType"/>
+			<xsd:element name="parameters" type="parametersType"/>
+		</xsd:all>
+		<xsd:attribute name="id" type="xsd:string" use="required"/>
+		<xsd:attribute name="type" type="xsd:string" use="required"/>
+		<xsd:attribute name="meshnode1_id" type="xsd:integer" use="required"/>
+		<xsd:attribute name="meshnode2_id" type="xsd:integer" use="required"/>
+	</xsd:complexType>
+	
+<!--pcoord type: "s1" and "s2" attributes specify mesh position -->
+<!--Useful for post processing; coordinates locate mesh inside its edge -->
+     <xsd:complexType name="pcoordType">
+        <xsd:all>
+			<xsd:element name="s1" type="xsd:float"/>
+			<xsd:element name="s2" type="xsd:float"/>
+		</xsd:all>
+		<xsd:attribute name="edgeId" type="xsd:integer" use="required"/>
+	</xsd:complexType>
+ 	
+	
+<!--parameters type: scalar values for length, radius, wall thickness and young modulus-->
+	
+	<xsd:complexType name="parametersType">
+		<xsd:all>
+			<xsd:element maxOccurs="1" minOccurs="0" name="length" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="radius" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="wall_thickness" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="young_modulus" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="R1" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="R2" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="C" type="parameterType"/>
+		</xsd:all>
+	</xsd:complexType>
+	
+	<xsd:complexType name="parameterType">
+		<xsd:choice>
+			<xsd:element name="scalar" type="xsd:float"/>
+			<xsd:element name="scalar" type="xsd:string"/>
+		</xsd:choice>
+		<xsd:attribute name="unit" type="unitType"/>
+	</xsd:complexType>
+    
+    <xsd:simpleType name="unitType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="m"/>
+			<xsd:enumeration value="Pa"/>
+			<xsd:enumeration value="Pa-1"/>
+			<xsd:enumeration value="mm-1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
