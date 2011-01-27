@@ -20,6 +20,7 @@ from numpy.numarray.numerictypes import Int32
 from math import pi
 from numpy.core.fromnumeric import sum, mean
 from numpy.lib.scimath import sqrt
+import sys
 
 class Element(object):
     '''
@@ -132,30 +133,6 @@ class Element(object):
         '''
         numberOfDofs = len(self.dof)
         return numberOfDofs
-    
-    def GetId(self):
-        '''
-        This method prints Element's Id 
-        '''
-        print "ID: ", self.Id
-    
-    def GetSide(self):
-        '''
-        This method prints Element'Side
-        '''
-        print "Side: ", self.Side
-    
-    def GetName(self):
-        '''
-        This method prints Element's Name
-        '''
-        print "Name: ", self.Name
-    
-    def GetNodeIds(self):
-        '''
-        This method prints Element's NodeIds 
-        '''
-        print "NodeIds: ", self.NodeIds
     
 class FiveDofRclElementV2(Element):
     '''
@@ -287,7 +264,7 @@ class FiveDofRclElementV2(Element):
         '''
         This method calculates C, R and L from element's parameters:
         R and L are computed from the momentum equation (boundary layer theory)
-        Veins can have elliptal cross-sectional area and therefore different expressions
+        Veins can have elliptical cross-sectional area and therefore different expressions
         for L and R are needed for the venous segments.(Haslam et al. 1998)
         We assume a linear relation between pressure and area.
         Compliance (C) is computed from the vessel radius, the vessel wall thickness
@@ -322,7 +299,9 @@ class FiveDofRclElementV2(Element):
         except KeyError:
             print "Error, Please set Frequency[Hz] in Boundary Conditions XML File"
             raise
-
+        
+        error = None
+        
         if self.Initialized == False:
             z = arange(0.0,self.Length,self.dz)
             s1 = self.s1
@@ -444,10 +423,13 @@ class FiveDofRclElementV2(Element):
                 self.LeakageR = 1.0e25
             else:
                 qrest = float(self.simulationContext.Context['brachial_flow']-self.simulationContext.Context['radial_flow']-self.simulationContext.Context['ulnar_flow'])
-                if qrest == 0.0:
-                    self.LeakageR = 1.0e25
+                if qrest > 0.0:
+                    self.LeakageR = ((float(self.simulationContext.Context['mean_pressure'])*float(self.Leakages))/(qrest))*(133.32*6.0e7) 
                 else:
-                    self.LeakageR = ((float(self.simulationContext.Context['mean_pressure'])*float(self.Leakages))/(qrest))*(133.32*6.0e7)     
+                    error = 1
+                    MeasuredFlowsError(qrest) 
+        if error:
+            sys.exit()   
                 
         self.C = float(self.C)
         self.R = float(Ralpha)
@@ -497,6 +479,7 @@ class FiveDofRclElementV2(Element):
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         If cycle is not specified, default cycle is the last one.
         '''
+        # t=0, no flow.
         if info is None:
             self.Flow = 1.0e-25
             return self.Flow
@@ -554,10 +537,10 @@ class FiveDofRclElementV2(Element):
         This method returns pressure on the specified element.
         If cycle is not specified, default cycle is the last one.
         '''
+        # t=0, no pressure.
         if info is None:
-            self.Pressure = 1e-6
-            return self.Pressure
-        
+            self.Pressure = 1e-12
+            return self.Pressure 
         try:
             self.Period = self.simulationContext.Context['period']
         except KeyError:
@@ -572,8 +555,7 @@ class FiveDofRclElementV2(Element):
             self.TimeStep = self.simulationContext.Context['timestep']
         except KeyError:
             print "Error, Please set timestep in Boundary Conditions XML File"
-            raise
-            
+            raise  
         try:
             solution = info['solution']
         except KeyError:
@@ -596,7 +578,7 @@ class FiveDofRclElementV2(Element):
         else:
             self.Pressure = self.Pressure[0] 
         if self.Pressure < 0.0:
-            self.Pressure = 1e-6
+            self.Pressure = 1e-12
         return self.Pressure
     
     def GetArea(self,info):
@@ -604,17 +586,27 @@ class FiveDofRclElementV2(Element):
         This method returns vessel's Cross-Sectional Area
         '''   
         if self.Side == 'arterial':
-            if type(self.Radius) == dict:            
-                Radius = self.Radius[self.s2]            
+            if type(self.Radius) == dict:
+                Radius1 = self.Radius[self.s1]           
+                Radius2 = self.Radius[self.s2]
+                Areas1 = pi*(Radius1**2)
+                Areas2 = pi*(Radius2**2)       
             else:
-                Radius = self.Radius[len(self.Radius)-1]  
+                Radius = self.Radius[len(self.Radius)-1]
+                Areas1 = pi*(Radius**2)
+                Areas2 = pi*(Radius**2)
         if self.Side == 'venous':
             if type(self.Radius) == dict:
-                Radius = self.Radius[self.s1]
+                Radius1 = self.Radius[self.s1]
+                Radius2 = self.Radius[self.s2]
+                Areas1 = pi*(Radius1**2)
+                Areas2 = pi*(Radius2**2)
             else:
-                Radius = self.Radius[0]        
-        Area = pi*(Radius**2)
-        return Area
+                Radius = self.Radius[0]
+                Areas1 = pi*(Radius**2)
+                Areas2 = pi*(Radius**2)          
+        
+        return Areas1, Areas2
     
     def GetLength(self,info):
         '''
@@ -928,21 +920,21 @@ class Anastomosis(Element):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Proximal.GetArea(info)
+        Area = self.Proximal.GetArea(info)[1]
         return Area
     
     def GetAreaDistal(self, info):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Distal.GetArea(info)
+        Area = self.Distal.GetArea(info)[0]
         return Area
     
     def GetAreaVein(self, info):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Vein.GetArea(info)
+        Area = self.Vein.GetArea(info)[0]
         return Area
     
     def GetFlowRatio(self,info):
@@ -1009,12 +1001,6 @@ class Anastomosis(Element):
                 DofNodeId3 = self.NodeIds[2]
         DofNodes = [DofNodeId1, DofNodeId2, DofNodeId3]
         return DofNodes
-    
-    def GetExternalPressureLocalDofs(self):
-        '''
-        Setting Transmural pressure in the correct local dofs.
-        '''
-        pass
 
 class TwoDofResistanceElement(Element):
     '''
@@ -1094,8 +1080,9 @@ class TwoDofResistanceElement(Element):
         This method returns volumetric flow rate calculated on the resistance.
         If cycle is not specified, default cycle is the last one.
         '''
+        # t=0, no flow.
         if info is None:
-            self.Flow = 0.0
+            self.Flow = 1.0e-25
             return self.Flow   
         try:
             solution = info['solution']
@@ -1143,9 +1130,18 @@ class TwoDofResistanceElement(Element):
                 DofNodeId2 = self.NodeIds[1]
         DofNodes = [DofNodeId1,DofNodeId2]
         return DofNodes
-    
-    def GetExternalPressureLocalDofs(self):
-        '''
-        Setting Transmural pressure in the correct local dofs.
-        '''
-        pass
+     
+class Error(Exception):
+    '''
+    A base class for exceptions defined in this module.
+    '''
+    pass
+
+class MeasuredFlowsError(Error):
+    '''
+    Exception raised if measured flows data is inconsistent
+    '''
+    def __init__(self,xmlschema):
+        print "\nError, Measured data flows is inconsistent"
+        print "Brachial flow has to be greater than radial+ulnar flows"
+        print "Please check your Boundary Condition Xml file\n"

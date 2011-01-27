@@ -15,9 +15,8 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from Assembler import *
-from NetworkMesh import *
-from SimulationContext import *
+from Assembler import Assembler
+from numpy.core.numeric import zeros, arange
 from numpy.lib.function_base import delete
 from numpy.lib.index_tricks import s_
 from numpy.linalg.linalg import solve

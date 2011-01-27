@@ -15,9 +15,9 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from NetworkMesh import *
-from DofMap import *
-from BoundaryConditions import *
+from DofMap import DofMap
+from numpy.core.numeric import zeros
+from numpy.numarray.numerictypes import Int32
 
 class Assembler(object):
     '''

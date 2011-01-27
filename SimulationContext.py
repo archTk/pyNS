@@ -90,12 +90,3 @@ class Error(Exception):
     A base class for exceptions defined in this module.
     '''
     pass
-
-class XMLValidationError(Error):
-    '''
-    Exception raised for XML validation failure
-    '''
-    
-    def __init__(self,xmlschema):
-        print "Error, Invalid Boundary Conditions Xml File."
-        print xmlschema.error_log

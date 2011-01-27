@@ -15,10 +15,16 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from NetworkMesh import *
+
 from DofMap import *
-from InverseWomersley import *
+from InverseWomersley import InverseWomersley
 from numpy.core.fromnumeric import mean
+from numpy.core.numeric import arange, array
+from math import pi
+try:
+    from lxml import etree
+except:
+    from xml.etree import ElementTree as etree
 from pylab import *
 from numpy.ma.core import ceil
 
@@ -1075,7 +1081,17 @@ class NetworkSolutions(object):
                     edge_class = etree.SubElement(edge, "edge_classification", side = str(e.Side))
                     edge_class.text =  str(e.Name)
                     Flow = 0
-                    i = 0
+                    i = 0                 
+                    for el in self.NetworkMesh.Elements:
+                        if el.NodeIds[0] == self.NetworkMesh.s_mesh[(0.0,e)]:
+                            P1 = (self.Solutions[(self.DofMap.DofMap[el.Id, 0]),:])/133.3223684211
+                            P1 = mean(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])             
+                            break
+                    for el in self.NetworkMesh.Elements:
+                        if el.NodeIds[1] == self.NetworkMesh.s_mesh[(1.0,e)]:
+                            P2 = (self.Solutions[(self.DofMap.DofMap[el.Id, 2]),:])/133.3223684211
+                            P2 = mean(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])      
+                            break                
                     for meshId, edgeId in self.NetworkMesh.MeshToGraph.iteritems():
                         if edgeId == e.Id:
                             for el in self.NetworkMesh.Elements:
@@ -1083,12 +1099,6 @@ class NetworkSolutions(object):
                                     dofs = el.GetPoiseuilleDofs()
                                     Flow += (self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),:])/el.R
                                     Wss = ((4.0*el.eta)/pi) * (Flow/mean(el.Radius)**3)
-                                    if i == 0:
-                                        P1 = (self.Solutions[(self.DofMap.DofMap[el.Id, 0]),:])/133.3223684211
-                                        P1 = mean(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
-                                    P2 = (self.Solutions[(self.DofMap.DofMap[el.Id, 2]),:])/133.3223684211
-                                    P2 = mean(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
-        
                                     i += 1
                                          
                     Flow = (Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7) / i
@@ -1117,3 +1127,18 @@ class NetworkSolutions(object):
         
         indent(root)            
         xmlsolutions.write (xmlsolutionspath,encoding='iso-8859-1')   
+
+def indent(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i

@@ -15,14 +15,16 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from NetworkMesh import *
 try:
-    from numpy.core.defmatrix import matrix
+    from lxml import etree
 except:
-    from numpy.matrixlib.defmatrix import matrix
+    from xml.etree import ElementTree as etree
+from numpy.core.numeric import zeros, arange, array
+from math import pi
 from numpy.lib.type_check import real
-from numpy.core.numeric import exp, where
+from numpy.core.numeric import exp
 from numpy.ma.core import ceil
+import sys
 
 class BoundaryConditions(object):
     '''
@@ -164,22 +166,29 @@ class BoundaryConditions(object):
         If XML schema is given (and lxml package is installed),
         XML file is validated first.
         '''
-        try:
-            if xsdBcpath:
+        error = None
+        if xsdBcpath:
+            try:
                 schemabcfile = open(xsdBcpath)
                 xmlschema_doc = etree.parse(schemabcfile)
-                xmlschema = etree.XMLSchema(xmlschema_doc)
-                docbcfile = open(xmlBcpath)
-                docbc = etree.parse(docbcfile)
+                try:
+                    xmlschema = etree.XMLSchema(xmlschema_doc)
+                    docbcfile = open(xmlBcpath)
+                    docbc = etree.parse(docbcfile)
+                except:
+                    LXMLError()        
                 try:
                     xmlschema.assert_(docbc)
-                    print "Boundary Conditions Xml File has been validated."
-                except AssertionError:    
+                    print "Boundary Conditions Xml file has been validated."
+                except AssertionError:   
+                    error = AssertionError
                     XMLValidationError(xmlschema)
-            else:
-                print "Warning, Boundary conditions Xsd Schema File not provided. pyNS will not validate Boundary Conditions Xml file."
-        except:
-            print "Warning, lxml package is not provided. Boundary Conditions Xml file can not be validated."
+            except:
+                WrongXSDPathError()
+        else:
+            print "Warning, Boundary Conditions Xml schema was not provided."
+        if error:
+            sys.exit()
             
         docbcfile = open(xmlBcpath)
         bctree = etree.parse(docbcfile)
@@ -255,8 +264,8 @@ class BoundaryConditions(object):
                             n = int(f_dict['n'])
                             m = int(f_dict['m'])
                             self.f_coeff = zeros((n,m))
-                            for fourier_coeffs in data.findall(".//matrix_nxm"):
-                                self.f_coeff = matrix(fourier_coeffs.text).reshape(m,n)
+                            for fourier_coeffs in data.findall(".//matrix_nxm"):                          
+                                self.f_coeff = array(fourier_coeffs.text.split(), dtype = float).reshape(m,n)
                         if data.tag == "signal":
                             for values in data.findall(".//values"):
                                 self.signal = values.text.split()
@@ -292,16 +301,29 @@ class XMLValidationError(Error):
     '''
     Exception raised for XML validation failure
     '''
-    
     def __init__(self,xmlschema):
         print "Error, Invalid Boundary Condition Xml File."
         print xmlschema.error_log
+
+class WrongXSDPathError(Error):
+    '''
+    Exception raised if a wrong xsd path is provided.
+    '''
+    def __init__(self):
+        print "Warning, Xml schema file not found."
+        print "Boundary Conditions Xml file can not be validated."
+        
+class LXMLError(Error):
+    '''
+    Exception raised if lxml package is not installed.
+    '''
+    def __init__(self):
+        print "Warning, Lxml package was not provided. Boundary Conditions Xml file can not be validated."    
 
 class XMLIdError(Error):
     '''
     Exception raised for wrong BoundaryConditions XML File
     '''
-
     def __init__(self):
         print "Invalid BoundaryConditions XML File. Check XML Id."
 
@@ -310,6 +332,5 @@ class EntityDuplicateError(Error):
     Exception raised if an entity is specified in more than
     one boundary condition of the same type.
     '''
-
     def __init__(self, entity):
         print "This entity (", entity.Id, ") is already specified for another boundary condition of the same type.\nCheck your Boundary Conditions XML File"

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
@@ -19,6 +20,7 @@ try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
+import sys
 
 class NetworkGraph(object):
     '''
@@ -108,25 +110,33 @@ class NetworkGraph(object):
     def ReadFromXML(self, xmlgraphpath, xsdgraphpath=None):
         '''
         This method reads Network Graph XML File.
-        If XML schema is given, XML file is validated first.
+        If XML schema is given and lxml package is installed,
+        XML file is validated first.
         '''
-        try:
-            if xsdgraphpath:
+        error = None
+        if xsdgraphpath:
+            try:
                 schemagraphfile = open(xsdgraphpath)
                 xmlschema_doc = etree.parse(schemagraphfile)
-                xmlschema = etree.XMLSchema(xmlschema_doc)
-                docgraphfile = open(xmlgraphpath)
-                docgraph = etree.parse(docgraphfile)
+                try:
+                    xmlschema = etree.XMLSchema(xmlschema_doc)
+                    docgraphfile = open(xmlgraphpath)
+                    docgraph = etree.parse(docgraphfile)
+                except:
+                    LXMLError()        
                 try:
                     xmlschema.assert_(docgraph)
                     print "Network Graph Xml File has been validated."
-                except AssertionError:    
+                except AssertionError:   
+                    error = AssertionError
                     XMLValidationError(xmlschema)
-            else:
-                print "Network Graph Xsd Schema File not provided. Will not validate Network Graph Xml file."
-        except: 
-            print "Lxml package is not provided. Network Graph Xml file can not be validated."
-       
+            except:
+                WrongXSDPathError()
+        else:
+            print "Warning, Network Graph xml schema was not provided."
+        if error:
+            sys.exit()
+            
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
         graph=graphtree.getroot()
@@ -426,8 +436,6 @@ class Node(object):
         '''
         self.Name = name
     
-    
-    
     def SetProperties(self, property = None):
         '''
         This method sets Properties (if needed)
@@ -609,7 +617,7 @@ class Edge(object):
     
     def SetRadiusxAxis(self, radius):
         '''
-        This method set X Axis Radius (Venous has an ellittic geometry)
+        This method set X Axis Radius (Venous has an elliptic geometry)
         Radius can be a single value or an array of values.
         s:value
         '''
@@ -617,7 +625,7 @@ class Edge(object):
     
     def SetRadiusyAxis(self, radius):
         '''
-        This method set Y Axis Radius (Venous has an ellittic geometry)
+        This method set Y Axis Radius (Venous has an elliptic geometry)
         Radius can be a single value or an array of values.
         s:value
         '''
@@ -691,7 +699,21 @@ class XMLValidationError(Error):
     '''
     Exception raised for XML validation failure
     '''
-    
     def __init__(self,xmlschema):
         print "Error, Invalid Network Graph Xml File."
         print xmlschema.error_log
+        
+class WrongXSDPathError(Error):
+    '''
+    Exception raised if a wrong xsd path is provided.
+    '''
+    def __init__(self):
+        print "Warning, Xml schema file not found."
+        print "Network Graph Xml file can not be validated."
+        
+class LXMLError(Error):
+    '''
+    Exception raised if lxml package is not installed.
+    '''
+    def __init__(self):
+        print "Warning, Lxml package was not provided. Network Graph Xml file can not be validated."    

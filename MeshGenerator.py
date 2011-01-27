@@ -16,9 +16,8 @@
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 import Elements
-from NetworkMesh import *
+from NetworkMesh import Entity
 from numpy.ma.core import ceil
-from numpy import *
 
 class MeshGenerator(object):
     '''
@@ -929,6 +928,5 @@ class MeshingError(Error):
     '''
     Exception raised for Meshing Failure
     '''
-    
     def __init__(self):
         print "Error, Please set MaxLength or Tolerance before meshing the network."

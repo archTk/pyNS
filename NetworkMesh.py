@@ -15,7 +15,7 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from Elements import *
+
 try:
     from lxml import etree
 except:
