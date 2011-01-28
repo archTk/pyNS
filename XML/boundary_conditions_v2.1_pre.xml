@@ -81,7 +81,7 @@
       <scalar>1.0</scalar>
     </parameter>
     <parameter id="cycles" unit="">
-      <scalar>30</scalar>
+      <scalar>10</scalar>
     </parameter>
     <parameter id="cardiac_output" unit="mL/min">
       <scalar>5.686e3</scalar>

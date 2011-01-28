@@ -31,7 +31,7 @@
     <boundarycondition id="2" type="outflow pressure" name="venous">
       <parameters>
         <pressure unit="Pa">
-           <scalar>1333</scalar>
+           <scalar>1333.0</scalar>
         </pressure>
       </parameters>  
       <entities>
@@ -98,7 +98,7 @@
       <scalar>1.0</scalar>
     </parameter>
     <parameter id="cycles" unit="">
-      <scalar>7</scalar>
+      <scalar>10</scalar>
     </parameter>
     <parameter id="cardiac_output" unit="mL/min">
       <scalar>5.686e3</scalar>

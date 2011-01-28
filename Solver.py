@@ -148,8 +148,8 @@ class SolverFirstTrapezoid(Solver):
             icc = (self.IncrementNumber%self.TimeStepFreq)           
             self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
             self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
-            nltol = 1e-5
-            CoeffRelax = 0.1
+            nltol = 1e-3
+            CoeffRelax = 0.9
             self.pi = None
             pI = None
             sumvbk = self.sumv[:,:]
@@ -193,23 +193,14 @@ class SolverFirstTrapezoid(Solver):
                 self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix
-                if counter == 500:
-                    CoeffRelax = 0.01
-                if counter == 1000:
-                    CoeffRelax = 0.001
-                if counter == 3000:
-                    CoeffRelax = 0.00001
-                if counter == 5000:
-                    print "OCIO"
+                if counter == 100:
                     counter = 0
-                    CoeffRelax = 0.1
-                    break
-                
+                    self.pi[:,:] = None
+                    CoeffRelax *= 0.7
+                    nltol *= 0.9
                 if nlerr < nltol:
                     counter = 0
-                    CoeffRelax = 0.1
-                    break
-                
+                    break   
                 counter+=1
                 self.pi[:,:] = self.p[:,:]
                                
