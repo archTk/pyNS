@@ -4,7 +4,7 @@
 ## Module:    Main.py
 ## Language:  Python
 ## Date:      $Date: 2010/12/02 15:46:27 $
-## Version:   $Revision: 0.1.4 $
+## Version:   $Revision: 0.1.5 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,16 +15,15 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from ModelAdaptor import *
-from NetworkGraph import *
-from NetworkMesh import *
-from MeshGenerator import *
-from BoundaryConditions import *
-from Solver import *
-from NetworkSolutions import *
-from SimulationContext import *
-from Evaluator import *
-from InverseWomersley import *
+from ModelAdaptor import ModelAdaptor
+from NetworkGraph import NetworkGraph
+from NetworkMesh import NetworkMesh
+from MeshGenerator import MeshGenerator
+from BoundaryConditions import BoundaryConditions
+from Solver import SolverFirstTrapezoid
+from NetworkSolutions import NetworkSolutions
+from SimulationContext import SimulationContext
+from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
