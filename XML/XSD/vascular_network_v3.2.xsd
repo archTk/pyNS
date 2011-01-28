@@ -222,8 +222,6 @@
 	<xsd:simpleType name="elementType">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="0D_FiveDofsV2"/>
-			<xsd:enumeration value="0D_EndSegment"/>
-			<xsd:enumeration value="0D_Anastomosis"/>
 			<xsd:enumeration value="0D_TwoDofsResistance"/>
 		</xsd:restriction>
 	</xsd:simpleType>
