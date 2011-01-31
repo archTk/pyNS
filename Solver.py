@@ -304,8 +304,8 @@ class SolverNewmark(Solver):
             else:
                 fibkp= self.fi[:,:]
                 
-            nltol = 1e-4
-            CoeffRelax = 0.1
+            nltol = 1e-3
+            CoeffRelax = 0.9
             pI = None
             self.pi = None
             counter = 0
@@ -342,19 +342,15 @@ class SolverNewmark(Solver):
                 if den < 1e-12:
                     den = 1.0
                 nlerr = norm(self.p-self.pi,Inf) / den
-                if counter == 1000:
-                    CoeffRelax = 0.05            
-                if counter == 2000:
-                    CoeffRelax = 0.001              
-                if counter == 5000:
+                if counter == 100:
                     counter = 0
-                    CoeffRelax = 0.1
-                    break
+                    self.pi[:,:] = None
+                    CoeffRelax *= 0.7
+                    nltol *= 0.9
                 if nlerr < nltol:
-                    #print "Step n.", self.IncrementNumber, "su", self.NumberOfIncrements, "converge in", counter, "sotto-iterazioni"
                     counter = 0
-                    break
-                counter+=1       
+                    break   
+                counter+=1      
                 self.pi[:,:] = self.p[:,:]       
                 info = {'dofmap':assembler.DofMap,'solution':self.p}
                 self.Evaluator.SetInfo(info)
