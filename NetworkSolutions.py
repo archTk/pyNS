@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkSolutions.py
 ## Language:  Python
-## Date:      $Date: 2010/12/03 10:24:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 11:11:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    BoundaryConditions.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:08:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 11:08:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -106,6 +106,7 @@ class BoundaryConditions(object):
         '''
         Calculating inlet flow (coefficients of the FFT  x(t)=A0+sum(2*Ck*exp(j*k*2*pi*f*t)))
         for a specific time value.
+        If signal is specified, flow is computed from time values.
         '''
         if self.signal is not None:
             try:
@@ -128,8 +129,7 @@ class BoundaryConditions(object):
             Cc = self.f_coeff*1.0/2.0*1e-6
             Flow = self.A0_v
             for k in arange(0,self.f_coeff.shape[0]):
-                Flow += real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*time))     
-    
+                Flow += real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*time))
             self.Flow = Flow     
             return Flow
     
@@ -285,7 +285,7 @@ class BoundaryConditions(object):
         if self.SimulationContext.Context['cardiac_output'] != 5.686e3:
             if self.signal is None:
                 print "Adapting Cardiac Inflow"
-                A1 = self.SimulationContext.Context['cardiac_output']/6e7
+                A1 = self.SimulationContext.Context['cardiac_output']/6.0e7
                 shift = 9.18388663e-06
                 k =((A1+shift)/(self.A0_v+shift))
                 self.A0_v = A1

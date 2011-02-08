@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Assembler.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 14:35:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 11:35:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -79,17 +79,19 @@ class Assembler(object):
             self.DofMap.SetNetworkMesh(self.NetworkMesh)
             self.DofMap.Build()  
      
-            #Boundary Condition: Prescribed Pressures.
+            # Boundary Condition: Prescribed Pressures.
             i = 0
             numberOfElements = 0
             
+            # Searching for prescribed pressure output
             for element in self.NetworkMesh.Elements:
                 if element.Type != "0D_Anastomosis" and element.Type != "0D_TwoDofsResistance":
                     for dof in element.GetExternalPressureLocalDofs():
                         numberOfElements+=1
             if self.BoundaryConditions.OutP is not None:
                 numberOfElements+=1
-                       
+            
+            # Setting Transmural Pressures for windkessel elements and wave propagation elements
             PrescribedPressures = zeros((numberOfElements,2))
             done = 0
             for element in self.NetworkMesh.Elements:
@@ -111,16 +113,6 @@ class Assembler(object):
             self.BoundaryConditions.SetSimulationContext(simulationContext)
             self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
         
-            #Setting Leakages
-            nEl = 0
-            for ent, listEl in self.NetworkMesh.Entities.iteritems():
-                if ent.Leakage == True:
-                    for el in listEl:
-                        nEl+=1
-            for ent, listEl in self.NetworkMesh.Entities.iteritems():
-                if ent.Leakage == True:
-                    for el in listEl:   
-                        el.SetLeakage(nEl)
                   
             #Assembling global matrices from local matrices.
             self.LinearZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
@@ -145,15 +137,15 @@ class Assembler(object):
                             self.LinearZeroOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += zeroOrderMatrix[rowLocalDof,columnLocalDof]   
                             self.LinearFirstOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += firstOrderMatrix[rowLocalDof,columnLocalDof]
                             self.LinearSecondOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += secondOrderMatrix[rowLocalDof,columnLocalDof]
-            
-                                
-            self.Initialized = True  
+                    
+            self.Initialized = True
+         
+        #Building non linear matrices
         
         self.ZeroOrderGlobalMatrix[:,:] = self.LinearZeroOrderGlobalMatrix[:,:]  
         self.FirstOrderGlobalMatrix[:,:] = self.LinearFirstOrderGlobalMatrix[:,:]
         self.SecondOrderGlobalMatrix[:,:] = self.LinearSecondOrderGlobalMatrix[:,:]  
-        
-        #Building non linear matrices            
+              
         for element in self.DofMap.NetworkMesh.Elements:
             if element.nonLinear == True:
                 element.Initialize(simulationContext)

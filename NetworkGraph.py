@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-import sys
+from numpy.core.fromnumeric import mean
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 16:11:25 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 12:11:25 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -20,6 +20,7 @@ try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
+from numpy.core.numeric import array
 import sys
 
 class NetworkGraph(object):
@@ -44,6 +45,7 @@ class NetworkGraph(object):
         self.Nodes = {} #node_id:Node
         self.NodeNamesToIds = {} # {nodename:nodeId}
         self.SuperEdges = {} #superEdge_id:superEdge
+        self.SuperEdgeNamesToIds = {} # {superedgename:superedgeId}
         self.Edges = {} #edge_id:Edge
         self.EdgeNamesToIds = {} # {edgename:edgeId}
         
@@ -62,6 +64,7 @@ class NetworkGraph(object):
         SuperEdge_Id:SuperEdge
         '''
         self.SuperEdges[superEdge.Id] = superEdge
+        self.SuperEdgeNamesToIds[superEdge.Name] = superEdge.Id
         
     def SetEdges(self, edge):
         '''
@@ -243,7 +246,10 @@ class NetworkGraph(object):
                         radius_value = {}                        
                         for radius in data.findall(".//scalar"):
                             radius_value['value'] = float(radius.text)                            
-                            edge.SetRadius(radius_value)  # Setting Edge Radius (scalar type)                           
+                            edge.SetRadius(radius_value)  # Setting Edge Radius (scalar type)
+                        for radius in data.findall(".//expression"):
+                            radius_value['expression'] = radius.text
+                            edge.SetRadius(radius_value)  # Setting Edge Radius(expression type)                                                     
                     if data.tag == "radius_a":                       
                         radius_valueA = {}                                       
                         for radiusA in data.findall(".//scalar"):
@@ -329,7 +335,10 @@ class NetworkGraph(object):
                                 young_modulus_v = float(young_modulus.text)                               
                                 young_modulus_dict[s] = young_modulus_v                                
                         young_modulus_value['array'] = young_modulus_dict
-                        edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus (array type)                       
+                        edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus (array type)
+                    if data.tag == "leakage":                        
+                        for leakage in data.findall(".//expression"):
+                            edge.SetQLeakage(leakage.text)                                 
                     if data.tag == "resistance":                        
                         for resistance in data.findall(".//expression"):                       
                             edge.SetResistance(resistance.text)     
@@ -516,6 +525,13 @@ class SuperEdge(object):
         This method sets edges dictionary, sequence of edges inside a superedge
         '''
         self.Edges[edge.Id] = edge
+        
+    def GetRadius(self,info):
+        '''
+        This method returns superedge's radius
+        '''
+        pass
+            
                     
 class Edge(object):
     '''
@@ -549,10 +565,12 @@ class Edge(object):
         self.Distensibility = {}
         self.WallThickness = {}
         self.YoungModulus = {}
+        self.QLeakage = None
         self.Resistance = None
         self.Compliance = None
         self.Stenosis = None
         self.Kink = None
+        self.edgeAbscissa = None
         
     def SetNodes(self, NodeIds):
         '''
@@ -613,7 +631,13 @@ class Edge(object):
         Radius can be a single value or an array of values.
         s:value        
         '''
-        self.Radius.update(radius)
+        if type(radius) is not dict:
+            if self.edgeAbscissa:
+                self.Radius.update({'array':{self.edgeAbscissa:radius}})
+            else:
+                self.Radius.update({'value':radius})       
+        else:
+            self.Radius.update(radius)
     
     def SetRadiusxAxis(self, radius):
         '''
@@ -655,6 +679,12 @@ class Edge(object):
         '''
         self.YoungModulus.update(youngModulus) 
     
+    def SetQLeakage(self, qleakage):
+        '''
+        This method sets q_leakage expression.
+        '''
+        self.QLeakage = qleakage
+    
     def SetResistance(self, resistance):
         '''
         This method sets non linear resistance.
@@ -688,7 +718,20 @@ class Edge(object):
         Kink[s].append(resistance)
         Kink[s].append(compliance)       
         self.Kink = Kink
-             
+    
+    def GetRadius(self,info):
+        '''
+        This method returns edge's radius
+        '''
+        if 'value' in self.Radius:
+            return self.Radius['value']
+        if 'array' in self.Radius:
+            if self.edgeAbscissa is None:            
+                return mean(array((self.Radius['array'].values())))
+            else:         
+                return self.Radius['array'][self.edgeAbscissa]
+            
+    
 class Error(Exception):
     '''
     A base class for exceptions defined in this module.

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Main.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:46:27 $
-## Version:   $Revision: 0.1.5 $
+## Date:      $Date: 2011/01/31 11:04:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -33,8 +33,8 @@ odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
-netPre = 'vascular_network_v3.1_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
-netPost = 'vascular_network_v3.1_postRRC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
+netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
+netPost = 'vascular_network_v3.2_postRRC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
 boundPre = 'boundary_conditions_v2.1_pre.xml'     #Boundary Conditions XML file PREOP (-r or --boundPre)
 boundPost = 'boundary_conditions_v2.1_postRC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
@@ -131,16 +131,17 @@ simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
 '''Parameters Model Adaptor'''
 #modelAdaptor = ModelAdaptor()
 #modelAdaptor.SetSimulationContext(simulationContext)
+#modelAdaptor.SetEvaluator(evaluator)
 #modelAdaptor.SettingParameters('XML/parameters.csv')
 
 
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()
-networkGraph = NetworkGraph()
 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
 
 '''NetworkGraph Model Adaptor'''
 #modelAdaptor.SetNetworkGraph(networkGraph)
+#evaluator.SetNetworkGraph(networkGraph)
 #modelAdaptor.AdaptingModel()
 
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
@@ -169,6 +170,7 @@ solver.SetBoundaryConditions(boundaryConditions)
 solver.SetSimulationContext(simulationContext)
 solver.SetEvaluator(evaluator)
 solver.Solve()
+evaluator.SetSecondaryEvaluator(evaluator)
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
 networkMesh.WriteToXML(xmlmeshpath)

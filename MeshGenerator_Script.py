@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    MeshGenerator_Script.py
 ## Language:  Python
-## Date:      $Date: 2011/01/20 10:32:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 12:32:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,9 +15,9 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from NetworkGraph import *
-from NetworkMesh import *
-from MeshGenerator import *
+from NetworkGraph import NetworkGraph
+from NetworkMesh import NetworkMesh
+from MeshGenerator import MeshGenerator
 import sys, getopt, os
 
 '''Default Values'''
@@ -54,7 +54,6 @@ xmlnetpath = os.path.join(wdir, xmlNet)
 xsdnetpath = os.path.join(xdir, xsdNet)
 xmlmeshpath = os.path.join(wdir, xmlMesh)
 xsdmeshpath = os.path.join(xdir, xsdMesh)
-
 
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()

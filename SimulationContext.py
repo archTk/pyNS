@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    SimulationContext.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 16:21:07 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 11:41:12 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.

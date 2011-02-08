@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    DofMap.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:10:23 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/31/01 11:10:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.

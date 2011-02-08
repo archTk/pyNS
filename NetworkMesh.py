@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkMesh.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 16:19:03 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 12:12:13 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.

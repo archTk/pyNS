@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    ModelAdaptor.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 16:07:15 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 12:07:15 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -45,6 +45,12 @@ class ModelAdaptor(object):
         '''
         self.NetworkGraph = networkGraph
     
+    def SetEvaluator(self,evaluator):
+        '''
+        Setting Evaluator
+        '''
+        self.Evaluator = evaluator
+    
     def SetSimulationContext(self,simulationContext):
         '''
         Setting SimulationContext
@@ -69,12 +75,10 @@ class ModelAdaptor(object):
     def AdaptingModel(self):
         '''
         '''    
-        #a questo punto bisogna prendere il networkgraph letto e fare evaluate 
+        #a questo punto bisogna prendere il networkgraph letto e fare evaluate
         #delle espressioni da valutare, poi risrivere il netgraph xml con i valori al 
         #posto delle espressioni.
         for edgeId, edge in self.NetworkGraph.Edges.iteritems():
-            
-            print edge.Length
-            print edge.Radius
-            print edge.WallThickness
-            print edge.YoungModulus 
+            if 'expression' in edge.Radius:
+                print edge.Radius['expression']
+                self.Evaluator.Evaluate(edge.Radius['expression'])

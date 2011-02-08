@@ -305,6 +305,7 @@
 			<xsd:element maxOccurs="1" minOccurs="0" name="young_modulus_array" type="arrayType"/>
 			<xsd:element minOccurs="0" name="wall_thickness" type="nonlinearType"/>
 			<xsd:element minOccurs="0" name="young_modulus" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="leakage" type="nonlinearType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="resistance" type="nonlinearType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="compliance" type="nonlinearType"/>
 		</xsd:sequence>

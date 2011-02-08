@@ -333,6 +333,9 @@
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>2.674418604651163e+06</scalar>
        </young_modulus>
+       <leakage>
+         <expression>$QLeakage[axillarian] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
+       </leakage>
      </properties>
    </edge>
    <edge id="10" node1_id="10" node2_id="11" side="arterial" name="brachial">
@@ -356,6 +359,9 @@
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>2.674418604651163e+06</scalar>
        </young_modulus>
+       <leakage>
+         <expression>$QLeakage[brachial] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
+       </leakage>
      </properties>
    </edge>   
    <edge id="11" node1_id="11" node2_id="15" side="arterial" name="radial">

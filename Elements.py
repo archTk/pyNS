@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Elements.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:35:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 11:32:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -181,7 +181,11 @@ class FiveDofRclElementV2(Element):
         try:
             self.Compliance = elementParameters["compliance"]
         except KeyError:
-            self.Compliance = None     
+            self.Compliance = None
+        try:
+            self.QLeakage = elementParameters["leakage"]
+        except KeyError:
+            self.QLeakage = None    
         self.s1 = elementParameters["s1"]
         self.s2 = elementParameters["s2"]
         self.Length = elementParameters["length"]
@@ -194,7 +198,7 @@ class FiveDofRclElementV2(Element):
         for name in elementParameters:
             #TODO:
             #Fix this:
-            if name != 'wall_thickness':
+            if name != 'wall_thickness' and name != 'leakage':
             ###############
                 if type(elementParameters[name]) is str:
                     self.nonLinearParameter[name] = True
@@ -207,7 +211,6 @@ class FiveDofRclElementV2(Element):
         self.C = 0.0
         self.R = 0.0
         self.L = 0.0
-        self.Leakage = False
         self.Leakages = None
         self.LeakageR = 0.0
         self.dof = [0,1,2,3,4]
@@ -234,12 +237,11 @@ class FiveDofRclElementV2(Element):
         '''
         self.C = compliance
         
-    def SetLeakage(self, maxN):
+    def SetQLeakage(self, qleakage):
         '''
-        This method set Leakage numbers
+        This method set Leakage Resistance
         '''
-        self.Leakage = True
-        self.Leakages = maxN
+        self.LeakageR = qleakage*self.Leakages
     
     def Womersley (self, r):
         '''
@@ -299,8 +301,6 @@ class FiveDofRclElementV2(Element):
         except KeyError:
             print "Error, Please set Frequency[Hz] in Boundary Conditions XML File"
             raise
-        
-        error = None
         
         if self.Initialized == False:
             z = arange(0.0,self.Length,self.dz)
@@ -386,6 +386,7 @@ class FiveDofRclElementV2(Element):
                 L = float(sum(L))
             
             Ralpha = float(R * self.Womersley(self.Radius)[0])
+            
             Lalpha = float(L * self.Womersley(self.Radius)[1])
             
         if self.Initialized == True:
@@ -419,18 +420,11 @@ class FiveDofRclElementV2(Element):
                     evaluator.Evaluate(self.Compliance)
                     
         if self.Initialized == False: 
-            if self.Leakage == False:
+            if self.QLeakage is None:
                 self.LeakageR = 1.0e25
             else:
-                qrest = float(self.simulationContext.Context['brachial_flow']-self.simulationContext.Context['radial_flow']-self.simulationContext.Context['ulnar_flow'])
-                if qrest > 0.0:
-                    self.LeakageR = ((float(self.simulationContext.Context['mean_pressure'])*float(self.Leakages))/(qrest))*(133.32*6.0e7) 
-                else:
-                    error = 1
-                    MeasuredFlowsError(qrest) 
-        if error:
-            sys.exit()   
-                
+                evaluator.Evaluate(self.QLeakage)
+                 
         self.C = float(self.C)
         self.R = float(Ralpha)
         

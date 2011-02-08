@@ -220,7 +220,7 @@ class MeshGenerator(object):
         self.NetworkMesh.ElementIdsToElements = {} # {mesh.Id:mesh}
         self.NetworkMesh.GraphNodeToMesh = {} #{edge:[meshId:[s0,s1]]}
         meshparam = {} #{(meshId,param):value}
-        
+        nLeak = 0
         meshNode1 = None
         meshNode2 = None
         nodes_list = []  #nodes list
@@ -377,6 +377,9 @@ class MeshGenerator(object):
                         elementParameters['yradius'] = None                    
                     elementParameters["resistance"] = edge.Resistance
                     elementParameters["compliance"] = edge.Compliance
+                    elementParameters["leakage"] = edge.QLeakage
+                    if edge.QLeakage:
+                        nLeak+=1
                     #############  
                     if edgeId in self.MeshType:
                         if self.MeshType[edgeId] == None:            
@@ -445,7 +448,10 @@ class MeshGenerator(object):
                         elementParameters['young_modulus'] = {s1:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s1), s2:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s2)}
                         elementParameters['length'] = elLength
                         elementParameters["resistance"] = edge.Resistance
-                        elementParameters["compliance"] = edge.Compliance                       
+                        elementParameters["compliance"] = edge.Compliance
+                        elementParameters["leakage"] = edge.QLeakage
+                        if edge.QLeakage:
+                            nLeak+=1                      
                         name = edge.Name + "_" + str(nameId)                                        
                         #############                        
                         if edgeId in self.MeshType:
@@ -494,21 +500,22 @@ class MeshGenerator(object):
                     for meshId in meshlist:
                         if self.NetworkMesh.MeshToS[meshId][0] == 0.0:
                             vein = self.NetworkMesh.ElementIdsToElements[str(meshId)]
-                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)                     
-        #ENTITIES DICTIONARY                
+                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)      
+        #SETTING LEAKAGES
+        for el in self.NetworkMesh.Elements:
+            if el.Type == "0D_FiveDofsV2":
+                el.Leakages = nLeak
+                           
+                       
+        #ENTITIES DICTIONARY
         for sedge in self.NetworkGraph.SuperEdges.values():
             entity = Entity()
             entity.SetId(sedge.Name)
-            if entity.Id == 'brachial':
-                entity.SetLeakage()
-            if entity.Id == 'axillarian':
-                entity.SetLeakage()
-
             for edge in sedge.Edges.values():              
                 for key, value in self.NetworkMesh.MeshToGraph.iteritems():                    
                     if value == edge.Id:
                         for el in self.NetworkMesh.Elements:
-                            if el.Type != '0fD_TwoDofsResistance':  
+                            if el.Type != '0D_TwoDofsResistance':  
                                 if el.Id == key:                             
                                     if self.NetworkMesh.Entities.has_key(entity):
                                         self.NetworkMesh.Entities[entity].append(el)
@@ -560,7 +567,8 @@ class MeshGenerator(object):
         self.NetworkMesh.GraphEdgeToMesh = {} #{edge:[meshId:[s0,s1]]}
         self.NetworkMesh.ElementIdsToElements = {} # {mesh.Id:mesh}
         self.NetworkMesh.GraphNodeToMesh = {} #{edge:[meshId:[s0,s1]]}
-        meshparam = {} #{(meshId,param):value}       
+        meshparam = {} #{(meshId,param):value}  
+        nLeak = 0     
         meshNode1 = None
         meshNode2 = None        
         nodes_list = []  #nodes list
@@ -736,7 +744,10 @@ class MeshGenerator(object):
                         elementParameters['s2'] = s_end
                         elementParameters['length'] = (s_end-s_start)*edgeProperties['length']
                         elementParameters["resistance"] = edge.Resistance
-                        elementParameters["compliance"] = edge.Compliance                        
+                        elementParameters["compliance"] = edge.Compliance
+                        elementParameters["leakage"] = edge.QLeakage
+                        if edge.QLeakage:
+                            nLeak+=1                       
                         try:
                             meshNode2 = self.NetworkMesh.meshToEdges[edge.NodeIds[1]]      
                         except KeyError:
@@ -797,7 +808,10 @@ class MeshGenerator(object):
                         elementParameters['s2'] = s2
                         elementParameters['length'] = (s_end-s_start)*edgeProperties['length']
                         elementParameters["resistance"] = edge.Resistance
-                        elementParameters["compliance"] = edge.Compliance                     
+                        elementParameters["compliance"] = edge.Compliance
+                        elementParameters["leakage"] = edge.QLeakage
+                        if edge.QLeakage:
+                            nLeak+=1                    
                         try:
                             meshNode2 = self.NetworkMesh.meshToEdges[edge.NodeIds[1]]      
                         except KeyError:
@@ -845,15 +859,15 @@ class MeshGenerator(object):
                     for meshId in meshlist:
                         if self.NetworkMesh.MeshToS[meshId][0] == 0.0:
                             vein = self.NetworkMesh.ElementIdsToElements[str(meshId)]
-                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)  
+                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein) 
+        #SETTING LEAKAGES
+        for el in self.NetworkMesh.Elements:
+            if el.Type == "0D_FiveDofsV2":
+                el.Leakages = nLeak
         #ENTITIES DICTIONARY                
         for sedge in self.NetworkGraph.SuperEdges.values():
             entity = Entity()
             entity.SetId(sedge.Name)
-            if entity.Id == 'brachial':
-                entity.SetLeakage()
-            if entity.Id == 'axillarian':
-                entity.SetLeakage()
             for edge in sedge.Edges.values(): 
                 for key, value in self.NetworkMesh.MeshToGraph.iteritems():                    
                     if value == edge.Id:

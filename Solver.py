@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Solver.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 16:24:43 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/01/31 10:18:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -46,10 +46,10 @@ class Solver(object):
         self.NumberOfIncrements = None                     
         self.IncrementNumber = 1                            # increment number
         self.EndIncrementTime = 0.0                         # end increment time
-        self.MaxIterativeSteps = 15                         # maximum number of iterative steps per increment
-        self.ConvergenceCriterium = float(1e-3)             # convergence criterium
+        self.nltol = float(1e-3)                            # convergence criterium
         self.Flow = None
         self.PrescribedPressures = None
+        
         
     def SetNetworkMesh(self,networkMesh):
         '''
@@ -74,7 +74,13 @@ class Solver(object):
         Setting BoundaryConditions
         '''
         self.BoundaryConditions = boundaryConditions
-           
+    
+    def SetNonLinearTolerance(self, nltol):
+        '''
+        Setting Non Linear Tolerance Value
+        '''
+        self.nltol = float(nltol)
+        
 class SolverFirstTrapezoid(Solver):
     '''
     This class provide a method to solving the system with "First Order Trapezium Method"
@@ -122,6 +128,7 @@ class SolverFirstTrapezoid(Solver):
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs                                             
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
+        
         PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements+1))                                  
         self.p = zeros((NumberOfGlobalDofs,1))
         self.pt = zeros((NumberOfGlobalDofs,1))
@@ -137,7 +144,7 @@ class SolverFirstTrapezoid(Solver):
         self.fi = zeros((NumberOfGlobalDofs,1))
         self.fit = zeros((NumberOfGlobalDofs,1))
         self.sumv = zeros((NumberOfGlobalDofs,1))
-        
+        sumvbk = zeros((NumberOfGlobalDofs,1))
         nonLinear = False
         for el in self.NetworkMesh.Elements:
             if el.IsNonLinear() == True:
@@ -148,11 +155,10 @@ class SolverFirstTrapezoid(Solver):
             icc = (self.IncrementNumber%self.TimeStepFreq)           
             self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
             self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
-            nltol = 1e-3
             CoeffRelax = 0.9
             self.pi = None
             pI = None
-            sumvbk = self.sumv[:,:]
+            sumvbk[:,:] = self.sumv[:,:]
             counter = 0
             while True:
                 #Build the algebric equation system for the increment       
@@ -186,21 +192,28 @@ class SolverFirstTrapezoid(Solver):
                 if den < 1e-12:
                     den = 1.0
                 nlerr = norm(self.p-self.pi,Inf) / den
+                
                 info = {'dofmap':assembler.DofMap,'solution':self.p}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)
                 self.PrescribedPressures = assembler.PrescribedPressures
                 self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
-                self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix
+                self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
+                
                 if counter == 100:
+                    print "Relax",CoeffRelax, "err", nlerr, "tol", self.nltol
                     counter = 0
                     self.pi[:,:] = None
-                    CoeffRelax *= 0.7
-                    nltol *= 0.9
-                if nlerr < nltol:
+                    self.sumv[:,:] = sumvbk[:,:]
+                    CoeffRelax *= 0.6
+                    self.nltol *= 0.9
+                
+                if nlerr < self.nltol:
+                    self.nltol = 1e-3
                     counter = 0
-                    break   
+                    break  
+                
                 counter+=1
                 self.pi[:,:] = self.p[:,:]
                                
@@ -213,6 +226,8 @@ class SolverFirstTrapezoid(Solver):
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment
+        info = {'dofmap':assembler.DofMap,'solution':self.p}
+        self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
         return PressuresMatrix
     
@@ -304,7 +319,6 @@ class SolverNewmark(Solver):
             else:
                 fibkp= self.fi[:,:]
                 
-            nltol = 1e-3
             CoeffRelax = 0.9
             pI = None
             self.pi = None
@@ -313,16 +327,15 @@ class SolverNewmark(Solver):
             while True:
                 #inner loop                                                                                                                        
                 self.dfe = (2.0/self.TimeStep)*(self.fe-self.fet)-self.dfet                          # central difference method 
-     
                 SystemMatrix = (1.0/(self.Ga*self.SquareTimeStep))*self.SecondOrderGlobalMatrix + (self.Gd/(self.Ga*self.TimeStep))*self.FirstOrderGlobalMatrix + self.ZeroOrderGlobalMatrix #system matrix
                 RightVector = self.dfe + dot(((1.0/(self.Ga*self.SquareTimeStep))*self.SecondOrderGlobalMatrix + (self.Gd/(self.Ga*self.TimeStep))*self.FirstOrderGlobalMatrix),self.pt) + \
                                              dot(((1.0/(self.Ga*self.TimeStep))*self.SecondOrderGlobalMatrix - (1.0-self.Gd/self.Ga)*self.FirstOrderGlobalMatrix),self.dpt) + \
                                              dot(((1.0/self.Ga*(1.0/2.0-self.Ga))*self.SecondOrderGlobalMatrix - self.TimeStep*(1.0-self.Gd/(2.0*self.Ga))*self.FirstOrderGlobalMatrix),self.ddpt) # right hand side vector
                 RightVector[:,:] = RightVector[:,:] - dot(SystemMatrix[:,self.PrescribedPressures[:,0]],self.PrescribedPressures[:,1:])
-                SystemMatrix = delete(SystemMatrix, s_[self.PrescribedPressures[:,0]], axis=1) # only unknown parts
-                if SystemMatrix.shape[0]> 0.0:
-                    SystemMatrix = delete(SystemMatrix, s_[self.PrescribedPressures[:,0]], axis=0) 
-                RightVector = delete(RightVector, s_[self.PrescribedPressures[:,0]], axis=0) # only unknown parts
+                SystemMatrix = SystemMatrix[:,s_[self.UnknownPressures[:,0]]]
+                if SystemMatrix.shape[0]> 0.0:     
+                    SystemMatrix = SystemMatrix[s_[self.UnknownPressures[:,0]],:]
+                RightVector = RightVector[s_[self.UnknownPressures[:,0]],:]
                 Solution = solve(SystemMatrix,RightVector) # solutions, unknown pressures
                 self.p[self.UnknownPressures,0] = Solution[:,:]
                 self.p[self.PrescribedPressures[:,0],0] = self.PrescribedPressures[:,1]  
@@ -346,8 +359,8 @@ class SolverNewmark(Solver):
                     counter = 0
                     self.pi[:,:] = None
                     CoeffRelax *= 0.7
-                    nltol *= 0.9
-                if nlerr < nltol:
+                    self.nltol *= 0.9
+                if nlerr < self.nltol:
                     counter = 0
                     break   
                 counter+=1      
@@ -373,8 +386,6 @@ class SolverNewmark(Solver):
         self.Solutions = PressuresMatrix
         return PressuresMatrix
     
-
-
 class Error(Exception):
     '''
     A base class for exceptions defined in this module.
