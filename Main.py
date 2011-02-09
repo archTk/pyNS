@@ -129,9 +129,9 @@ simulationContext.SetEvaluator(evaluator)
 simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
 
 '''Parameters Model Adaptor'''
-#modelAdaptor = ModelAdaptor()
-#modelAdaptor.SetSimulationContext(simulationContext)
-#modelAdaptor.SetEvaluator(evaluator)
+modelAdaptor = ModelAdaptor()
+modelAdaptor.SetSimulationContext(simulationContext)
+modelAdaptor.SetEvaluator(evaluator)
 #modelAdaptor.SettingParameters('XML/parameters.csv')
 
 
@@ -140,9 +140,9 @@ networkGraph = NetworkGraph()
 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
 
 '''NetworkGraph Model Adaptor'''
-#modelAdaptor.SetNetworkGraph(networkGraph)
-#evaluator.SetNetworkGraph(networkGraph)
-#modelAdaptor.AdaptingModel()
+modelAdaptor.SetNetworkGraph(networkGraph)
+evaluator.SetNetworkGraph(networkGraph)
+modelAdaptor.AdaptingModel()
 
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
 If tolerance is not provided, mesh generator uses default value = 0.3'''

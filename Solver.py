@@ -156,6 +156,7 @@ class SolverFirstTrapezoid(Solver):
             self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
             self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
             CoeffRelax = 0.9
+            nltol = self.nltol
             self.pi = None
             pI = None
             sumvbk[:,:] = self.sumv[:,:]
@@ -202,15 +203,14 @@ class SolverFirstTrapezoid(Solver):
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
                 
                 if counter == 100:
-                    print "Relax",CoeffRelax, "err", nlerr, "tol", self.nltol
                     counter = 0
                     self.pi[:,:] = None
                     self.sumv[:,:] = sumvbk[:,:]
                     CoeffRelax *= 0.6
-                    self.nltol *= 0.9
+                    nltol *= 0.9
                 
-                if nlerr < self.nltol:
-                    self.nltol = 1e-3
+                if nlerr < nltol:
+                    nltol = self.nltol
                     counter = 0
                     break  
                 
@@ -320,8 +320,9 @@ class SolverNewmark(Solver):
                 fibkp= self.fi[:,:]
                 
             CoeffRelax = 0.9
-            pI = None
+            nltol = self.nltol
             self.pi = None
+            pI = None
             counter = 0
             
             while True:
@@ -358,9 +359,11 @@ class SolverNewmark(Solver):
                 if counter == 100:
                     counter = 0
                     self.pi[:,:] = None
-                    CoeffRelax *= 0.7
-                    self.nltol *= 0.9
-                if nlerr < self.nltol:
+                    self.fi[:,:] = fibkp[:,:]
+                    CoeffRelax *= 0.6
+                    nltol *= 0.9
+                if nlerr < nltol:
+                    nltol = self.nltol
                     counter = 0
                     break   
                 counter+=1      

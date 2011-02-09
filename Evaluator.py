@@ -108,14 +108,12 @@ class Evaluator(object):
         '''
         This method returns corresponding edge or superedge
         '''
-        print abscissa, edge
         if edge in self.NetworkGraph.EdgeNamesToIds:
             if abscissa:
                 self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].edgeAbscissa = abscissa
             else:
                 abscissa = None
                 self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].edgeAbscissa = abscissa
-            print "-->", self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].edgeAbscissa, self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].Name
             return self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]]
         elif edge in self.NetworkGraph.SuperEdgeNamesToIds:
             return self.NetworkGraph.SuperEdges[self.NetworkGraph.SuperEdgeNamesToIds[edge]]

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from numpy.core.fromnumeric import mean
+import string
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
@@ -39,6 +40,7 @@ class NetworkGraph(object):
         '''
         Class Constructor
         '''
+        self.xmlgraphpath = None
         self.Id = None
         self.PatientId = None
         self.Visit = None
@@ -116,6 +118,7 @@ class NetworkGraph(object):
         If XML schema is given and lxml package is installed,
         XML file is validated first.
         '''
+        self.xmlgraphpath = xmlgraphpath
         error = None
         if xsdgraphpath:
             try:
@@ -218,10 +221,13 @@ class NetworkGraph(object):
                         length_value = []                          
                         for length in data.findall(".//vector"):
                             length_value.append(float(length.text))   
-                        edge.SetLength(length_value)  # Setting Edge Length (vector type)      
+                            edge.SetLength(length_value)  # Setting Edge Length (vector type)      
                         for length in data.findall(".//scalar"):
                             length_value.append(float(length.text)) 
-                        edge.SetLength(length_value)  # Setting Edge Length (scalar type)                            
+                            edge.SetLength(length_value)  # Setting Edge Length (scalar type)      
+                        for length in data.findall(".//expression"):
+                            length_value.append(length.text)
+                            edge.SetLength(length_value)  # Setting Edge Length(expression type)                       
                     if data.tag == "coordinates_array":                       
                         coord_value = {}                        
                         for coord in geometry.findall(".//coordinates"):
@@ -254,15 +260,23 @@ class NetworkGraph(object):
                         radius_valueA = {}                                       
                         for radiusA in data.findall(".//scalar"):
                             radius_valueA['value'] = float(radiusA.text)                            
-                            edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (scalar type)                                               
+                            edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (scalar type)
+                        for radiusA in data.findall(".//expression"):
+                            radius_valueA['expression'] = radiusA.text
+                            edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (expression type)                                                
                     if data.tag == "radius_b":                        
                         radius_valueB = {}  
-                        radius_valueAB = {}                                            
+                        radius_valueAB = {}
+                        for radiusB in data.findall(".//expression"):
+                            radius_valueB['expression'] = radiusB.text
+                            edge.SetRadiusyAxis(radius_valueB)  # Setting Edge Radius Y axis (expression type)
+                                                      
                         for radiusB in data.findall(".//scalar"):
                             radius_valueB['value'] = float(radiusB.text)                             
                             edge.SetRadiusyAxis(radius_valueB)  # Setting Edge Radius Y axis (scalar type)                            
                         radius_valueAB['value'] = (radius_valueA['value']*radius_valueB['value'])**0.5                                                                  
-                        edge.SetRadius(radius_valueAB)  # Setting Edge Radius (scalar type)                            
+                        edge.SetRadius(radius_valueAB)  # Setting Edge Radius (scalar type)
+                                                
                     if data.tag == "radius_a_array":
                         radius_valueA = {}
                         radius_dict = {}                        
@@ -324,7 +338,10 @@ class NetworkGraph(object):
                         young_modulus_value = {}                        
                         for young_modulus in data.findall(".//scalar"):
                             young_modulus_value['value'] = float(young_modulus.text)                           
-                            edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus (scalar type)                            
+                            edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus (scalar type)
+                        for young_modulus in data.findall(".//expression"):
+                            young_modulus_value['expression'] = young_modulus.text
+                            edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus(expression type)                            
                     if data.tag == "young_modulus_array":                        
                         young_modulus_value = {}
                         young_modulus_dict = {}                        
@@ -614,10 +631,16 @@ class Edge(object):
         This method sets length.
         Length can be a single value or an array of values (x, y, z)
         '''
-        if len(length) == 1:
-            self.Length['value'] = length[0]           
-        if len(length) == 3:
-            self.Length['array'] = length
+        if type(length) == float:
+            self.Length['value'] = length
+        else:    
+            for x in length:
+                if type(x) == str:
+                    self.Length['expression'] = length[0]
+            if len(length) == 1:
+                self.Length['value'] = length[0]           
+            if len(length) == 3:
+                self.Length['array'] = length
         
     def SetCoordinates(self, coordinates):
         '''
@@ -677,7 +700,10 @@ class Edge(object):
         Young Modulus can be a single value or an array of values.
         s:value
         '''
-        self.YoungModulus.update(youngModulus) 
+        if type(youngModulus) == float:
+            self.YoungModulus['value']=youngModulus
+        else:
+            self.YoungModulus.update(youngModulus) 
     
     def SetQLeakage(self, qleakage):
         '''
@@ -730,6 +756,20 @@ class Edge(object):
                 return mean(array((self.Radius['array'].values())))
             else:         
                 return self.Radius['array'][self.edgeAbscissa]
+    
+    def GetLength(self,info):
+        '''
+        This method returns edge's length
+        '''
+        if 'value' in self.Length:
+            return self.Length['value']
+    
+    def GetYoungModulus(self,info):
+        '''
+        This method returns edge's young's modulus
+        '''
+        if 'value' in self.YoungModulus:
+            return self.YoungModulus['value']
             
     
 class Error(Exception):
