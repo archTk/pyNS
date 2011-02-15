@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    InverseWomersley.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:39:19 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/02/15 15:39:19 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -20,7 +20,6 @@ from numpy.core.numeric import arange
 from numpy.core.fromnumeric import mean
 from pylab import *
 from csv import *
-from numpy import *
 from numpy.lib.scimath import sqrt
 from numpy.ma.core import exp
 

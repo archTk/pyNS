@@ -119,74 +119,76 @@ if not os.path.exists (ofdir):
     os.mkdir(ofdir)
 if not os.path.exists (opdir):
     os.mkdir(opdir)
-
+    
 '''Setting Simulation Context Parameters for Simulation'''
 simulationContext = SimulationContext()
 evaluator = Evaluator()
-simulationContext = SimulationContext()
 evaluator.SetSimulationContext(simulationContext)
 simulationContext.SetEvaluator(evaluator)
 simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
 
-'''Parameters Model Adaptor'''
-modelAdaptor = ModelAdaptor()
-modelAdaptor.SetSimulationContext(simulationContext)
-modelAdaptor.SetEvaluator(evaluator)
-#modelAdaptor.SettingParameters('XML/parameters.csv')
-
-
-'''Creating NetworkGraph Object From its XML'''
-networkGraph = NetworkGraph()
-networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
-
-'''NetworkGraph Model Adaptor'''
-modelAdaptor.SetNetworkGraph(networkGraph)
-evaluator.SetNetworkGraph(networkGraph)
-modelAdaptor.AdaptingModel()
-
-'''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
-If tolerance is not provided, mesh generator uses default value = 0.3'''
-meshGenerator = MeshGenerator()
-meshGenerator.SetNetworkGraph(networkGraph)
-networkMesh = NetworkMesh()
-meshGenerator.SetNetworkMesh(networkMesh)
-meshGenerator.SetMaxLength(5.0e-2)
-meshGenerator.GenerateMesh()
-
-'''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
-boundaryConditions = BoundaryConditions()
-boundaryConditions.SetSimulationContext(simulationContext)
-boundaryConditions.SetNetworkMesh(networkMesh)
-boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
-
-'''Setting Evaluator'''
-evaluator.SetNetworkGraph(networkGraph)
-evaluator.SetNetworkMesh(networkMesh)
-
-''' Setting Solver Class'''
-solver = SolverFirstTrapezoid()  
-solver.SetNetworkMesh(networkMesh)
-solver.SetBoundaryConditions(boundaryConditions)
-solver.SetSimulationContext(simulationContext)
-solver.SetEvaluator(evaluator)
-solver.Solve()
-evaluator.SetSecondaryEvaluator(evaluator)
-
-'''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
-networkMesh.WriteToXML(xmlmeshpath)
-networkSolutions = NetworkSolutions()
-networkSolutions.SetNetworkMesh(networkMesh)
-networkSolutions.SetNetworkGraph(networkGraph)
-networkSolutions.SetSimulationContext(simulationContext)
-networkSolutions.SetSolutions(solver.Solutions)
-networkSolutions.SetImagesPath(images)
-for element in networkMesh.Elements:
-    if element.Type == '0D_FiveDofsV2':
-        #networkSolutions.PlotWSS(element.Id)
-        #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
-        networkSolutions.PlotFlow(element.Id)
-        networkSolutions.PlotPressure(element.Id)
-        networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
-        networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
-        networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
-networkSolutions.WriteToXML(xmloutpath)
+a = [1]
+for day in a: 
+    
+    '''Parameters Model Adaptor'''
+    modelAdaptor = ModelAdaptor()
+    modelAdaptor.SetSimulationContext(simulationContext)
+    modelAdaptor.SetEvaluator(evaluator)
+    #modelAdaptor.SettingParameters('XML/parameters.csv')
+    
+    
+    '''Creating NetworkGraph Object From its XML'''
+    networkGraph = NetworkGraph()
+    networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
+    
+    '''NetworkGraph Model Adaptor'''
+    modelAdaptor.SetNetworkGraph(networkGraph)
+    evaluator.SetNetworkGraph(networkGraph)
+    modelAdaptor.AdaptingModel()
+    
+    '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
+    If tolerance is not provided, mesh generator uses default value = 0.3'''
+    meshGenerator = MeshGenerator()
+    meshGenerator.SetNetworkGraph(networkGraph)
+    networkMesh = NetworkMesh()
+    meshGenerator.SetNetworkMesh(networkMesh)
+    meshGenerator.SetMaxLength(5.0e-2)
+    meshGenerator.GenerateMesh()
+    
+    '''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
+    boundaryConditions = BoundaryConditions()
+    boundaryConditions.SetSimulationContext(simulationContext)
+    boundaryConditions.SetNetworkMesh(networkMesh)
+    boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
+    
+    '''Setting Evaluator'''
+    evaluator.SetNetworkGraph(networkGraph)
+    evaluator.SetNetworkMesh(networkMesh)
+    
+    ''' Setting Solver Class'''
+    solver = SolverFirstTrapezoid()  
+    solver.SetNetworkMesh(networkMesh)
+    solver.SetBoundaryConditions(boundaryConditions)
+    solver.SetSimulationContext(simulationContext)
+    solver.SetEvaluator(evaluator)
+    solver.Solve()
+    evaluator.SetSecondaryEvaluator(evaluator, day)
+    
+    '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
+    networkMesh.WriteToXML(xmlmeshpath)
+    networkSolutions = NetworkSolutions()
+    networkSolutions.SetNetworkMesh(networkMesh)
+    networkSolutions.SetNetworkGraph(networkGraph)
+    networkSolutions.SetSimulationContext(simulationContext)
+    networkSolutions.SetSolutions(solver.Solutions)
+    networkSolutions.SetImagesPath(images)
+    for element in networkMesh.Elements:
+        if element.Type == '0D_FiveDofsV2':
+            #networkSolutions.PlotWSS(element.Id)
+            #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
+            networkSolutions.PlotFlow(element.Id)
+            networkSolutions.PlotPressure(element.Id)
+            #networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
+            #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
+            #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
+    networkSolutions.WriteToXML(xmloutpath)

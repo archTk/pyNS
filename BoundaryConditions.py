@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    BoundaryConditions.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 11:08:27 $
+## Date:      $Date: 2011/02/15 11:08:27 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -98,7 +98,7 @@ class BoundaryConditions(object):
         for freq in arange(0,ceil(period/timestep+1.0)):
             Flow[0, freq] = self.A0_v
             for k in arange(0,self.f_coeff.shape[0]):
-                Flow[0, freq] = Flow[0, freq]+real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*t[0,freq]))   
+                Flow[0, freq] = Flow[0, freq]+real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*t[0,freq]/period))   
         self.Flow = Flow 
         return Flow
                 
@@ -108,29 +108,28 @@ class BoundaryConditions(object):
         for a specific time value.
         If signal is specified, flow is computed from time values.
         '''
+        try:
+            period = self.SimulationContext.Context['period']
+        except KeyError:
+            print "Error, Please set period in Simulation Context XML File"
+            raise
         if self.signal is not None:
             try:
                 timestep = self.SimulationContext.Context['timestep']
             except KeyError:
                 print "Error, Please set timestep in Simulation Context XML File"
                 raise
-            try:
-                period = self.SimulationContext.Context['period']
-            except KeyError:
-                print "Error, Please set period in Simulation Context XML File"
-                raise
             t = arange(0.0,period+timestep,timestep)
             t2 = list(t)
             Flow = float(self.signal[t2.index(time)])/6.0e7
             self.Flow = Flow
             return Flow
-   
         if self.signal is None:
             Cc = self.f_coeff*1.0/2.0*1e-6
             Flow = self.A0_v
             for k in arange(0,self.f_coeff.shape[0]):
-                Flow += real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*time))
-            self.Flow = Flow     
+                Flow += real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*time/period))
+            self.Flow = Flow
             return Flow
     
     def GetPressure(self,time, entity = None):

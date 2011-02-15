@@ -88,9 +88,6 @@
     <parameter id="poisson_ratio" unit="">
       <scalar>0.5</scalar>
     </parameter>
-    <parameter id="frequency" unit="Hz">
-      <scalar>1</scalar>
-    </parameter>
     <parameter id="timestep" unit="s">
       <scalar>0.005</scalar>
     </parameter>
@@ -116,7 +113,7 @@
       <scalar>28</scalar>
     </parameter>
     <parameter id="angle" unit="rad">
-      <scalar>0.785</scalar>
+      <scalar>0.6</scalar>
     </parameter> 
   </simulation_parameters>
 </BoundaryConditionsGraph>    

@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    ModelAdaptor.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 12:07:15 $
+## Date:      $Date: 2011/02/15 12:07:15 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -16,6 +16,7 @@
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 from csv import *
+import csv
 try:
     from lxml import etree
 except:
@@ -108,6 +109,7 @@ class ModelAdaptor(object):
             if adapted == 1:
                 print "Adapting Model"
         
+        
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
         xmlgraph = etree.ElementTree(root)
         
@@ -139,7 +141,10 @@ class ModelAdaptor(object):
                     node_p = etree.SubElement(node, "properties")
                     node_c = etree.SubElement(node_p, "connections")
                     node_pa = etree.SubElement(node_c, "proximal_artery", edge_id=str(prop['proximal']))
-                    node_da = etree.SubElement(node_c, "distal_artery", edge_id=str(prop['distal']))
+                    try:
+                        node_da = etree.SubElement(node_c, "distal_artery", edge_id=str(prop['distal']))
+                    except KeyError:
+                        pass
                     node_pv = etree.SubElement(node_c, "proximal_vein", edge_id=str(prop['vein']))
                     node_ar = etree.SubElement(node_p, "arterial_resistance")
                     node_ar_e = etree.SubElement(node_ar, "expression")
@@ -249,6 +254,161 @@ class ModelAdaptor(object):
             xmlgraph.write (path[0]+'/'+str(self.NetworkGraph.PatientId)+'_'+path[1],encoding='iso-8859-1')  
         if len(path) == 3:
             xmlgraph.write (path[0]+'/'+path[1]+'/'+str(self.NetworkGraph.PatientId)+'_'+path[2],encoding='iso-8859-1')  
+            
+            
+        path2 = self.NetworkGraph.xmlgraphpath+'.csv' 
+        ofile  = open(path2, "wb")
+        csv_writer = writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
+        csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1","YoungModulus",])
+        csv_writer.writerow(["","", "cm", "mm", "mm","mm", "mm","mm", "mm","Pa",])
+        for edg in edges_list:    
+            for e in self.NetworkGraph.Edges.itervalues():
+                if e.Id == str(edg):
+                    try:
+                        if 'value' in e.Radius:
+                            e.Radius_0 = e.Radius['value']
+                            e.Radius_1 = e.Radius['value']
+                        else:
+                            e.Radius_0 = e.Radius['array'][0.0]
+                            e.Radius_1 = e.Radius['array'][1.0]
+                        e.xRadius_0 = e.yRadius_0 = e.xRadius_1 = e.yRadius_1 = 0.0
+                    except KeyError:
+                        if 'value' in e.xRadius:
+                            e.xRadius_0 = e.xRadius['value']
+                            e.xRadius_1 = e.xRadius['value']
+                        else:
+                            try:
+                                e.xRadius_0 = e.xRadius['array'][0.0]
+                                e.xRadius_1 = e.xRadius['array'][1.0]
+                            except:
+                                e.xRadius_0 = 0
+                                e.xRadius_1 = 0
+                        if 'value' in e.yRadius:
+                            e.yRadius_0 = e.yRadius['value']
+                            e.yRadius_1 = e.yRadius['value']
+                        else:
+                            try:
+                                e.yRadius_0 = e.yRadius['array'][0.0]
+                                e.yRadius_1 = e.yRadius['array'][1.0]
+                            except:
+                                e.yRadius_0 = 0
+                                e.yRadius_1 = 0
+                        e.Radius_0 = e.Radius_1 = 0.0
+                    csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3,e.xRadius_0*1e3, e.xRadius_1*1e3,e.yRadius_0*1e3, e.yRadius_1*1e3, e.YoungModulus['value']])
+        csv_writer.writerow([])
+        csv_writer.writerow([])
+        csv_writer.writerow(["idpat", "gender", "age", "arm", "fistula type", "heigth", "weigth", "bsa", "pressure", "cardiac output", "cardiac frequency", "brachial flow", "radial flow", "ulnar flow", "hematocrit", "plasma concentration","dynamic_viscosity", "blood_density","hypertension", "diabetes"])
+        csv_writer.writerow(["", "", "" , "", "", "cm", "kg", "m2", "mmHg", "mL/min", "Hz", "mL/min", "mL/min", "mL/min", "%", "g/dL", "cP", "Kg/m3", "", ""])
+        
+        try:
+            gender_s = self.SimulationContext.Context['gender']
+            if gender_s == 0:
+                gender = "female"
+            if gender_s == 1:
+                gender = "male"
+        except KeyError:
+            gender = "None"
+        try:
+            age = self.SimulationContext.Context['age']
+        except KeyError:
+            age = "None"
+        try:
+            arm_s = self.SimulationContext.Context['arm']
+            if arm_s == 0:
+                arm = "Left"
+            if arm_s == 1:
+                arm = "Right"
+        except KeyError:
+            arm = "None" 
+        try:
+            ftype_s = self.SimulationContext.Context['ftype']
+            if ftype_s == 0:
+                ftype = "Lower Radio-Cephalic EndToEnd"
+            if ftype_s == 1:
+                ftype = "Lower Radio-Cephalic EndToSide"
+            if ftype_s == 2:
+                ftype = "Lower Radio-Cephalic SideToSide"
+            if ftype_s == 3:
+                ftype = "Upper Brachio-Cephalic EndToSide"
+            if ftype_s == 4:
+                ftype = "Upper Brachio-Cephalic SideToSide"
+            if ftype_s == 5:
+                ftype = "Upper Brachio-Basilic EndToSide"
+            if ftype_s == 6:
+                ftype = "Upper Brachio-Basilic SideToSide"
+        except KeyError:
+            ftype = "None" 
+        try:
+            heigth = self.SimulationContext.Context['heigth']*1e2
+        except KeyError:
+            heigth = "None" 
+        try:
+            weigth = self.SimulationContext.Context['weigth']
+        except KeyError:
+            weigth = "None" 
+        try:
+            bsa = self.SimulationContext.Context['bsa']
+        except KeyError:
+            bsa = "None"
+        try:
+            meanP = self.SimulationContext.Context['mean_pressure']
+        except KeyError:
+            meanP = "None"
+        try:
+            Co = self.SimulationContext.Context['cardiac_output']
+        except KeyError:
+            Co = "None"
+        try:
+            Cf = self.SimulationContext.Context['cardiac_frequency']
+        except KeyError:
+            Cf = "None"
+        try:
+            bflow = self.SimulationContext.Context['brachial_flow']
+        except KeyError:
+            bflow = "None"
+        try:
+            rflow = self.SimulationContext.Context['radial_flow']
+        except KeyError:
+            rflow = "None"
+        try:
+            uflow = self.SimulationContext.Context['ulnar_flow']
+        except KeyError:
+            uflow = "None"
+        try:
+            ht = self.SimulationContext.Context['ht']
+        except KeyError:
+            ht = "None"
+        try:
+            cp = self.SimulationContext.Context['cp']
+        except KeyError:
+            cp = "None"
+        try:
+            eta = self.SimulationContext.Context['dynamic_viscosity']*1e2
+        except KeyError:
+            eta = "None"
+        try:
+            bd = self.SimulationContext.Context['blood_density']
+        except KeyError:
+            bd = "None"
+        try:
+            hyp_s = self.SimulationContext.Context['hyp']
+            if hyp_s == 0:
+                hyp = "No"
+            if hyp_s == 1:
+                hyp = "Yes" 
+        except KeyError:
+            hyp = "None"
+        try:
+            dia_s = self.SimulationContext.Context['diab']
+            if dia_s == 0:
+                dia = "No"
+            if dia_s == 1:
+                dia = "Yes" 
+        except KeyError:
+            dia = "None"
+    
+        csv_writer.writerow([self.NetworkGraph.PatientId, gender, age, arm, ftype, heigth, weigth, bsa, meanP, Co, Cf, bflow, rflow, uflow, ht, cp, eta, bd, hyp, dia])
+        
 
 def indent(elem, level=0):
     i = "\n" + level*"  "

@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    Evaluator.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 12:19:13 $
+## Date:      $Date: 2011/02/15 12:19:13 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -46,13 +46,13 @@ class Evaluator(object):
         self.Info = None
         self.ExpressionCache = {}
         self.rhsCache = {}
-        self.SecondaryEvaluator = None
+        self.SecondaryEvaluator = {}
     
-    def SetSecondaryEvaluator(self, evaluator):
+    def SetSecondaryEvaluator(self, evaluator, day):
         '''
         Setting Secondary Evaluator for previous simulation context
         '''
-        self.SecondaryEvaluator = evaluator
+        self.SecondaryEvaluator[day] = evaluator
         
     def SetSimulationContext(self, context):
         '''
@@ -189,6 +189,8 @@ class Evaluator(object):
         for rhsVariable in rhsVariables:
             rhsParameter, rhsElement, rhsAbscissa, rhsEdge = self.GetVariableComponents(rhsVariable)
             if rhsEdge is not None:
+                #if '#' in rhsEdge:
+                #    print rhsEdge
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
                 rhs = self.variableRe.sub('edge%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
             else:    

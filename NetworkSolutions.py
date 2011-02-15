@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    NetworkSolutions.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 11:11:27 $
+## Date:      $Date: 2011/02/15 11:11:27 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -120,7 +120,7 @@ class NetworkSolutions(object):
             raise
         try:
             self.Period = self.SimulationContext.Context['period']
-            self.CardiacFreq = int(self.Period/self.TimeStep+1)
+            self.CardiacFreq = int(self.Period/self.TimeStep)
         except KeyError:
             print "Error, Please set period in Simulation Context XML File"
             raise
@@ -129,8 +129,8 @@ class NetworkSolutions(object):
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise  
-        self.t = arange(0.0,self.Period+self.TimeStep,self.TimeStep)
-        
+        self.t = arange(self.TimeStep,self.Period+self.TimeStep,self.TimeStep)
+    
     def SetSolutions(self, solutions):
         '''
         Setting Solutions
@@ -307,7 +307,7 @@ class NetworkSolutions(object):
             if element.Id == meshid:
                 meshname = element.Name
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
+                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
                 print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
                 
         plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
@@ -459,6 +459,7 @@ class NetworkSolutions(object):
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
+                meshname = element.Name
                 Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])
                  
         plot(self.t, Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
@@ -466,7 +467,7 @@ class NetworkSolutions(object):
         ylabel('Pressure (mmHg)')
         title ('Pressure')    
         legend()
-        savefig(self.images + meshid +'_pressure.png')
+        savefig(self.images + meshname +'_pressure.png')
         close()
 
     def PlotPressureTwo(self, meshid, meshid2, cycle = None):
@@ -1127,7 +1128,7 @@ class NetworkSolutions(object):
         
         indent(root)            
         xmlsolutions.write (xmlsolutionspath,encoding='iso-8859-1')   
-
+        
 def indent(elem, level=0):
     i = "\n" + level*"  "
     if len(elem):

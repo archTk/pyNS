@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-from numpy.core.fromnumeric import mean
-import string
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 12:11:25 $
+## Date:      $Date: 2011/02/15 12:11:25 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -22,6 +20,7 @@ try:
 except:
     from xml.etree import ElementTree as etree
 from numpy.core.numeric import array
+from numpy.core.fromnumeric import mean
 import sys
 
 class NetworkGraph(object):

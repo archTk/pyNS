@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    Solver.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 10:18:27 $
+## Date:      $Date: 2011/02/15 10:18:27 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -43,6 +43,7 @@ class Solver(object):
         self.Period = None
         self.CardiacFreq = None
         self.Cycles = None
+        self.SimulationDays = []                            # Days' list for adaptation 
         self.NumberOfIncrements = None                     
         self.IncrementNumber = 1                            # increment number
         self.EndIncrementTime = 0.0                         # end increment time
@@ -75,6 +76,12 @@ class Solver(object):
         '''
         self.BoundaryConditions = boundaryConditions
     
+    def SetSimulationDays(self, daysList):
+        '''
+        Setting Simulation Days' list
+        '''
+        self.SimulationDays = daysList
+    
     def SetNonLinearTolerance(self, nltol):
         '''
         Setting Non Linear Tolerance Value
@@ -106,13 +113,13 @@ class SolverFirstTrapezoid(Solver):
             raise
         try:
             self.Period = self.SimulationContext.Context['period']
-            self.TimeStepFreq = self.Period/self.TimeStep+1.0
+            self.TimeStepFreq = self.Period/self.TimeStep
         except KeyError:
             print "Error, Please set period in Simulation Context XML File"
             raise
         try:
             self.Cycles = self.SimulationContext.Context['cycles']
-            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq)+1
+            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq) 
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
@@ -152,7 +159,9 @@ class SolverFirstTrapezoid(Solver):
                 break
 
         while self.IncrementNumber<=self.NumberOfIncrements:                              
-            icc = (self.IncrementNumber%self.TimeStepFreq)           
+            icc = (self.IncrementNumber%self.TimeStepFreq)
+            if icc == 0:
+                icc = self.TimeStepFreq
             self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
             self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
             CoeffRelax = 0.9

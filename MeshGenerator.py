@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    MeshGenerator.py
 ## Language:  Python
-## Date:      $Date: 2010/12/02 15:55:27 $
-## Version:   $Revision: 0.1.4 $
+## Date:      $Date: 2011/02/15 15:55:27 $
+## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -489,12 +489,15 @@ class MeshGenerator(object):
                         if self.NetworkMesh.MeshToS[meshId][1] == 1.0:
                             proximal = self.NetworkMesh.ElementIdsToElements[str(meshId)]
                             self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetProximal(proximal)
-                edge = self.NetworkGraph.Edges[node.Properties['distal']]
-                for meshlist in self.NetworkMesh.GraphEdgeToMesh[edge]:
-                    for meshId in meshlist:
-                        if self.NetworkMesh.MeshToS[meshId][0] == 0.0:
-                            distal = self.NetworkMesh.ElementIdsToElements[str(meshId)]
-                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetDistal(distal)
+                try:
+                    edge = self.NetworkGraph.Edges[node.Properties['distal']]
+                    for meshlist in self.NetworkMesh.GraphEdgeToMesh[edge]:
+                        for meshId in meshlist:
+                            if self.NetworkMesh.MeshToS[meshId][0] == 0.0:
+                                distal = self.NetworkMesh.ElementIdsToElements[str(meshId)]
+                                self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetDistal(distal)
+                except KeyError:
+                    pass
                 edge = self.NetworkGraph.Edges[node.Properties['vein']]
                 for meshlist in self.NetworkMesh.GraphEdgeToMesh[edge]:
                     for meshId in meshlist:

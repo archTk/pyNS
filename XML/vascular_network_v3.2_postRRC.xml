@@ -37,27 +37,28 @@
    <node id="9"/>
    <node id="10"/>
    <node id="11"/>
-   <node id="12"/>   
-   <node id="13" type="downstream network" name="wk_interosseous">
+   <node id="12"/>
+   <node id="13"/>
+   <node id="14" type="downstream network" name="wk_interosseous">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_interosseous] = (($mean_pressure[])/(0.39*$ulnar_flow[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="14" type="downstream network" name="wk_ulnar">
+   <node id="15" type="downstream network" name="wk_ulnar">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_ulnar] = (($mean_pressure[])/($ulnar_flow[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="15" type="anastomosis" name="anastomosis">
+   <node id="16" type="anastomosis" name="anastomosis">
      <properties>
        <connections>
-         <proximal_artery edge_id="11"/>
-         <distal_artery edge_id="12"/>
-         <proximal_vein edge_id="19"/>
+         <proximal_artery edge_id="12"/>
+         <distal_artery edge_id="13"/>
+         <proximal_vein edge_id="20"/>
        </connections>
        <arterial_resistance>
          <expression>$Resistance_0_1[anastomosis] = (-1.0/6e7)*(-0.03*(1.0-(($FlowRatio[anastomosis])**2))-0.35*(($FlowRatio[anastomosis])**2)+0.29*(1.0-($FlowRatio[anastomosis])))*0.5*$blood_density[]*(($FlowProximal[anastomosis]**2)/($FlowDistal[anastomosis]**2))*(1.0/($AreaProximal[anastomosis]**2))*abs($FlowDistal[anastomosis])</expression>
@@ -67,32 +68,32 @@
        </venous_resistance>
      </properties>
    </node>
-   <node id="16" type="downstream network" name="wk_radial">
+   <node id="17" type="downstream network" name="wk_radial">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_radial] = (($mean_pressure[])/($radial_flow[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="17" type="downstream network" name="wk_left_subclavian">
+   <node id="18" type="downstream network" name="wk_left_subclavian">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_left_subclavian] = (($mean_pressure[])/($brachial_flow[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="18"/>
-   <node id="19" type="downstream network" name="wk_right_carotid">
+   <node id="19"/>
+   <node id="20" type="downstream network" name="wk_right_carotid">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_right_carotid] = (($mean_pressure[])/(0.07*$cardiac_output[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="20"/>
    <node id="21"/>
    <node id="22"/>
-   <node id="23" type="outflow" name="venous"/>
+   <node id="23"/>
+   <node id="24" type="outflow" name="venous"/>
  </nodes>
  <superedges>  
    <superedge id="1" name="body">
@@ -107,20 +108,20 @@
        </superedge>
        <superedge id="6" name="innominate">
          <edgesIds>
-           <edgeIds edge_id="17"/>
+           <edgeIds edge_id="18"/>
          </edgesIds>
        </superedge> 
        <superedge id="7" name="carotid">
          <edgesIds>
            <edgeIds edge_id="3"/>
-           <edgeIds edge_id="18"/>
+           <edgeIds edge_id="19"/>
          </edgesIds>
        </superedge>
        <superedge id="9" name="subclavian">
          <edgesIds>
            <edgeIds edge_id="6"/>
       	   <edgeIds edge_id="8"/>
-           <edgeIds edge_id="16"/>
+           <edgeIds edge_id="17"/>
          </edgesIds>
        </superedge>
        <superedge id="12" name="vertebral">
@@ -140,44 +141,45 @@
        <superedge id="15" name="brachial">
        <edgesIds>
            <edgeIds edge_id="10"/>
+           <edgeIds edge_id="11"/>
          </edgesIds>
        </superedge>
        <superedge id="16" name="radial">
        <edgesIds>
-           <edgeIds edge_id="11"/>
            <edgeIds edge_id="12"/>
+           <edgeIds edge_id="13"/>
          </edgesIds>
        </superedge>
        <superedge id="17" name="ulnar">
          <edgesIds>
-       		<edgeIds edge_id="13"/>
-            <edgeIds edge_id="14"/>
+       		<edgeIds edge_id="14"/>
+            <edgeIds edge_id="15"/>
          </edgesIds>
        </superedge>
        <superedge id="18" name="interosseous">
          <edgesIds>
-           <edgeIds edge_id="15"/>
+           <edgeIds edge_id="16"/>
          </edgesIds>
        </superedge>
        <superedge id="19" name="cephalic_vein">
          <edgesIds>
-           <edgeIds edge_id="19"/>
-           <edgeIds edge_id="22"/>
+           <edgeIds edge_id="20"/>
+           <edgeIds edge_id="23"/>
          </edgesIds>
        </superedge>
        <superedge id="20" name="cubiti_vein">
          <edgesIds>
-           <edgeIds edge_id="20"/>
+           <edgeIds edge_id="21"/>
          </edgesIds>
        </superedge>
        <superedge id="21" name="basilic_vein">
          <edgesIds>
-           <edgeIds edge_id="21"/>
+           <edgeIds edge_id="22"/>
          </edgesIds>
        </superedge>
        <superedge id="22" name="subclavian_vein">
          <edgesIds>
-           <edgeIds edge_id="23"/>
+           <edgeIds edge_id="24"/>
          </edgesIds>
        </superedge>
      </superedges>
@@ -379,10 +381,10 @@
        </leakage>
      </properties>
    </edge>
-   <edge id="10" node1_id="10" node2_id="11" side="arterial" name="brachial">
+   <edge id="10" node1_id="10" node2_id="11" side="arterial" name="brachial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <scalar>23.3e-2</scalar>
+	       <scalar>17.475e-2</scalar>
 	     </length>
      </geometry>
      <properties>
@@ -391,21 +393,47 @@
            <scalar>0.0029696624909526024</scalar>
          </value>
          <value s = "1.0">
-           <scalar>0.00169169622017</scalar>
+           <scalar>0.0020111877878656505</scalar>
          </value>
        </radius_array>
        <wall_thickness>
-         <expression>$WallThickness[brachial] = $Radius[brachial] * $upper_arm_ratio[]</expression>
+         <expression>$WallThickness[brachial_prox] = $Radius[brachial_prox] * $upper_arm_ratio[]</expression>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>2.674418604651163e+06</scalar>
        </young_modulus>
        <leakage>
-         <expression>$QLeakage[brachial] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
+         <expression>$QLeakage[brachial_prox] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
+       </leakage>
+     </properties>
+   </edge>
+   <edge id="11" node1_id="11" node2_id="12" side="arterial" name="brachial_dist">
+     <geometry>
+	     <length unit="m" accuracy="10%" source="US">
+	       <scalar>5.825e-2</scalar>
+	     </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>0.0020111877878656505</scalar>
+         </value>
+         <value s = "1.0">
+           <scalar>0.00169169622017</scalar>
+         </value>
+       </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[brachial_dist] = $Radius[brachial_dist] * $upper_arm_ratio[]</expression>
+       </wall_thickness>
+       <young_modulus unit="Pa" accuracy="10%" source="US">
+         <scalar>2.674418604651163e+06</scalar>
+       </young_modulus>
+       <leakage>
+         <expression>$QLeakage[brachial_dist] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
        </leakage>
      </properties>
    </edge>   
-   <edge id="11" node1_id="11" node2_id="15" side="arterial" name="radial_prox">
+   <edge id="12" node1_id="12" node2_id="16" side="arterial" name="radial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>17.625e-2</scalar>
@@ -428,7 +456,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="12" node1_id="15" node2_id="16" side="arterial" name="radial_dist">
+   <edge id="13" node1_id="16" node2_id="17" side="arterial" name="radial_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>5.875e-2</scalar>
@@ -451,7 +479,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="13" node1_id="11" node2_id="12" side="arterial" name="ulnar_prox">
+   <edge id="14" node1_id="12" node2_id="13" side="arterial" name="ulnar_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>6.7e-2</scalar>
@@ -474,7 +502,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="14" node1_id="12" node2_id="14" side="arterial" name="ulnar_dist">
+   <edge id="15" node1_id="13" node2_id="15" side="arterial" name="ulnar_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>17.1e-2</scalar>
@@ -497,7 +525,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="15" node1_id="12" node2_id="13" side="arterial" name="interosseous">
+   <edge id="16" node1_id="13" node2_id="14" side="arterial" name="interosseous">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>7.9e-2</scalar>
@@ -515,7 +543,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="16" node1_id="5" node2_id="17" side="arterial" name="left_subclavian_A">
+   <edge id="17" node1_id="5" node2_id="18" side="arterial" name="left_subclavian_A">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.4e-2</scalar>
@@ -533,7 +561,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="17" node1_id="2" node2_id="18" side="arterial" name="innominate">
+   <edge id="18" node1_id="2" node2_id="19" side="arterial" name="innominate">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.4e-2</scalar>
@@ -551,7 +579,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="18" node1_id="18" node2_id="19" side="arterial" name="right_carotid">
+   <edge id="19" node1_id="19" node2_id="20" side="arterial" name="right_carotid">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	     <scalar>4.1e-2</scalar>
@@ -569,7 +597,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="19" node1_id="15" node2_id="20" side="venous" name="cephalic_lower">
+   <edge id="20" node1_id="16" node2_id="21" side="venous" name="cephalic_lower">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	    <scalar>17.7e-2</scalar>
@@ -600,7 +628,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="20" node1_id="20" node2_id="21" side="venous" name="cubiti_elbow">
+   <edge id="21" node1_id="21" node2_id="22" side="venous" name="cubiti_elbow">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	    <scalar>4e-2</scalar>
@@ -621,7 +649,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="21" node1_id="21" node2_id="22" side="venous" name="basilic_vein">
+   <edge id="22" node1_id="22" node2_id="23" side="venous" name="basilic_vein">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	    <scalar>30.3e-2</scalar>
@@ -652,7 +680,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="22" node1_id="20" node2_id="22" side="venous" name="cephalic_upper">
+   <edge id="23" node1_id="21" node2_id="23" side="venous" name="cephalic_upper">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	    <scalar>30.3e-2</scalar>
@@ -683,7 +711,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="23" node1_id="22" node2_id="23" side="venous" name="subclavian_vein">
+   <edge id="24" node1_id="23" node2_id="24" side="venous" name="subclavian_vein">
      <geometry>
 	   <length unit="m" accuracy="10%" source="US">
 	    <scalar>17.4e-2</scalar>

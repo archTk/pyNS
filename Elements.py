@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    Elements.py
 ## Language:  Python
-## Date:      $Date: 2011/01/31 11:32:27 $
+## Date:      $Date: 2011/02/15 11:32:27 $
 ## Version:   $Revision: 0.1.6 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -20,7 +20,6 @@ from numpy.numarray.numerictypes import Int32
 from math import pi
 from numpy.core.fromnumeric import sum, mean
 from numpy.lib.scimath import sqrt
-import sys
 
 class Element(object):
     '''
@@ -296,7 +295,7 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set Poisson Ratio in Boundary Conditions XML File"
             raise
         try:
-            self.freq = self.simulationContext.Context['frequency']
+            self.freq = 1.0/(self.simulationContext.Context['period'])
             self.omega = 2*pi*self.freq    #phase
         except KeyError:
             print "Error, Please set Frequency[Hz] in Boundary Conditions XML File"
@@ -510,7 +509,7 @@ class FiveDofRclElementV2(Element):
         dofs = self.GetPoiseuilleDofs()
         self.Flow = (solution[(dofmap.DofMap[self.Id, dofs[0]]),:] - solution[(dofmap.DofMap[self.Id, dofs[1]]),:])/self.R
         if len(self.Flow) != 1:
-            self.Flow = mean(self.Flow[(int(self.Period/self.TimeStep+1)*(Cycle-1)):(int(self.Period/self.TimeStep+1)*(Cycle))])*6.0e7
+            self.Flow = mean(self.Flow[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])*6.0e7
         else:
             self.Flow = self.Flow[0]*6.0e7 
         return self.Flow
@@ -568,7 +567,7 @@ class FiveDofRclElementV2(Element):
         dofs = self.GetPoiseuilleDofs()
         self.Pressure = (solution[(dofmap.DofMap[self.Id, dofs[0]]),:]) 
         if len(self.Pressure) != 1:
-            self.Pressure = mean(self.Pressure[(int(self.Period/self.TimeStep+1)*(Cycle-1)):(int(self.Period/self.TimeStep+1)*(Cycle))])
+            self.Pressure = mean(self.Pressure[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])
         else:
             self.Pressure = self.Pressure[0] 
         if self.Pressure < 0.0:
@@ -1072,7 +1071,6 @@ class TwoDofResistanceElement(Element):
     def GetFlow(self, info):
         '''
         This method returns volumetric flow rate calculated on the resistance.
-        If cycle is not specified, default cycle is the last one.
         '''
         # t=0, no flow.
         if info is None:
@@ -1130,12 +1128,3 @@ class Error(Exception):
     A base class for exceptions defined in this module.
     '''
     pass
-
-class MeasuredFlowsError(Error):
-    '''
-    Exception raised if measured flows data is inconsistent
-    '''
-    def __init__(self,xmlschema):
-        print "\nError, Measured data flows is inconsistent"
-        print "Brachial flow has to be greater than radial+ulnar flows"
-        print "Please check your Boundary Condition Xml file\n"
