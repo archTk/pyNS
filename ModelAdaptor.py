@@ -21,6 +21,8 @@ try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
+from datetime import date
+import shutil
 
 class ModelAdaptor(object):
     '''
@@ -61,16 +63,36 @@ class ModelAdaptor(object):
     def SettingParameters(self, csvfilepath):
         '''
         This method reads parameters from a .csv file and sets them into
-        simulation context evaluating expressions. Boundary Conditions XML file
-        is updated.
+        simulation context.
         '''
         csv_reader = reader(file(csvfilepath, "rU"))
         for row in csv_reader:
             el = row[0].split(";")
             name = el[0]
             value = el[1]
-            if name in self.SimulationContext.Context:
-                self.SimulationContext.Context[name] = value
+            
+            if name == 'dob' or name == 'dos':
+                self.SimulationContext.Context[name] = str(value)
+            else:
+                self.SimulationContext.Context[name] = float(value)
+        
+        
+    def AdaptingParameters(self):
+        '''
+        This method evaluates expressions in boundary conditions file and
+        re-writes a new boundary conditions xml file with computed values
+        '''
+        expressionList = []
+        for name in self.SimulationContext.Context:
+            if type(self.SimulationContext.Context[name]) is str:
+                expressionList.append(self.SimulationContext.Context[name])
+        while len(expressionList)>2:       
+            for x in expressionList:
+                try:
+                    self.Evaluator.Evaluate(x)
+                    expressionList.remove(x)
+                except:
+                    pass
         self.SimulationContext.UpdateXML()
         
     def AdaptingModel(self, csvfilepath=None):
@@ -79,6 +101,7 @@ class ModelAdaptor(object):
         (measured radii) and evaluates the rest of the network rules.
         Finally, it creates a new vascular network xml file with specific data.
         '''
+        shutil.copy(self.NetworkGraph.xmlgraphpath, self.NetworkGraph.xmlgraphpath+'_generic')
         adapted = 0
         if csvfilepath:
             print "Loading Specific Data"
@@ -106,8 +129,8 @@ class ModelAdaptor(object):
             if 'expression' in edge.YoungModulus:
                 adapted = 1
                 self.Evaluator.Evaluate(edge.YoungModulus['expression'])
-            if adapted == 1:
-                print "Adapting Model"
+        if adapted == 1:
+            print "Adapting Model"
         
         
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
@@ -249,15 +272,10 @@ class ModelAdaptor(object):
                         ym_v.text = str(e.YoungModulus['expression'])
                     
         indent(root)
-        path = self.NetworkGraph.xmlgraphpath.split('/')
-        if len(path) == 2:
-            xmlgraph.write (path[0]+'/'+str(self.NetworkGraph.PatientId)+'_'+path[1],encoding='iso-8859-1')  
-        if len(path) == 3:
-            xmlgraph.write (path[0]+'/'+path[1]+'/'+str(self.NetworkGraph.PatientId)+'_'+path[2],encoding='iso-8859-1')  
+        xmlgraph.write (self.NetworkGraph.xmlgraphpath)  
             
-            
-        path2 = self.NetworkGraph.xmlgraphpath+'.csv' 
-        ofile  = open(path2, "wb")
+        path = self.NetworkGraph.xmlgraphpath+'.csv' 
+        ofile  = open(path, "wb")
         csv_writer = writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
         csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1","YoungModulus",])
         csv_writer.writerow(["","", "cm", "mm", "mm","mm", "mm","mm", "mm","Pa",])

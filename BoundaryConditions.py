@@ -74,7 +74,7 @@ class BoundaryConditions(object):
         Setting NetworkMesh
         '''
         self.NetworkMesh = networkMesh    
-                
+      
     def GetFlow(self):
         '''
         Calculating inlet flow (coefficients of the FFT  x(t)=A0+sum(2*Ck*exp(j*k*2*pi*f*t)))

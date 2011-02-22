@@ -17,6 +17,7 @@
 
 import re
 from math import *
+from datetime import *
 
 class Evaluator(object):
     '''
@@ -148,6 +149,7 @@ class Evaluator(object):
         '''
         info = self.Info 
         if expression in self.ExpressionCache: 
+            
             elEvals = self.ExpressionCache[expression]['elEvals']
             lhsEvalDict = self.ExpressionCache[expression]['lhsEvalDict']
             lhs = self.ExpressionCache[expression]['lhs']
@@ -157,7 +159,7 @@ class Evaluator(object):
             except KeyError:
                 lhsEdge = lhsEvalDict['lhsEdge']
             for elEvalDict in elEvals:
-                try:    
+                try:
                     rhsElement = elEvalDict['rhsElement']
                     rhsAbscissa = elEvalDict['rhsAbscissa']
                 except KeyError:
@@ -176,6 +178,7 @@ class Evaluator(object):
         rhsVariables = self.variableRe.findall(rhs)
         elCount = 0
         elEvals = []
+        
         
         if lhsEdge is None:
             if self.rhsCache.has_key(lhsElement):
@@ -204,6 +207,7 @@ class Evaluator(object):
         
         if lhsEdge is None:  
             self.rhsCache[lhsElement].append(rhs)
+        
         if lhsEdge is not None:
             lhs = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
             lhsEvalDict = {'lhsEval':'lhsEdge = self.GetEdge(lhsEdge,lhsAbscissa)', 'lhsEdge':lhsEdge, 'lhsAbscissa':lhsAbscissa}
@@ -214,9 +218,7 @@ class Evaluator(object):
             else:
                 lhs = self.variableRe.sub('lhsEl.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'lhsEl = self.GetElement(lhsElement,lhsAbscissa)', 'lhsElement':lhsElement, 'lhsAbscissa':lhsAbscissa}
-                
-        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhs':lhs}
-        
+
         for elEvalDict in elEvals:
             try:
                 rhsEdge = elEvalDict['rhsEdge']
@@ -224,6 +226,7 @@ class Evaluator(object):
             except KeyError:
                 rhsElement = elEvalDict['rhsElement']
                 rhsAbscissa = elEvalDict['rhsAbscissa']
-            exec(elEvalDict['elEval'])     
+            exec(elEvalDict['elEval'])    
         exec(lhsEvalDict['lhsEval'])
         exec(lhs)
+        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhs':lhs}
