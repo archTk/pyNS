@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import shutil
 
 ## Program:   PyNS
 ## Module:    SimulationContext.py
@@ -21,6 +20,7 @@ try:
 except:
     from xml.etree import ElementTree as etree
 import os
+import shutil
 
 class SimulationContext(object):
     '''
@@ -293,7 +293,14 @@ class SimulationContext(object):
             self.Context['K_C'] = 1
         if self.Context['age'] > 70:
             self.Context['K_C'] = 0
-            
+        if self.Context['hyp'] == 1 or self.Context['diab'] == 1:
+            if self.Context['age'] <= 70:
+                self.Context['K_C1'] = 1
+            else:
+                self.Context['K_C1'] = 0
+        if self.Context['hyp'] == 0 and self.Context['diab'] == 0:
+            self.Context['K_C1'] = 0
+        
 class Error(Exception):
     '''
     A base class for exceptions defined in this module.

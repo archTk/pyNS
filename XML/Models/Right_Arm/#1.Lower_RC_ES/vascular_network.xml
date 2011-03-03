@@ -207,7 +207,7 @@
          <expression>$WallThickness[aorta_asc] = $Radius[aorta_asc] * $aorta_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{aorta_asc} = ((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*1e-9</expression>
+         <expression>$Compliance{aorta_asc} = (((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*(1-$K_C1[])+(((18.75-0.15*($age[]+20))*$K_C[]+8.25*(1-$K_C[]))*$K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -230,7 +230,7 @@
          <expression>$WallThickness[aortich_arch_A_1] = $Radius[aortich_arch_A_1] * $aorta_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{aortich_arch_A_1} = ((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*1e-9</expression>
+         <expression>$Compliance{aortich_arch_A_1} = (((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*(1-$K_C1[])+(((18.75-0.15*($age[]+20))*$K_C[]+8.25*(1-$K_C[]))*$K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -248,7 +248,7 @@
          <expression>$WallThickness[left_carotid] = $Radius[left_carotid] * $carotid_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{left_carotid} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{left_carotid} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -271,7 +271,7 @@
          <expression>$WallThickness[aortich_arch_A_2] = $Radius[aortich_arch_A_2] * $aorta_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{aortich_arch_A_2} = ((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*1e-9</expression>
+         <expression>$Compliance{aortich_arch_A_2} = (((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*(1-$K_C1[])+(((18.75-0.15*($age[]+20))*$K_C[]+8.25*(1-$K_C[]))*$K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -294,7 +294,7 @@
          <expression>$WallThickness[aortich_Arch_B_and_thoracic_aorta] = $Radius[aortich_Arch_B_and_thoracic_aorta] * $aorta_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{aortich_Arch_B_and_thoracic_aorta} = ((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*1e-9</expression>
+         <expression>$Compliance{aortich_Arch_B_and_thoracic_aorta} = (((18.75-0.15*$age[])*$K_C[]+8.25*(1-$K_C[]))*(1-$K_C1[])+(((18.75-0.15*($age[]+20))*$K_C[]+8.25*(1-$K_C[]))*$K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -317,7 +317,7 @@
          <expression>$WallThickness[right_subclavian_A] = $Radius[right_subclavian_A] * $upper_arm_2_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{right_subclavian_A} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{right_subclavian_A} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -340,7 +340,7 @@
          <expression>$WallThickness[vertebral] = $Radius[vertebral] * $vertebral_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{vertebral} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{vertebral} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -363,7 +363,7 @@
          <expression>$WallThickness[right_subclavian_B] = $Radius[right_subclavian_B] * $upper_arm_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{right_subclavian_B} = (-0.0148*$age[]+1.4008)*1e-9</expression>
+         <expression>$Compliance{right_subclavian_B} = ((-0.0148*$age[]+1.4008)*(1-$K_C1[])+(-0.0148*($age[]+20)+1.4008)*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -386,7 +386,7 @@
          <expression>$WallThickness[axillarian] = $Radius[axillarian] * $upper_arm_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{axillarian} = (-0.0148*$age[]+1.4008)*1e-9</expression>
+         <expression>$Compliance{axillarian} = ((-0.0148*$age[]+1.4008)*(1-$K_C1[])+(-0.0148*($age[]+20)+1.4008)*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -589,7 +589,7 @@
          <expression>$WallThickness[left_subclavian_A] = $Radius[left_subclavian_A] * $upper_arm_2_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{left_subclavian_A} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{left_subclavian_A} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -607,7 +607,7 @@
          <expression>$WallThickness[innominate] = $Radius[innominate] * $upper_arm_2_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{innominate} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{innominate} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
@@ -625,7 +625,7 @@
          <expression>$WallThickness[right_carotid] = $Radius[right_carotid] * $carotid_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{right_carotid} = ((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*1e-9</expression>
+         <expression>$Compliance{right_carotid} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
        </compliance>
      </properties>
    </edge>
