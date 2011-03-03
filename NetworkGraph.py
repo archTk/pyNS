@@ -139,8 +139,8 @@ class NetworkGraph(object):
                 WrongXSDPathError()
         else:
             print "Warning, Network Graph xml schema was not provided."
-        #if error:
-        #    sys.exit()
+        if error:
+            sys.exit()
             
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
