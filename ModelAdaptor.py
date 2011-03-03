@@ -41,6 +41,9 @@ class ModelAdaptor(object):
         '''
         self.NetworkGraph = None
         self.SimulationContext = None
+        self.arm = None
+        self.ftype = None
+        self.Idpat = None
     
     def SetNetworkGraph(self,networkGraph):
         '''
@@ -60,6 +63,23 @@ class ModelAdaptor(object):
         '''
         self.SimulationContext = simulationContext
         
+    def ChoosingTemplate(self, csvfilepath):
+        '''
+        This method sets correct template according
+        to parameters in .csv file
+        '''
+        csv_reader = reader(file(csvfilepath, "rU"))
+        for row in csv_reader:
+            el = row[0].split(";")
+            name = el[0]
+            value = el[1]
+            if name == 'idpat':
+                self.Idpat = str(value)
+            if name == 'arm':
+                self.arm = int(value)
+            if name == 'ftype':
+                self.ftype = int(value)
+        
     def SettingParameters(self, csvfilepath):
         '''
         This method reads parameters from a .csv file and sets them into
@@ -77,7 +97,7 @@ class ModelAdaptor(object):
                 self.SimulationContext.Context[name] = float(value)
         
         
-    def AdaptingParameters(self):
+    def AdaptingParameters(self, genericXml, specificXml):
         '''
         This method evaluates expressions in boundary conditions file and
         re-writes a new boundary conditions xml file with computed values
@@ -93,16 +113,17 @@ class ModelAdaptor(object):
                     expressionList.remove(x)
                 except:
                     pass
-        self.SimulationContext.UpdateXML()
-        
-    def AdaptingModel(self, csvfilepath=None):
+        self.SimulationContext.UpdateXML(genericXml, specificXml)
+    
+    def AdaptingModel(self, genericXml, specificXml,csvfilepath=None):
         '''
         This method reads specific data from a csv file
         (measured radii) and evaluates the rest of the network rules.
         Finally, it creates a new vascular network xml file with specific data.
         '''
-        shutil.copy(self.NetworkGraph.xmlgraphpath, self.NetworkGraph.xmlgraphpath+'_generic')
-        adapted = 0
+        shutil.copy(genericXml, specificXml)
+        self.NetworkGraph.xmlgraphpath = specificXml
+        
         if csvfilepath:
             print "Loading Specific Data"
             csv_reader = reader(file(csvfilepath, "rU"))
@@ -115,23 +136,34 @@ class ModelAdaptor(object):
                     if name == edge.Name: 
                         edge.Radius = {}
                         if value1 != value2:
-                            edge.Radius['array'] = {0.0:float(value1),1.0:float(value2)}
+                            edge.Radius['array'] = {0.0:(float(value1)*1e-3),1.0:(float(value2)*1e-3)}
                         else:
-                            edge.Radius['value'] = float(value1)
-                            
+                            edge.Radius['value'] = (float(value1)*1e-3)
+        
+        expressionList = []                    
         for edgeId, edge in self.NetworkGraph.Edges.iteritems():
             if 'expression' in edge.Radius:
-                adapted = 1
-                self.Evaluator.Evaluate(edge.Radius['expression'])
+                expressionList.append(edge.Radius['expression'])  
             if 'expression' in edge.Length:
-                adapted = 1
-                self.Evaluator.Evaluate(edge.Length['expression'])
+                expressionList.append(edge.Length['expression'])
             if 'expression' in edge.YoungModulus:
-                adapted = 1
-                self.Evaluator.Evaluate(edge.YoungModulus['expression'])
-        if adapted == 1:
-            print "Adapting Model"
-        
+                expressionList.append(edge.YoungModulus['expression'])
+            if edge.Compliance is not None:
+                if 'expression' in edge.Compliance:
+                    expressionList.append(edge.Compliance['expression'])  
+            if 'array' in edge.Radius:
+                for x in edge.Radius['array'].itervalues():
+                    if type(x) is str:
+                        expressionList.append(x)
+                   
+        while len(expressionList)>0:       
+            for x in expressionList:
+                try: 
+                    self.Evaluator.Evaluate(x)
+                    expressionList.remove(x)
+                except:   
+                    pass
+                        
         
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
         xmlgraph = etree.ElementTree(root)
@@ -151,16 +183,16 @@ class ModelAdaptor(object):
         nodes_list.sort()
         for id in nodes_list:
             name = self.NetworkGraph.Nodes[str(id)].Name
-            type = self.NetworkGraph.Nodes[str(id)].Type
+            typee = self.NetworkGraph.Nodes[str(id)].Type
             prop = self.NetworkGraph.Nodes[str(id)].Properties
-            if name and type:
-                node = etree.SubElement(nodes, "node", id = str(id), type = type, name = name)
-                if type == 'downstream network':
+            if name and typee:
+                node = etree.SubElement(nodes, "node", id = str(id), type = typee, name = name)
+                if typee == 'downstream network':
                     node_p = etree.SubElement(node, "properties")
                     node_w = etree.SubElement(node_p, "windkessel")
                     node_e = etree.SubElement(node_w, "expression")
                     node_e.text = prop['windkessel']
-                if type == 'anastomosis':
+                if typee == 'anastomosis':
                     node_p = etree.SubElement(node, "properties")
                     node_c = etree.SubElement(node_p, "connections")
                     node_pa = etree.SubElement(node_c, "proximal_artery", edge_id=str(prop['proximal']))
@@ -185,21 +217,20 @@ class ModelAdaptor(object):
         superedges = etree.SubElement(root, "superedges")
         for sedges in self.NetworkGraph.SuperEdges.iterkeys():
             superedges_list.append(int(sedges))
-        superedges_list.sort()
+        superedges_list.sort()  
         
         for sedg in superedges_list:
             for s in self.NetworkGraph.SuperEdges.itervalues():
                 if s.Id == str(sedg):
                     if s.SuperEdges != {}:
                         superedge = etree.SubElement(superedges, "superedge", id = str(s.Id), name = str(s.Name))
-                        superedges2 = etree.SubElement(superedge, "superedges")
+                        superedges2 = etree.SubElement(superedges, "superedges")
                     if s.SuperEdges == {}:
-                        superedges2 = superedges
-                        superedge2 = etree.SubElement(superedges2, "superedge", id = str(s.Id), name = str(s.Name))
+                        superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
                         edgeIdsel = etree.SubElement(superedge2, "edgesIds")
                         for edgeIds in s.Edges.iterkeys():
                             etree.SubElement(edgeIdsel, "edgeIds", edge_id = str(edgeIds))
-                            
+                   
         #EDGES
         edges_list = []
         edges = etree.SubElement(root, "edges")
@@ -270,6 +301,10 @@ class ModelAdaptor(object):
                         ym = etree.SubElement(properties, "young_modulus")
                         ym_v = etree.SubElement(ym, "expression")
                         ym_v.text = str(e.YoungModulus['expression'])
+                    if  e.Compliance is not None:
+                        com = etree.SubElement(properties, "Compliance", unit="m3/Pa")
+                        com_v = etree.SubElement(com, "scalar")
+                        com_v.text = str(e.Compliance)
                     
         indent(root)
         xmlgraph.write (self.NetworkGraph.xmlgraphpath)  
@@ -277,8 +312,8 @@ class ModelAdaptor(object):
         path = self.NetworkGraph.xmlgraphpath+'.csv' 
         ofile  = open(path, "wb")
         csv_writer = writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
-        csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1","YoungModulus",])
-        csv_writer.writerow(["","", "cm", "mm", "mm","mm", "mm","mm", "mm","Pa",])
+        csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1", "Compliance", "YoungModulus"])
+        csv_writer.writerow(["","", "cm", "mm", "mm","mm", "mm","mm", "mm", "mm2/kPa", "Pa"])
         for edg in edges_list:    
             for e in self.NetworkGraph.Edges.itervalues():
                 if e.Id == str(edg):
@@ -312,10 +347,20 @@ class ModelAdaptor(object):
                                 e.yRadius_0 = 0
                                 e.yRadius_1 = 0
                         e.Radius_0 = e.Radius_1 = 0.0
-                    csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3,e.xRadius_0*1e3, e.xRadius_1*1e3,e.yRadius_0*1e3, e.yRadius_1*1e3, e.YoungModulus['value']])
+                        
+                    if e.Compliance is not None:
+                        C = e.Compliance*1e9
+                    else:
+                        C = ''
+                    if 'value' in e.YoungModulus:
+                        ym = e.YoungModulus['value']
+                    else:
+                        ym = ''
+                        
+                    csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3,e.xRadius_0*1e3, e.xRadius_1*1e3,e.yRadius_0*1e3, e.yRadius_1*1e3, C, ym])
         csv_writer.writerow([])
         csv_writer.writerow([])
-        csv_writer.writerow(["idpat", "gender", "age", "arm", "fistula type", "heigth", "weigth", "bsa", "pressure", "cardiac output", "cardiac frequency", "brachial flow", "radial flow", "ulnar flow", "hematocrit", "plasma concentration","dynamic_viscosity", "blood_density","hypertension", "diabetes"])
+        csv_writer.writerow(["idpat", "gender", "age", "arm", "fistula type", "height", "weight", "bsa", "pressure", "cardiac output", "cardiac frequency", "brachial flow", "radial flow", "ulnar flow", "hematocrit", "plasma concentration","dynamic_viscosity", "blood_density","hypertension", "diabetes"])
         csv_writer.writerow(["", "", "" , "", "", "cm", "kg", "m2", "mmHg", "mL/min", "Hz", "mL/min", "mL/min", "mL/min", "%", "g/dL", "cP", "Kg/m3", "", ""])
         
         try:
@@ -354,14 +399,16 @@ class ModelAdaptor(object):
                 ftype = "Upper Brachio-Basilic EndToSide"
             if ftype_s == 6:
                 ftype = "Upper Brachio-Basilic SideToSide"
+            if ftype_s == 7:
+                ftype = "Pre-Surgery"
         except KeyError:
             ftype = "None" 
         try:
-            heigth = self.SimulationContext.Context['heigth']*1e2
+            heigth = self.SimulationContext.Context['height']
         except KeyError:
             heigth = "None" 
         try:
-            weigth = self.SimulationContext.Context['weigth']
+            weigth = self.SimulationContext.Context['weight']
         except KeyError:
             weigth = "None" 
         try:
@@ -377,7 +424,7 @@ class ModelAdaptor(object):
         except KeyError:
             Co = "None"
         try:
-            Cf = self.SimulationContext.Context['cardiac_frequency']
+            Cf = 1.0/(self.SimulationContext.Context['period'])
         except KeyError:
             Cf = "None"
         try:
@@ -401,7 +448,7 @@ class ModelAdaptor(object):
         except KeyError:
             cp = "None"
         try:
-            eta = self.SimulationContext.Context['dynamic_viscosity']*1e2
+            eta = self.SimulationContext.Context['dynamic_viscosity']*1e3
         except KeyError:
             eta = "None"
         try:
@@ -425,7 +472,7 @@ class ModelAdaptor(object):
         except KeyError:
             dia = "None"
     
-        csv_writer.writerow([self.NetworkGraph.PatientId, gender, age, arm, ftype, heigth, weigth, bsa, meanP, Co, Cf, bflow, rflow, uflow, ht, cp, eta, bd, hyp, dia])
+        csv_writer.writerow(['id_'+self.Idpat, gender, age, arm, ftype, heigth, weigth, bsa, meanP, Co, Cf, bflow, rflow, uflow, ht, cp, eta, bd, hyp, dia])
         
 
 def indent(elem, level=0):

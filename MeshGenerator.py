@@ -182,9 +182,11 @@ class MeshGenerator(object):
         if edge.WallThickness.has_key('expression') == True:
             edgeProperty['wallthickness'] = edge.WallThickness['expression']
             
-          
         if edge.YoungModulus.has_key('array') == False:
-            youngModulus = edge.YoungModulus['value']
+            try:
+                youngModulus = edge.YoungModulus['value']
+            except:
+                youngModulus = 0.0
             meshym = {}
             meshym[0.0] = youngModulus
             meshym[1.0] = youngModulus
@@ -451,7 +453,7 @@ class MeshGenerator(object):
                         elementParameters["compliance"] = edge.Compliance
                         elementParameters["leakage"] = edge.QLeakage
                         if edge.QLeakage:
-                            nLeak+=1                      
+                            nLeak+=2                      
                         name = edge.Name + "_" + str(nameId)                                        
                         #############                        
                         if edgeId in self.MeshType:

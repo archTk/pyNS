@@ -139,8 +139,8 @@ class NetworkGraph(object):
                 WrongXSDPathError()
         else:
             print "Warning, Network Graph xml schema was not provided."
-        if error:
-            sys.exit()
+        #if error:
+        #    sys.exit()
             
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
@@ -242,10 +242,13 @@ class NetworkGraph(object):
                         for curv in data.findall(".//value"):
                             curv_dict = curv.attrib
                             s = float(curv_dict['s'])
+                            for radius in curv.findall(".//expression"):
+                                radius_v = radius.text
+                                radius_dict[s] = radius_v   # Setting Edge Radius(expression type)                            
                             for radius in curv.findall(".//scalar"):
                                 radius_v = float(radius.text)                              
                                 radius_dict[s] = radius_v                               
-                        radius_value['array'] = radius_dict                       
+                        radius_value['array'] = radius_dict                   
                         edge.SetRadius(radius_value)  # Setting Edge Radius (array type)                       
                     if data.tag == "radius":                        
                         radius_value = {}                        
@@ -361,8 +364,10 @@ class NetworkGraph(object):
                         for resistance in data.findall(".//scalar"):
                             edge.SetResistance(float(resistance.text) )                                                  
                     if data.tag == "compliance":                        
-                        for compliance in data.findall(".//expression"):
-                            edge.SetCompliance(compliance.text)                                      
+                        for compliance in data.findall(".//expression"):                       
+                            edge.SetCompliance(compliance.text)     
+                        for compliance in data.findall(".//scalar"):
+                            edge.SetCompliance(float(compliance.text) )                                       
             for features in edgeg.findall(".//features"):
                 for data in features:                          
                     if data.tag == "stenosis":
@@ -547,8 +552,7 @@ class SuperEdge(object):
         This method returns superedge's radius
         '''
         pass
-            
-                    
+                
 class Edge(object):
     '''
     Edge represent a vessel of vascular network layout.
@@ -654,8 +658,8 @@ class Edge(object):
         s:value        
         '''
         if type(radius) is not dict:
-            if self.edgeAbscissa:
-                self.Radius.update({'array':{self.edgeAbscissa:radius}})
+            if self.edgeAbscissa is not None:
+                self.Radius['array'][self.edgeAbscissa] = radius    
             else:
                 self.Radius.update({'value':radius})       
         else:
@@ -720,7 +724,11 @@ class Edge(object):
         '''
         This method sets non linear compliance.
         '''
-        self.Compliance = compliance
+        if type(compliance) is str:
+            self.Compliance = {}
+            self.Compliance['expression'] = compliance
+        else:
+            self.Compliance = compliance
         
     def SetStenosis(self, s, radius, length, resistance, compliance):
         '''
@@ -751,10 +759,13 @@ class Edge(object):
         if 'value' in self.Radius:
             return self.Radius['value']
         if 'array' in self.Radius:
-            if self.edgeAbscissa is None:            
-                return mean(array((self.Radius['array'].values())))
-            else:         
-                return self.Radius['array'][self.edgeAbscissa]
+            if info is not None:
+                return self.Radius['array'][info]
+            else:
+                if self.edgeAbscissa is None:           
+                    return mean(array((self.Radius['array'].values())))
+                else:
+                    return self.Radius['array'][self.edgeAbscissa]    
     
     def GetLength(self,info):
         '''

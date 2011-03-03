@@ -27,21 +27,21 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'post'  #Simulation Type --> 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
-netPost = 'vascular_network_v3.3_postRRC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
+netPost = 'vascular_network_v3.2_postRRC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
 boundPre = 'boundary_conditions_v2.1_pre.xml'     #Boundary Conditions XML file PREOP (-r or --boundPre)
-boundPost = 'boundary_conditions_v3.1.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
+boundPost = 'boundary_conditions_v2.1_postRC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
 out = 'vascular_output.xml'  #Vascular Network Output XML file (-o or --out)
 xsd = 'XML/XSD/' #XSD schema files Working Directory (-x or --xsd)
 netSchema = 'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-c or --netSchema)
-boundSchema = 'boundary_conditions_v3.0.xsd'  #Boundary Conditions XSD Schema (-h or --boundSchema)
+boundSchema = 'boundary_conditions_v3.1.xsd'  #Boundary Conditions XSD Schema (-h or --boundSchema)
 testTube = 'XML/TEST/CircularStraightTube/' #Circular Straight Tube Test Case, Working Directory
 netTube =  'vascular_network_v3.0_TUBE.xml'  #Circular Straight Tube Test Case, Vascular Network Graph XML file
 boundTube = 'boundary_conditions_v2.0_TUBE.xml' #Circular Straight Tube Test Case, Boundary Conditions XML file
@@ -125,24 +125,76 @@ simulationContext = SimulationContext()
 evaluator = Evaluator()
 evaluator.SetSimulationContext(simulationContext)
 simulationContext.SetEvaluator(evaluator)
-simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
-    
+
 '''Parameters Model Adaptor'''
-modelAdaptor = ModelAdaptor()
-modelAdaptor.SetSimulationContext(simulationContext)
-modelAdaptor.SetEvaluator(evaluator)
-modelAdaptor.SettingParameters('XML/parameters.csv')
-modelAdaptor.AdaptingParameters()
+if simType == 'generic':
+    modelAdaptor = ModelAdaptor()
+    modelAdaptor.SetSimulationContext(simulationContext)
+    modelAdaptor.SetEvaluator(evaluator)
+    modelAdaptor.ChoosingTemplate('XML/parameters.csv')
+    if modelAdaptor.arm == 0:
+        if modelAdaptor.ftype == 0:
+            wdir = 'XML/Models/Left_Arm/#0.Lower_RC_EE'
+        if modelAdaptor.ftype == 1:
+            wdir = 'XML/Models/Left_Arm/#1.Lower_RC_ES'
+        if modelAdaptor.ftype == 2:
+            pass
+        if modelAdaptor.ftype == 3:
+            wdir = 'XML/Models/Left_Arm/#3.Upper_BC_ES'
+        if modelAdaptor.ftype == 4:
+            pass
+        if modelAdaptor.ftype == 5:
+            wdir = 'XML/Models/Left_Arm/#5.Upper_BB_ES'
+        if modelAdaptor.ftype == 6:
+            pass
+        if modelAdaptor.ftype == 7:
+            wdir = 'XML/Models/Left_Arm/PRE'
+    if modelAdaptor.arm == 1:
+        if modelAdaptor.ftype == 0:
+            wdir = 'XML/Models/Right_Arm/#0.Lower_RC_EE'
+        if modelAdaptor.ftype == 1:
+            wdir = 'XML/Models/Right_Arm/#1.Lower_RC_ES'
+        if modelAdaptor.ftype == 2:
+            pass
+        if modelAdaptor.ftype == 3:
+            wdir = 'XML/Models/Right_Arm/#3.Upper_BC_ES'
+        if modelAdaptor.ftype == 4:
+            pass
+        if modelAdaptor.ftype == 5:
+            wdir = 'XML/Models/Right_Arm/#5.Upper_BB_ES'
+        if modelAdaptor.ftype == 6:
+            pass
+        if modelAdaptor.ftype == 7:
+            wdir = 'XML/Models/Right_Arm/PRE'
+            
+    netPostGeneric = 'vascular_network.xml'
+    boundPostGeneric = 'boundary_conditions.xml'
+    netPost = modelAdaptor.Idpat+'vascular_network.xml'
+    boundPost = modelAdaptor.Idpat+'boundary_conditions.xml'
+    xmlnetpathGeneric = os.path.join(wdir, netPostGeneric)
+    xmlboundpathGeneric = os.path.join(wdir, boundPostGeneric)
+    xmlnetpath = os.path.join(wdir, netPost)
+    xmlboundpath = os.path.join(wdir, boundPost)
+    simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
+else:  
+    simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
 
-
+if simType == 'generic':  
+    modelAdaptor.SettingParameters('XML/parameters.csv')
+    modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()
-networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
+if simType == 'generic':
+    networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
+else:
+    networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
 
 '''NetworkGraph Model Adaptor'''
-modelAdaptor.SetNetworkGraph(networkGraph)
-evaluator.SetNetworkGraph(networkGraph)
-modelAdaptor.AdaptingModel()
+if simType == 'generic':
+    modelAdaptor.SetNetworkGraph(networkGraph)
+    evaluator.SetNetworkGraph(networkGraph)
+    modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
+
 
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
 If tolerance is not provided, mesh generator uses default value = 0.3'''
@@ -170,7 +222,6 @@ solver.SetBoundaryConditions(boundaryConditions)
 solver.SetSimulationContext(simulationContext)
 solver.SetEvaluator(evaluator)
 solver.Solve()
-#evaluator.SetSecondaryEvaluator(evaluator, day)
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
 networkMesh.WriteToXML(xmlmeshpath)
@@ -186,7 +237,7 @@ for element in networkMesh.Elements:
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
         networkSolutions.PlotFlow(element.Id)
         networkSolutions.PlotPressure(element.Id)
-        #networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
+        networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
         #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
 networkSolutions.WriteToXML(xmloutpath)

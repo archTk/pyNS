@@ -19,8 +19,9 @@
 from DofMap import *
 from InverseWomersley import InverseWomersley
 from numpy.core.fromnumeric import mean
-from numpy.core.numeric import arange, array
+from numpy.core.numeric import array
 from math import pi
+from numpy.lib.function_base import linspace
 try:
     from lxml import etree
 except:
@@ -128,8 +129,8 @@ class NetworkSolutions(object):
             self.Cycles = self.SimulationContext.Context['cycles']
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
-            raise  
-        self.t = arange(self.TimeStep,self.Period+self.TimeStep,self.TimeStep)
+            raise 
+        self.t = linspace(self.TimeStep,self.Period,self.CardiacFreq)
     
     def SetSolutions(self, solutions):
         '''
@@ -283,7 +284,7 @@ class NetworkSolutions(object):
         '''
         This method plots inflow function
         '''
-        t = arange(0.0,self.Period+self.TimeStep,self.TimeStep).reshape((1,ceil(self.Period/self.TimeStep+1.0)))        
+        t = linspace(0.0,self.Period+self.TimeStep,self.CardiacFreq).reshape((1,ceil(self.Period/self.TimeStep+1.0)))        
         plot(t[0,:], flow[0,:]*6e7, 'r-',linewidth = 3, label = 'Inlet Flow')   #red line
         xlabel('Time (s)')
         ylabel('Flow (mL/min)')
@@ -309,7 +310,7 @@ class NetworkSolutions(object):
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
                 print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
-                
+      
         plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
         xlabel('Time (s)')
         ylabel('Flow (mL/min)')
@@ -1060,10 +1061,9 @@ class NetworkSolutions(object):
                 if s.Id == str(sedg):
                     if s.SuperEdges != {}:
                         superedge = etree.SubElement(superedges, "superedge", id = str(s.Id), name = str(s.Name))
-                        superedges2 = etree.SubElement(superedge, "superedges")
+                        superedges2 = etree.SubElement(superedges, "superedges")
                     if s.SuperEdges == {}:
-                        superedges2 = superedges
-                        superedge2 = etree.SubElement(superedges2, "superedge", id = str(s.Id), name = str(s.Name))
+                        superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
                         edgeIdsel = etree.SubElement(superedge2, "edgesIds")
                         for edgeIds in s.Edges.iterkeys():
                             etree.SubElement(edgeIdsel, "edgeIds", edge_id = str(edgeIds))

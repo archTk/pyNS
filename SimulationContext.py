@@ -114,9 +114,10 @@ class SimulationContext(object):
                             self.Context['mean_pressure'] = float(value.text)
                         for exp in data.findall(".//expression"):
                             self.Context['mean_pressure'] = exp.text
+                    
                     if data.tag == "cardiac_output":
                         for value in data.findall(".//scalar"):
-                            self.Context['cardiac_output'] = float(value.text)
+                            self.Context['cardiac_output'] = float(value.text)    
                         for exp in data.findall(".//expression"):
                             self.Context['cardiac_output'] = exp.text
                     if data.tag == "period":     
@@ -169,10 +170,8 @@ class SimulationContext(object):
                         self.Context['vertebral_ratio'] = float(param.text)
                     if param.tag == "lower_arm_ratio":
                         self.Context['lower_arm_ratio'] = float(param.text)
-                    if param.tag == "interosseous_ratio":
-                        self.Context['interosseous_ratio'] = float(param.text)
-                    if param.tag == "innominate_ratio":
-                        self.Context['innominate_ratio'] = float(param.text)
+                    if param.tag == "upper_arm_2_ratio":
+                        self.Context['upper_arm_2_ratio'] = float(param.text)
                     if param.tag == "vein_ratio":
                         self.Context['vein_ratio'] = float(param.text)
                     if param.tag == "poisson_ratio":
@@ -184,11 +183,12 @@ class SimulationContext(object):
                     if param.tag == "angle":
                         self.Context['angle'] = float(param.text)
     
-    def UpdateXML(self):
+    def UpdateXML(self, genericXml, specificXml):
         '''
         This method updates Boundary Conditions XML File Parameters from ModelAdaptor.
         '''
-        shutil.copy(self.xmlcontextpath, self.xmlcontextpath+'_generic')
+        shutil.copy(genericXml, specificXml)
+        self.xmlcontextpath = specificXml
         
         doccontextfile = open(self.xmlcontextpath)
         contexttree = etree.parse(doccontextfile)
@@ -256,6 +256,8 @@ class SimulationContext(object):
                                     pdata.text = 'Brachio-Basilic EndToSide'
                                 if self.Context[pdata.tag] == 6.0:
                                     pdata.text = 'Brachio-Basilic SideToSide'
+                                if self.Context[pdata.tag] == 7.0:
+                                    pdata.text = 'Pre-Surgery'
                             if pdata.tag == "hyp":
                                 if self.Context[pdata.tag] == 0.0:
                                     pdata.text = 'no'
@@ -270,14 +272,28 @@ class SimulationContext(object):
                 for param in parameters:
                     if param.tag in self.Context:
                         param.text = str(self.Context[param.tag])            
-                               
-                        
-                    
+     
         xmlcontext = etree.ElementTree(contextgraph)       
         xmlcontext.write(self.xmlcontextpath,encoding='iso-8859-1')
         self.ReadFromXML(self.xmlcontextpath)
-         
-       
+        
+        if self.Context['age'] < 40: 
+            self.Context['K_ax'] = 1.34
+            self.Context['K_sub'] = 1.675
+            self.Context['K_ver'] = 3.3
+        if self.Context['age'] > 40 and self.Context['age'] < 59: 
+            self.Context['K_ax'] = 1.43
+            self.Context['K_sub'] = 1.788
+            self.Context['K_ver'] = 3.3
+        if self.Context['age'] > 60:
+            self.Context['K_ax'] = 1.64
+            self.Context['K_sub'] = 2.05
+            self.Context['K_ver'] = 3.6
+        if self.Context['age'] <= 70:
+            self.Context['K_C'] = 1
+        if self.Context['age'] > 70:
+            self.Context['K_C'] = 0
+            
 class Error(Exception):
     '''
     A base class for exceptions defined in this module.

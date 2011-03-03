@@ -234,7 +234,7 @@ class FiveDofRclElementV2(Element):
         '''
         This method sets non linear compliance
         '''
-        self.C = compliance
+        self.C = compliance*self.Length
         
     def SetQLeakage(self, qleakage):
         '''
@@ -409,7 +409,7 @@ class FiveDofRclElementV2(Element):
                     self.C = float(sum(self.C))
             else:
                 if type(self.Compliance) is not str:
-                    self.C = self.Compliance
+                    self.C = self.Compliance*self.Length
                 else:
                     evaluator.Evaluate(self.Compliance)
                     

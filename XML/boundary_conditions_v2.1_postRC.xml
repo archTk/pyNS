@@ -54,66 +54,36 @@
       </entities>   
     </boundarycondition>
   </boundaryconditions>
-  <simulation_parameters>
-    <parameter id="aorta_ratio" unit="">
-      <scalar>0.15</scalar>
-    </parameter>
-    <parameter id="carotid_ratio" unit="">
-      <scalar>0.24</scalar>
-    </parameter>
-    <parameter id="upper_arm_ratio" unit="">
-      <scalar>0.15</scalar>
-    </parameter>
-    <parameter id="vertebral_ratio" unit="">
-      <scalar>0.33</scalar>
-    </parameter>
-    <parameter id="lower_arm_ratio" unit="">
-      <scalar>0.2</scalar>
-    </parameter>
-    <parameter id="interosseous_ratio" unit="">
-      <scalar>0.43</scalar>
-    </parameter>
-    <parameter id="innominate_ratio" unit="">
-      <scalar>0.18</scalar>
-    </parameter>
-    <parameter id="vein_ratio" unit="">
-      <scalar>0.2</scalar>
-    </parameter>
-    <parameter id="dynamic_viscosity" unit="Pa*S">
-      <scalar>3.0e-3</scalar>
-    </parameter>
-    <parameter id="blood_density" unit="Kg/m^3">
-      <scalar>1.05e3</scalar>
-    </parameter>
-    <parameter id="poisson_ratio" unit="">
-      <scalar>0.5</scalar>
-    </parameter>
-    <parameter id="timestep" unit="s">
-      <scalar>0.005</scalar>
-    </parameter>
-    <parameter id="period" unit="s">
-      <scalar>1.0</scalar>
-    </parameter>
-    <parameter id="cycles" unit="">
-      <scalar>10</scalar>
-    </parameter>
-    <parameter id="cardiac_output" unit="mL/min">
-      <scalar>5.686e3</scalar>
-    </parameter>     
-    <parameter id="mean_pressure" unit="mmHg">
-      <scalar>115</scalar>
-    </parameter> 
-    <parameter id="brachial_flow" unit="mL/min">
-      <scalar>190</scalar>
-    </parameter> 
-	<parameter id="radial_flow" unit="mL/min">
-      <scalar>20</scalar>
-    </parameter> 
-    <parameter id="ulnar_flow" unit="mL/min">
-      <scalar>28</scalar>
-    </parameter>
-    <parameter id="angle" unit="rad">
-      <scalar>0.6</scalar>
-    </parameter> 
-  </simulation_parameters>
+  <specificdatasets>
+    <patient_data id="1">
+      <mean_pressure unit="mmHg">
+        <scalar>115</scalar>
+      </mean_pressure>
+      <cardiac_output unit="mL/min">
+        <scalar>5.686e3</scalar>
+      </cardiac_output>
+      <period unit="s">1.0</period>
+      <brachial_flow unit="mL/min">190</brachial_flow>
+      <radial_flow unit="mL/min">20</radial_flow>
+      <ulnar_flow unit="mL/min">28</ulnar_flow>
+      <dynamic_viscosity unit="Pa*s">
+        <scalar>3.0e-3</scalar>
+      </dynamic_viscosity>
+    </patient_data>
+    <simulation_parameters id="2">
+      <blood_density unit="kg/m3">1.05e3</blood_density>
+      <aorta_ratio>0.15</aorta_ratio>
+      <carotid_ratio>0.24</carotid_ratio>
+      <upper_arm_ratio>0.15</upper_arm_ratio>
+      <vertebral_ratio>0.33</vertebral_ratio>
+      <lower_arm_ratio>0.2</lower_arm_ratio>
+      <interosseous_ratio>0.43</interosseous_ratio>
+      <innominate_ratio>0.18</innominate_ratio>
+      <vein_ratio>0.2</vein_ratio>
+      <poisson_ratio>0.5</poisson_ratio>
+      <timestep unit="s">0.005</timestep>
+      <cycles>10</cycles>
+      <angle unit="rad">0.6</angle>
+    </simulation_parameters>
+  </specificdatasets>
 </BoundaryConditionsGraph>    

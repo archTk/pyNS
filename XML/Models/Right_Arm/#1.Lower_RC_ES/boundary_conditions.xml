@@ -54,69 +54,54 @@
       </entities>   
     </boundarycondition>
   </boundaryconditions>
-  <simulation_parameters>
-    <parameter id="aorta_ratio" unit="">
-      <scalar>0.15</scalar>
-    </parameter>
-    <parameter id="carotid_ratio" unit="">
-      <scalar>0.24</scalar>
-    </parameter>
-    <parameter id="upper_arm_ratio" unit="">
-      <scalar>0.15</scalar>
-    </parameter>
-    <parameter id="vertebral_ratio" unit="">
-      <scalar>0.33</scalar>
-    </parameter>
-    <parameter id="lower_arm_ratio" unit="">
-      <scalar>0.2</scalar>
-    </parameter>
-    <parameter id="interosseous_ratio" unit="">
-      <scalar>0.43</scalar>
-    </parameter>
-    <parameter id="innominate_ratio" unit="">
-      <scalar>0.18</scalar>
-    </parameter>
-    <parameter id="vein_ratio" unit="">
-      <scalar>0.2</scalar>
-    </parameter>
-    <parameter id="dynamic_viscosity" unit="Pa*S">
-      <scalar>3.0e-3</scalar>
-    </parameter>
-    <parameter id="blood_density" unit="Kg/m^3">
-      <scalar>1.05e3</scalar>
-    </parameter>
-    <parameter id="poisson_ratio" unit="">
-      <scalar>0.5</scalar>
-    </parameter>
-    <parameter id="frequency" unit="Hz">
-      <scalar>1</scalar>
-    </parameter>
-    <parameter id="timestep" unit="s">
-      <scalar>0.005</scalar>
-    </parameter>
-    <parameter id="period" unit="s">
-      <scalar>1.0</scalar>
-    </parameter>
-    <parameter id="cycles" unit="">
-      <scalar>10</scalar>
-    </parameter>
-    <parameter id="cardiac_output" unit="mL/min">
-      <scalar>5.686e3</scalar>
-    </parameter>     
-    <parameter id="mean_pressure" unit="mmHg">
-      <scalar>115</scalar>
-    </parameter> 
-    <parameter id="brachial_flow" unit="mL/min">
-      <scalar>190</scalar>
-    </parameter> 
-	<parameter id="radial_flow" unit="mL/min">
-      <scalar>20</scalar>
-    </parameter> 
-    <parameter id="ulnar_flow" unit="mL/min">
-      <scalar>28</scalar>
-    </parameter>
-    <parameter id="angle" unit="rad">
-      <scalar>0.6</scalar>
-    </parameter> 
-  </simulation_parameters>
-</BoundaryConditionsGraph>    
+  <specificdatasets>
+    <patient_data id="1">
+      <dos unit="dd/mm/yyyy"></dos>
+      <dob unit="dd/mm/yyyy"></dob>
+      <age unit="years">
+        <expression>$age[]=(((datetime.strptime("$dos[]","%d/%m/%Y"))-(datetime.strptime("$dob[]","%d/%m/%Y"))).days)/365</expression>
+      </age>
+      <gender></gender>
+      <arm></arm>
+      <ftype></ftype>
+      <height unit="cm"></height>
+      <weight unit="kg"></weight>
+      <bsa unit="m2">
+        <expression>$bsa[]=0.007184*($weight[]**0.425)*($height[]**0.725)</expression>
+      </bsa>
+      <sysp unit="mmHg"></sysp>
+      <diap unit="mmHg"></diap>
+      <mean_pressure unit="mmHg">
+        <expression>$mean_pressure[]=$diap[]+(($sysp[]-$diap[])/3.0)</expression>
+      </mean_pressure>
+      <cardiac_output unit="mL/min">
+        <expression>$cardiac_output[]=((4.874-0.023*$age[])*$bsa[])*1e3</expression>
+      </cardiac_output>
+      <period unit="s"></period>
+      <brachial_flow unit="mL/min"></brachial_flow>
+      <radial_flow unit="mL/min"></radial_flow>
+      <ulnar_flow unit="mL/min"></ulnar_flow>
+      <ht unit="%"></ht>
+      <cp unit="g/dL"></cp>
+      <dynamic_viscosity unit="Pa*s">
+        <expression>$dynamic_viscosity[]=((1-(0.5*($ht[]/100)*e**(1.3435-2.803*($ht[]/100)+2.71*($ht[]/100)**2-0.6479*($ht[]/100)**3)))**-2)*(0.204+0.177*$cp[])*1e-3</expression>
+      </dynamic_viscosity>
+      <hyp></hyp>
+      <diab></diab>
+    </patient_data>
+    <simulation_parameters id="2">
+      <blood_density unit="kg/m3">1.05e3</blood_density>
+      <aorta_ratio>0.14</aorta_ratio>
+      <carotid_ratio>0.18</carotid_ratio>
+      <vertebral_ratio>0.19</vertebral_ratio>
+      <upper_arm_ratio>0.16</upper_arm_ratio>
+      <upper_arm_2_ratio>0.18</upper_arm_2_ratio>
+      <lower_arm_ratio>0.2</lower_arm_ratio>
+      <vein_ratio>0.2</vein_ratio>
+      <poisson_ratio>0.5</poisson_ratio>
+      <timestep unit="s">0.005</timestep>
+      <cycles>10</cycles>
+      <angle unit="rad">0.6</angle>
+    </simulation_parameters>
+  </specificdatasets>
+</BoundaryConditionsGraph>

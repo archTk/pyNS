@@ -110,7 +110,7 @@ class Evaluator(object):
         This method returns corresponding edge or superedge
         '''
         if edge in self.NetworkGraph.EdgeNamesToIds:
-            if abscissa:
+            if abscissa is not None:
                 self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].edgeAbscissa = abscissa
             else:
                 abscissa = None
@@ -192,9 +192,8 @@ class Evaluator(object):
         for rhsVariable in rhsVariables:
             rhsParameter, rhsElement, rhsAbscissa, rhsEdge = self.GetVariableComponents(rhsVariable)
             if rhsEdge is not None:
-                #if '#' in rhsEdge:
-                #    print rhsEdge
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
+                info = rhsAbscissa
                 rhs = self.variableRe.sub('edge%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
             else:    
                 if rhsElement == '':
