@@ -143,6 +143,7 @@ class NetworkSolutions(object):
         Setting images directory
         '''
         self.images = imagPath
+        print self.images
         
     # GENERAL METHODS
     
@@ -316,7 +317,7 @@ class NetworkSolutions(object):
         ylabel('Flow (mL/min)')
         title ('Flow')    
         legend()
-        savefig(self.images + meshname +'_flow.png')
+        savefig(self.images + meshid + '_' + meshname +'_flow.png')
         close()
         
     def PlotFlowComparative(self, cycle = None):
@@ -468,7 +469,7 @@ class NetworkSolutions(object):
         ylabel('Pressure (mmHg)')
         title ('Pressure')    
         legend()
-        savefig(self.images + meshname +'_pressure.png')
+        savefig(self.images + meshid + '_' + meshname +'_pressure.png')
         close()
 
     def PlotPressureTwo(self, meshid, meshid2, cycle = None):

@@ -25,10 +25,10 @@ import sys, getopt, os
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 xdir = 'XML/XSD/' #XSD schema files Working Directory (-x or --xdir)
 xsdNet =  'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-t or --xsdNet)
-xsdBound = 'boundary_conditions_v3.0.xsd' #Boundary Condition XSD Schema  (-h or --xsdBound)
+xsdBound = 'boundary_conditions_v3.1.xsd' #Boundary Condition XSD Schema  (-h or --xsdBound)
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:], "x:w:i:t:o:h:c:", ["xdir=", "wdir=", "xmlNet=", "xsdNet=", "xmlBound=", "xsdBound=", "csvFile="]) 
+    opts, args = getopt.getopt(sys.argv[1:], "x:w:i:t:o:h:", ["xdir=", "wdir=", "xmlNet=", "xsdNet=", "xmlBound=", "xsdBound="]) 
 except getopt.GetoptError: 
     print "Wrong parameters, please use -shortname parameter or --longname=parameter"                                  
     sys.exit(2)  
@@ -39,44 +39,48 @@ for opt, arg in opts:
     if opt in ("-x", "--xdir"):
         xdir = arg 
     if opt in ("-i", "--xmlNet"):
-        xmlNet = arg
+        xmlNetGeneric = arg
     if opt in ("-t", "--xsdNet"):
         xsdNet = arg
     if opt in ("-o", "--xmlBound"):
-        xmlBound = arg 
+        xmlBoundGeneric = arg 
     if opt in ("-h", "--xsdBound"):
         xsdBound = arg
-    if opt in ("-c", "--csvFile"):
-        csvFile = arg
-      
-xmlnetpath = os.path.join(wdir, xmlNet)   
-xsdnetpath = os.path.join(xdir, xsdNet)
-xmlboundpath = os.path.join(wdir, xmlBound)
-xsdboundpath = os.path.join(xdir, xsdBound)
-csvpath = os.path.join(wdir, csvFile)
+
 
 '''Setting Simulation Context Parameters for Simulation'''
 simulationContext = SimulationContext()
 evaluator = Evaluator()
 evaluator.SetSimulationContext(simulationContext)
 simulationContext.SetEvaluator(evaluator)
-simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
     
 '''Parameters Model Adaptor'''
 modelAdaptor = ModelAdaptor()
 modelAdaptor.SetSimulationContext(simulationContext)
 modelAdaptor.SetEvaluator(evaluator)
-try:
-    modelAdaptor.SettingParameters('XML/parameters.csv')
-except:
-    pass
-modelAdaptor.AdaptingParameters()
 
+xmlnetpathGeneric = os.path.join(wdir, xmlNetGeneric)
+xmlboundpathGeneric = os.path.join(wdir, xmlBoundGeneric)
+        
+xsdnetpath = os.path.join(xdir, xsdNet)
+xsdboundpath = os.path.join(xdir, xsdBound)
+
+simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
+modelAdaptor.Idpat = simulationContext.Context['idpat']
+
+netPost = modelAdaptor.Idpat+'_'+xmlNetGeneric
+boundPost = modelAdaptor.Idpat+'_BC_'+xmlNetGeneric
+xmlnetpath = os.path.join(wdir, netPost)
+xmlboundpath = os.path.join(wdir, boundPost)
+
+
+#starting customization
+modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()
-networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
+networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
 
 '''NetworkGraph Model Adaptor'''
 modelAdaptor.SetNetworkGraph(networkGraph)
 evaluator.SetNetworkGraph(networkGraph)
-modelAdaptor.AdaptingModel()
+modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)

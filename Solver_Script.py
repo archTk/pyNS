@@ -22,17 +22,18 @@ from NetworkMesh import NetworkMesh
 from NetworkGraph import NetworkGraph
 from NetworkSolutions import NetworkSolutions
 from BoundaryConditions import BoundaryConditions
+from MeshGenerator import MeshGenerator
 import sys, getopt, os
 
 '''Default Values'''
 wdir = 'XML/'   #Working Directory (-w or --wdir)
-odir = 'Output/'  #Output Directory (-o or --odir)
-images='Images/' #Output images Directory (-i or --idir)
-xsdBound = 'boundary_conditions_v3.0.xsd' #Boundary Condition XSD Schema  (-z or --xsdBound)
-xdir = 'XML/XSD/' #Schema Directory (-x or --xdir)
+xdir = 'XML/XSD/' #XSD schema files Working Directory (-x or --xdir)
+xsdNet =  'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-t or --xsdNet)
+xsdMesh = 'vascular_mesh_v2.0.xsd' #Vascular Network Mesh XSD Schema  (-h or --xsdMesh)
+xsdBound = 'boundary_conditions_v3.1.xsd' #Boundary Conditions XSD Schema 
 
 try:                                
-    opts, args = getopt.getopt(sys.argv[1:], "w:o:x:i:t:m:b:z:", ["wdir=", "odir=", "xdir=", "images=", "xmlOut=", "xmlMesh=", "xmlBound=", "xsdBound="]) 
+    opts, args = getopt.getopt(sys.argv[1:], "x:w:i:t:o:h:m:v:b:d:u:", ["xdir=", "wdir=", "xmlNet=", "xsdNet=", "xmlMesh=", "xsdMesh=","method=","tolValue=","xmlBound=","xsdBound=","xmlOut="]) 
 except getopt.GetoptError: 
     print "Wrong parameters, please use -shortname parameter or --longname=parameter"                                  
     sys.exit(2)  
@@ -40,55 +41,81 @@ except getopt.GetoptError:
 for opt, arg in opts:
     if opt in ("-w", "--wdir"):
         wdir = arg
-    if opt in ("-o", "--odir"):
-        odir = arg
     if opt in ("-x", "--xdir"):
-        odir = arg 
-    if opt in ("-i", "--images"):
-        images = arg
-    if opt in ("-t", "--xmlOut"):
-        xmlOut = arg
-    if opt in ("-m", "--xmlMesh"):
+        xdir = arg 
+    if opt in ("-i", "--xmlNet"):
+        xmlNet = arg
+    if opt in ("-t", "--xsdNet"):
+        xsdNet = arg
+    if opt in ("-o", "--xmlMesh"):
         xmlMesh = arg 
+    if opt in ("-h", "--xsdMesh"):
+        xsdMesh = arg
+    if opt in ("-m", "--method"):
+        method = arg
+    if opt in ("-v", "--tolValue"):
+        ToleranceValue = float(arg)
     if opt in ("-b", "--xmlBound"):
         xmlBound = arg
-    if opt in ("-z", "--xsdBound"):
-        xsdBound = arg 
+    if opt in ("-d", "--xsdBound"):
+        xmlBound = arg
+    if opt in ("-u", "--xmlOut"):
+        xmlOut = arg
       
-xmlmeshpath = os.path.join(wdir, xmlMesh)   
-xmloutpath = os.path.join(odir, xmlOut)
+xmlnetpath = os.path.join(wdir, xmlNet)   
+xsdnetpath = os.path.join(xdir, xsdNet)
+xsdmeshpath = os.path.join(xdir, xsdMesh)
 xmlboundpath = os.path.join(wdir, xmlBound)
 xsdboundpath = os.path.join(xdir, xsdBound)
+xmloutpath = os.path.join(wdir, xmlOut)
+images = wdir+'Images/'
+if not os.path.exists (images):
+    os.mkdir(images)
+
+'''Creating NetworkGraph Object From its XML'''
+networkGraph = NetworkGraph()
+networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
+
+'''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.'''
+meshGenerator = MeshGenerator()
+meshGenerator.SetNetworkGraph(networkGraph)
+networkMesh = NetworkMesh()
+meshGenerator.SetNetworkMesh(networkMesh)
+meshGenerator.SetMaxLength(ToleranceValue)
+meshGenerator.GenerateMesh()
 
 '''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
+simulationContext = SimulationContext()
+simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
+evaluator = Evaluator()
+evaluator.SetSimulationContext(simulationContext)
+simulationContext.SetEvaluator(evaluator)
 boundaryConditions = BoundaryConditions()
-boundaryConditions.SetSimulationContext(SimulationContext)
-boundaryConditions.SetNetworkMesh(NetworkMesh)
+boundaryConditions.SetSimulationContext(simulationContext)
+boundaryConditions.SetNetworkMesh(networkMesh)
 boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
 
 '''Setting Evaluator'''
-Evaluator.SetNetworkGraph(NetworkGraph)
-Evaluator.SetNetworkMesh(NetworkMesh)
+evaluator.SetNetworkGraph(networkGraph)
+evaluator.SetNetworkMesh(networkMesh)
 
 ''' Setting Solver Class'''
 solver = SolverFirstTrapezoid()  
-solver.SetNetworkMesh(NetworkMesh)
+solver.SetNetworkMesh(networkMesh)
 solver.SetBoundaryConditions(boundaryConditions)
-solver.SetSimulationContext(SimulationContext)
-solver.SetEvaluator(Evaluator)
+solver.SetSimulationContext(simulationContext)
+solver.SetEvaluator(evaluator)
 solver.Solve()
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
-NetworkMesh.WriteToXML(xmlmeshpath)
 networkSolutions = NetworkSolutions()
-networkSolutions.SetNetworkMesh(NetworkMesh)
-networkSolutions.SetNetworkGraph(NetworkGraph)
-networkSolutions.SetSimulationContext(SimulationContext)
+networkSolutions.SetNetworkMesh(networkMesh)
+networkSolutions.SetNetworkGraph(networkGraph)
+networkSolutions.SetSimulationContext(simulationContext)
 networkSolutions.SetSolutions(solver.Solutions)
 networkSolutions.SetImagesPath(images)
-for element in NetworkMesh.Elements:
+for element in networkMesh.Elements:
     if element.Type == '0D_FiveDofsV2':
-        networkSolutions.PlotWSS(element.Id)
         networkSolutions.PlotFlow(element.Id)
         networkSolutions.PlotPressure(element.Id)
 networkSolutions.WriteToXML(xmloutpath)

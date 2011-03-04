@@ -58,6 +58,8 @@ class SimulationContext(object):
         for dataset in contextgraph.findall(".//specificdatasets"):
             for pdata in dataset.findall(".//patient_data"):
                 for data in pdata:
+                    if data.tag == "idpat":
+                        self.Context['idpat'] = data.text
                     if data.tag == "dos":
                         self.Context['dos'] = data.text
                     if data.tag == "dob":
