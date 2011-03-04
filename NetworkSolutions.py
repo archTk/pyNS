@@ -143,7 +143,6 @@ class NetworkSolutions(object):
         Setting images directory
         '''
         self.images = imagPath
-        print self.images
         
     # GENERAL METHODS
     

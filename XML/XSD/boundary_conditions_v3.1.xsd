@@ -20,7 +20,7 @@
 <!--BoundaryConditionsGraph type-->
 	<xsd:complexType name="BoundaryConditionsGraphType">
 		<xsd:sequence>
-			<xsd:element name="boundaryconditions" type="boundaryconditionsType"/>
+			<xsd:element name="boundary_conditions" type="boundaryconditionsType"/>
             <xsd:element name="specificdatasets" type="specificdatasetsType"/>
 		</xsd:sequence>
 		<xsd:attribute name="id" type="xsd:integer" use="required"/>
@@ -34,7 +34,7 @@
 <!--each boundarycondition is described by  parameters-->
 	<xsd:complexType name="boundaryconditionsType">
 		<xsd:sequence>
-			<xsd:element maxOccurs="unbounded" minOccurs="1" name="boundarycondition" type="boundaryconditionType"/>
+			<xsd:element maxOccurs="unbounded" minOccurs="1" name="boundary_condition" type="boundaryconditionType"/>
 		</xsd:sequence>
 	</xsd:complexType>
 	
@@ -144,6 +144,7 @@
 <!--it contains a sequence of patient personal data-->
 	<xsd:complexType name="patientDataType">
 		<xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="1" name="idpat" type="xsd:str"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dos" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dob" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="age" type="simParameterType"/>
@@ -178,10 +179,11 @@
 			<xsd:element maxOccurs="1" minOccurs="1" name="blood_density" type="scalarType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="aorta_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="carotid_ratio" type="xsd:float"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="vertebral_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="upper_arm_ratio" type="xsd:float"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="upper_arm_2_ratio" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="vertebral_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="lower_arm_ratio" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="interosseous_ratio" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="innominate_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="vein_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="poisson_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="timestep" type="scalarType"/>
@@ -220,7 +222,6 @@
 <!--Fistula type-->
 	<xsd:simpleType name="ftypeType">
 		<xsd:restriction base="xsd:token">
-			<xsd:enumeration value="Pre-Surgery"/>
 			<xsd:enumeration value="Radio-Cephalic EndToEnd"/>
 			<xsd:enumeration value="Radio-Cephalic EndToSide"/>
 			<xsd:enumeration value="Radio-Cephalic SideToSide"/>
