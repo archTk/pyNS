@@ -429,8 +429,7 @@ class MeshGenerator(object):
                     meshId+=1         
                 else:
                     elementParameters = {}
-                    numEl = int(ceil(edgeProperties['length'] / self.MaxLength))                   
-                    elLength = edgeProperties['length']/numEl  #the exact element length [m]                     
+                    numEl = int(ceil(edgeProperties['length'] / self.MaxLength))         
                     i = 0.0
                     nameId = 1                   
                     self.NetworkMesh.meshToEdges[edge.NodeIds[0]] = meshNode1                   
@@ -439,16 +438,19 @@ class MeshGenerator(object):
                             nodes_list_last = len(nodes_list)                            
                     while i < numEl:                         
                         s1 = (i*self.MaxLength)/edgeProperties['length']
-                        s2 = ((i+1)*self.MaxLength)/edgeProperties['length']                                          
+                        s2 = ((i+1)*self.MaxLength)/edgeProperties['length']                                       
                         if s2 >= 1.0:
                             s2 = 1.0
+                            elLength = edgeProperties['length']-(i*self.MaxLength)
                             try:
                                 meshNode2 = self.NetworkMesh.meshToEdges[edge.NodeIds[1]]
                             except KeyError:
                                 meshNode2 = nodes_list_last+1
-                            self.NetworkMesh.meshToEdges[edge.NodeIds[1]] = meshNode2 
+                            self.NetworkMesh.meshToEdges[edge.NodeIds[1]] = meshNode2                 
                         else:
-                            meshNode2 = nodes_list_last+1                       
+                            elLength = (i+1)*self.MaxLength-(i*self.MaxLength)
+                            meshNode2 = nodes_list_last+1    
+                                           
                         elementParameters['s1'] = s1 
                         elementParameters['s2'] = s2 
                         if edgeProperties['radius'] is not None:
@@ -474,6 +476,7 @@ class MeshGenerator(object):
                         else:                         
                             elementParameters['wall_thickness']=edgeProperties['wallthickness']                         
                         elementParameters['young_modulus'] = {s1:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s1), s2:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s2)}
+                        
                         elementParameters['length'] = elLength
                         elementParameters["resistance"] = edge.Resistance
 
