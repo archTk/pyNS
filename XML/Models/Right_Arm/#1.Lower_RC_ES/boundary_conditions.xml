@@ -3,8 +3,8 @@
 <BoundaryConditionsGraph id="1" version="2.0"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:noNamespaceSchemaLocation="boundary_conditions_v2.0.xsd">
-  <boundaryconditions>
-    <boundarycondition id="1" type="transmural pressures">
+  <boundary_conditions>
+    <boundary_condition id="1" type="transmural pressures">
       <parameters>
         <pressure unit="Pa">
            <scalar>0.0</scalar>
@@ -27,8 +27,8 @@
         <entity id="subclavian_vein"/>
         <entity id="end_segment"/>
       </entities>
-    </boundarycondition>
-    <boundarycondition id="2" type="outflow pressure" name="venous">
+    </boundary_condition>
+    <boundary_condition id="2" type="outflow pressure" name="venous">
       <parameters>
         <pressure unit="Pa">
            <scalar>1333.0</scalar>
@@ -37,8 +37,8 @@
       <entities>
         <entity id="subclavian_vein"/>
       </entities>
-    </boundarycondition>
-    <boundarycondition id="3" type="inflow" name="heart">
+    </boundary_condition>
+    <boundary_condition id="3" type="inflow" name="heart">
       <parameters>
         <A0>
           <scalar>9.4770816e-5</scalar>
@@ -52,10 +52,11 @@
       <entities>
         <entity id="aorta" node_id="1"/>
       </entities>   
-    </boundarycondition>
-  </boundaryconditions>
+    </boundary_condition>
+  </boundary_conditions>
   <specificdatasets>
     <patient_data id="1">
+      <idpat></idpat>
       <dos unit="dd/mm/yyyy"></dos>
       <dob unit="dd/mm/yyyy"></dob>
       <age unit="years">

@@ -441,7 +441,7 @@
          <scalar>6.545805976100211e-04</scalar>
        </radius>
        <wall_thickness>
-         <expression>$WallThickness[interosseous] = $Radius[interosseous] * $interosseous_ratio[]</expression>
+         <expression>$WallThickness[interosseous] = $Radius[interosseous] * $upper_arm_ratio[]</expression>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>16e5</scalar>
@@ -477,7 +477,7 @@
          <scalar>0.004459779895805</scalar>
        </radius>
        <wall_thickness>
-         <expression>$WallThickness[innominate] = $Radius[innominate] * $innominate_ratio[]</expression>
+         <expression>$WallThickness[innominate] = $Radius[innominate] * $aorta_ratio[]</expression>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>4e5</scalar>

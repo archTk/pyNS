@@ -123,7 +123,7 @@ class ModelAdaptor(object):
         '''
         shutil.copy(genericXml, specificXml)
         self.NetworkGraph.xmlgraphpath = specificXml
-        
+
         if csvfilepath:
             print "Loading Specific Data"
             csv_reader = reader(file(csvfilepath, "rU"))
@@ -142,6 +142,7 @@ class ModelAdaptor(object):
         
         expressionList = []                    
         for edgeId, edge in self.NetworkGraph.Edges.iteritems():
+           
             if 'expression' in edge.Radius:
                 expressionList.append(edge.Radius['expression'])  
             if 'expression' in edge.Length:
@@ -154,16 +155,17 @@ class ModelAdaptor(object):
             if 'array' in edge.Radius:
                 for x in edge.Radius['array'].itervalues():
                     if type(x) is str:
-                        expressionList.append(x)
+                        if edge.ScalarRadius == {}:
+                            expressionList.append(x)
                    
         while len(expressionList)>0:       
             for x in expressionList:
                 try: 
                     self.Evaluator.Evaluate(x)
                     expressionList.remove(x)
-                except:   
+                except:
                     pass
-                        
+          
         
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
         xmlgraph = etree.ElementTree(root)
@@ -273,18 +275,34 @@ class ModelAdaptor(object):
                             yradius_v2 = etree.SubElement(yradius_s2, "scalar")
                             yradius_v2.text = str(e.yRadius['array'][1.0])
                     else:
-                        if 'value' in e.Radius:
-                            radius = etree.SubElement(properties, "radius", unit="m", accuracy="10%", source="US")
-                            radius_v = etree.SubElement(radius, "scalar")
-                            radius_v.text = str(e.Radius['value'])
-                        if 'array' in e.Radius:
-                            radius = etree.SubElement(properties, "radius_array", unit="m", accuracy="10%", source="US")
-                            radius_s1 = etree.SubElement(radius, "value", s="0.0")
-                            radius_v1 = etree.SubElement(radius_s1, "scalar")
-                            radius_v1.text = str(e.Radius['array'][0.0])
-                            radius_s2 = etree.SubElement(radius, "value", s="1.0")
-                            radius_v2 = etree.SubElement(radius_s2, "scalar")
-                            radius_v2.text = str(e.Radius['array'][1.0])
+                        if e.ScalarRadius == {}:
+                            if 'value' in e.Radius:
+                                radius = etree.SubElement(properties, "radius", unit="m", accuracy="10%", source="US")
+                                radius_v = etree.SubElement(radius, "scalar")
+                                radius_v.text = str(e.Radius['value'])
+                            if 'array' in e.Radius:
+                                radius = etree.SubElement(properties, "radius_array", unit="m", accuracy="10%", source="US")
+                                radius_s1 = etree.SubElement(radius, "value", s="0.0")
+                                radius_v1 = etree.SubElement(radius_s1, "scalar")
+                                radius_v1.text = str(e.Radius['array'][0.0])
+                                radius_s2 = etree.SubElement(radius, "value", s="1.0")
+                                radius_v2 = etree.SubElement(radius_s2, "scalar")
+                                radius_v2.text = str(e.Radius['array'][1.0])
+                        else:
+                            if 'array' in e.Radius:
+                                radius = etree.SubElement(properties, "radius_array", unit="m", accuracy="10%", source="US")
+                                radius_s1 = etree.SubElement(radius, "value", s="0.0")
+                                radius_v1_scalar = etree.SubElement(radius_s1, "scalar")
+                                radius_v1_scalar.text = str(e.ScalarRadius[0.0])
+                                radius_v1 = etree.SubElement(radius_s1, "expression")
+                                radius_v1.text = str(e.Radius['array'][0.0])
+                                radius_s2 = etree.SubElement(radius, "value", s="1.0")
+                                radius_v2_scalar = etree.SubElement(radius_s2, "scalar")
+                                radius_v2_scalar.text = str(e.ScalarRadius[1.0])
+                                radius_v2 = etree.SubElement(radius_s2, "expression")
+                                radius_v2.text = str(e.Radius['array'][1.0])
+                            
+                            
                     if 'value' in e.WallThickness:
                         wt = etree.SubElement(properties, "wall_thickness", unit="m", accuracy="10%", source="US")
                         wt_v = etree.SubElement(wt, "scalar")
@@ -322,8 +340,14 @@ class ModelAdaptor(object):
                             e.Radius_0 = e.Radius['value']
                             e.Radius_1 = e.Radius['value']
                         else:
-                            e.Radius_0 = e.Radius['array'][0.0]
-                            e.Radius_1 = e.Radius['array'][1.0]
+                            if type(e.Radius['array'][0.0]) is str:
+                                e.Radius_0 = e.ScalarRadius[0.0]
+                            else:
+                                e.Radius_0 = e.Radius['array'][0.0]
+                            if type(e.Radius['array'][1.0]) is str:
+                                e.Radius_1 = e.ScalarRadius[1.0]
+                            else:
+                                e.Radius_1 = e.Radius['array'][1.0]   
                         e.xRadius_0 = e.yRadius_0 = e.xRadius_1 = e.yRadius_1 = 0.0
                     except KeyError:
                         if 'value' in e.xRadius:
@@ -356,7 +380,7 @@ class ModelAdaptor(object):
                         ym = e.YoungModulus['value']
                     else:
                         ym = ''
-                        
+                       
                     csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3,e.xRadius_0*1e3, e.xRadius_1*1e3,e.yRadius_0*1e3, e.yRadius_1*1e3, C, ym])
         csv_writer.writerow([])
         csv_writer.writerow([])

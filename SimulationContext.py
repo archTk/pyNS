@@ -302,6 +302,10 @@ class SimulationContext(object):
                 self.Context['K_C1'] = 0
         if self.Context['hyp'] == 0 and self.Context['diab'] == 0:
             self.Context['K_C1'] = 0
+            
+        self.Context['Radius_cephalic_lower'] = 1.25e-3  
+            
+        
         
 class Error(Exception):
     '''

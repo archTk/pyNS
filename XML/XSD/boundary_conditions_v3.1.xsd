@@ -9,7 +9,7 @@
      The first element declared (root element) is called BoundaryConditionsGraph.
      "BoundaryConditions" is the leaf element and is identified by a unique ID.
      The rest of the file contains the definition of all used types.
-     Last updated on 2011-02-20 by Simone Manini.</xsd:documentation>
+     Last updated on 2011-03-07 by Simone Manini.</xsd:documentation>
         </xsd:annotation>
         <xsd:key name="bc_id">
 			<xsd:selector xpath="boundaryconditions/boundarycondition"/>
@@ -144,7 +144,7 @@
 <!--it contains a sequence of patient personal data-->
 	<xsd:complexType name="patientDataType">
 		<xsd:sequence>
-            <xsd:element maxOccurs="1" minOccurs="1" name="idpat" type="xsd:str"/>
+            <xsd:element maxOccurs="1" minOccurs="1" name="idpat" type="xsd:string"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dos" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dob" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="age" type="simParameterType"/>
@@ -179,11 +179,10 @@
 			<xsd:element maxOccurs="1" minOccurs="1" name="blood_density" type="scalarType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="aorta_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="carotid_ratio" type="xsd:float"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="upper_arm_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="vertebral_ratio" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="upper_arm_ratio" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="upper_arm_2_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="lower_arm_ratio" type="xsd:float"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="interosseous_ratio" type="xsd:float"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="innominate_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="vein_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="poisson_ratio" type="xsd:float"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="timestep" type="scalarType"/>

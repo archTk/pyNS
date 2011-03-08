@@ -27,7 +27,7 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'post'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
@@ -169,8 +169,8 @@ if simType == 'generic':
             
     netPostGeneric = 'vascular_network.xml'
     boundPostGeneric = 'boundary_conditions.xml'
-    netPost = modelAdaptor.Idpat+'vascular_network.xml'
-    boundPost = modelAdaptor.Idpat+'boundary_conditions.xml'
+    netPost = modelAdaptor.Idpat+'_vascular_network.xml'
+    boundPost = modelAdaptor.Idpat+'_boundary_conditions.xml'
     xmlnetpathGeneric = os.path.join(wdir, netPostGeneric)
     xmlboundpathGeneric = os.path.join(wdir, boundPostGeneric)
     xmlnetpath = os.path.join(wdir, netPost)

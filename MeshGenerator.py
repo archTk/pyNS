@@ -191,7 +191,17 @@ class MeshGenerator(object):
             meshym[0.0] = youngModulus
             meshym[1.0] = youngModulus
             edgeProperty['youngmodulus'] = meshym
-
+        
+        if edge.ScalarRadius != {}:
+            edgeProperty['ScalarRadius'] = edge.ScalarRadius
+        else:
+            edgeProperty['ScalarRadius'] = {}
+        
+        if edgeProperty['radius'] is not None:
+            for rad in edgeProperty['radius'].itervalues():
+                if type(rad) is not str:
+                    edgeProperty['ScalarRadius'] = edgeProperty['radius']
+    
         return edgeProperty
 
     def GenerateMesh(self):
@@ -360,11 +370,17 @@ class MeshGenerator(object):
                             nodes_list_last = len(nodes_list)
                     ###############                    
                     #parameters####
+                    
                     elementParameters['s1'] = 0.0 
                     elementParameters['s2'] = 1.0
                     elementParameters['length'] = edgeProperties['length'] 
                     if edgeProperties['radius'] is not None:
-                        elementParameters['radius'] = edgeProperties['radius']
+                        if type(edgeProperties['radius'][0]) is str or type(edgeProperties['radius'][1]) is str:
+                            
+                            elementParameters['radiusAtRest'] = edgeProperties['ScalarRadius']
+                            elementParameters['radius'] = edgeProperties['radius']
+                        else:
+                            elementParameters['radius'] = edgeProperties['radius']
                     else:
                         elementParameters['radius'] = {elementParameters['s1']:edgeProperties['xradius'][elementParameters['s1']]*edgeProperties['yradius'][elementParameters['s1']]**0.5, elementParameters['s2']:edgeProperties['xradius'][elementParameters['s2']]*edgeProperties['yradius'][elementParameters['s2']]**0.5}
                     elementParameters['wall_thickness'] = edgeProperties['wallthickness']
@@ -376,9 +392,15 @@ class MeshGenerator(object):
                     if edgeProperties['yradius'][0.0] is not None:     
                         elementParameters['yradius'] = edgeProperties['yradius']
                     else:
-                        elementParameters['yradius'] = None                    
+                        elementParameters['yradius'] = None  
+                        
+                    
                     elementParameters["resistance"] = edge.Resistance
-                    elementParameters["compliance"] = edge.Compliance
+
+                    if edge.NlCompliance != {}:
+                        elementParameters["compliance"] = edge.NlCompliance['expression']
+                    else:
+                        elementParameters["compliance"] = edge.Compliance
                     elementParameters["leakage"] = edge.QLeakage
                     if edge.QLeakage:
                         nLeak+=1
@@ -430,7 +452,11 @@ class MeshGenerator(object):
                         elementParameters['s1'] = s1 
                         elementParameters['s2'] = s2 
                         if edgeProperties['radius'] is not None:
-                            elementParameters['radius'] = {s1:edgeProperties['radius'][0]-((edgeProperties['radius'][0]-edgeProperties['radius'][1])*s1), s2:edgeProperties['radius'][0]-((edgeProperties['radius'][0]-edgeProperties['radius'][1])*s2)}
+                            if type(edgeProperties['radius'][0]) is str or type(edgeProperties['radius'][1]) is str:
+                                elementParameters['radiusAtRest'] = {s1:edgeProperties['ScalarRadius'][0]-((edgeProperties['ScalarRadius'][0]-edgeProperties['ScalarRadius'][1])*s1), s2:edgeProperties['ScalarRadius'][0]-((edgeProperties['ScalarRadius'][0]-edgeProperties['ScalarRadius'][1])*s2)}
+                                elementParameters['radius'] = {s1:edgeProperties['radius'][0], s2:edgeProperties['radius'][1]}
+                            else: 
+                                elementParameters['radius'] = {s1:edgeProperties['radius'][0]-((edgeProperties['radius'][0]-edgeProperties['radius'][1])*s1), s2:edgeProperties['radius'][0]-((edgeProperties['radius'][0]-edgeProperties['radius'][1])*s2)}
                         else:
                             rs1 = ((edgeProperties['xradius'][0]-((edgeProperties['xradius'][0]-edgeProperties['xradius'][1])*s1))*(edgeProperties['yradius'][0]-((edgeProperties['yradius'][0]-edgeProperties['yradius'][1])*s1)))**0.5
                             rs2 = ((edgeProperties['xradius'][0]-((edgeProperties['xradius'][0]-edgeProperties['xradius'][1])*s2))*(edgeProperties['yradius'][0]-((edgeProperties['yradius'][0]-edgeProperties['yradius'][1])*s2)))**0.5
@@ -450,7 +476,13 @@ class MeshGenerator(object):
                         elementParameters['young_modulus'] = {s1:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s1), s2:edgeProperties['youngmodulus'][0]-((edgeProperties['youngmodulus'][0]-edgeProperties['youngmodulus'][1])*s2)}
                         elementParameters['length'] = elLength
                         elementParameters["resistance"] = edge.Resistance
-                        elementParameters["compliance"] = edge.Compliance
+
+                        
+                        if edge.NlCompliance != {}:
+                            elementParameters["compliance"] = edge.NlCompliance['expression']
+                        else:
+                            elementParameters["compliance"] = edge.Compliance
+                        
                         elementParameters["leakage"] = edge.QLeakage
                         if edge.QLeakage:
                             nLeak+=2                      

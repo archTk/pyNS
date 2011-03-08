@@ -139,8 +139,8 @@ class NetworkGraph(object):
                 WrongXSDPathError()
         else:
             print "Warning, Network Graph xml schema was not provided."
-        if error:
-            sys.exit()
+        #if error:
+        #    sys.exit()
             
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
@@ -242,14 +242,15 @@ class NetworkGraph(object):
                         for curv in data.findall(".//value"):
                             curv_dict = curv.attrib
                             s = float(curv_dict['s'])
-                            for radius in curv.findall(".//expression"):
-                                radius_v = radius.text
-                                radius_dict[s] = radius_v   # Setting Edge Radius(expression type)                            
                             for radius in curv.findall(".//scalar"):
                                 radius_v = float(radius.text)                              
-                                radius_dict[s] = radius_v                               
-                        radius_value['array'] = radius_dict                   
-                        edge.SetRadius(radius_value)  # Setting Edge Radius (array type)                       
+                                radius_dict[s] = radius_v
+                                edge.SetScalarRadius(s, radius_v)
+                            for radius in curv.findall(".//expression"):
+                                radius_v = radius.text
+                                radius_dict[s] = radius_v   # Setting Edge Radius(expression type)                                                   
+                        radius_value['array'] = radius_dict              
+                        edge.SetRadius(radius_value)  # Setting Edge Radius (array type) 
                     if data.tag == "radius":                        
                         radius_value = {}                        
                         for radius in data.findall(".//scalar"):
@@ -261,7 +262,7 @@ class NetworkGraph(object):
                     if data.tag == "radius_a":                       
                         radius_valueA = {}                                       
                         for radiusA in data.findall(".//scalar"):
-                            radius_valueA['value'] = float(radiusA.text)                            
+                            radius_valueA['value'] = float(radiusA.text)                       
                             edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (scalar type)
                         for radiusA in data.findall(".//expression"):
                             radius_valueA['expression'] = radiusA.text
@@ -367,7 +368,10 @@ class NetworkGraph(object):
                         for compliance in data.findall(".//expression"):                       
                             edge.SetCompliance(compliance.text)     
                         for compliance in data.findall(".//scalar"):
-                            edge.SetCompliance(float(compliance.text) )                                       
+                            edge.SetCompliance(float(compliance.text))
+                    if data.tag == "nl_compliance":                        
+                        for nlcompliance in data.findall(".//expression"):                       
+                            edge.SetNlCompliance(nlcompliance.text)                                      
             for features in edgeg.findall(".//features"):
                 for data in features:                          
                     if data.tag == "stenosis":
@@ -580,6 +584,7 @@ class Edge(object):
         self.Length = {}
         self.Coordinates = {}
         self.Radius = {}
+        self.ScalarRadius = {}
         self.xRadius = {}
         self.yRadius = {}
         self.Distensibility = {}
@@ -588,6 +593,7 @@ class Edge(object):
         self.QLeakage = None
         self.Resistance = None
         self.Compliance = None
+        self.NlCompliance = {}
         self.Stenosis = None
         self.Kink = None
         self.edgeAbscissa = None
@@ -664,7 +670,16 @@ class Edge(object):
                 self.Radius.update({'value':radius})       
         else:
             self.Radius.update(radius)
-    
+            
+    def SetScalarRadius(self, s, radius):
+        '''
+        This method sets Radius
+        Radius can be a single value or an array of values.
+        s:value    
+        '''
+        self.ScalarRadius[s] = radius
+        
+        
     def SetRadiusxAxis(self, radius):
         '''
         This method set X Axis Radius (Venous has an elliptic geometry)
@@ -722,13 +737,20 @@ class Edge(object):
     
     def SetCompliance(self, compliance):
         '''
-        This method sets non linear compliance.
+        This method sets compliance.
         '''
         if type(compliance) is str:
             self.Compliance = {}
             self.Compliance['expression'] = compliance
         else:
             self.Compliance = compliance
+            
+    
+    def SetNlCompliance(self, compliance):
+        '''
+        This method sets non linear compliance.
+        '''
+        self.NlCompliance['expression'] = compliance
         
     def SetStenosis(self, s, radius, length, resistance, compliance):
         '''

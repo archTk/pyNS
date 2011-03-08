@@ -220,7 +220,8 @@ class SolverFirstTrapezoid(Solver):
                 
                 if nlerr < nltol:
                     nltol = self.nltol
-                    counter = 0
+                    counter = 0 
+                    #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
                     break  
                 
                 counter+=1

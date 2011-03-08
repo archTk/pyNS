@@ -170,8 +170,10 @@ class BoundaryConditions(object):
             try:
                 schemabcfile = open(xsdBcpath)
                 xmlschema_doc = etree.parse(schemabcfile)
+                
                 try:
                     xmlschema = etree.XMLSchema(xmlschema_doc)
+                    
                     docbcfile = open(xmlBcpath)
                     docbc = etree.parse(docbcfile)
                 except:
@@ -197,7 +199,7 @@ class BoundaryConditions(object):
         if self.Id != self.NetworkMesh.Id:
             raise XMLIdError()
             
-        for bc in bcgraph.findall(".//boundarycondition"):
+        for bc in bcgraph.findall(".//boundary_condition"):
             bc_dict = bc.attrib
             if bc_dict['type'] == 'transmural pressures':
                 id = bc_dict['id']
@@ -281,8 +283,9 @@ class BoundaryConditions(object):
                                         self.NodeFlow = el.NodeIds[0]
                                              
         #SPECIFIC PATIENT CARDIAC OUTPUT STROKE VOLUME REMODELING                               
-        if self.SimulationContext.Context['cardiac_output'] != 5.686e3:
-            if self.signal is None:
+        
+        if self.signal is None:
+            if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
                 print "Adapting Cardiac Inflow"
                 A1 = self.SimulationContext.Context['cardiac_output']/6.0e7
                 shift = 9.18388663e-06

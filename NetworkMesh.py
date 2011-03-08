@@ -158,18 +158,23 @@ class NetworkMesh(object):
                     mesh_Resistance02 = etree.SubElement(mesh_parameters, "Resistance_0_2")
                     Resistance_value02 = etree.SubElement(mesh_Resistance02, "scalar")
                     Resistance_value02.text = str(mesh.R_0_2)
-                else:                   
+                else:
                     element = etree.SubElement(elements, "element", id = str(mesh.Id), nodeIds = str(mesh.NodeIds).strip('[]'), type = mesh.Type)
-                    mesh_parameters = etree.SubElement(element, "parameters")
-                    mesh_R1 = etree.SubElement(mesh_parameters, "Wave_Impedance")
-                    R1_value = etree.SubElement(mesh_R1, "scalar")
-                    R1_value.text = str(mesh.R1)
-                    mesh_R2 = etree.SubElement(mesh_parameters, "Peripheral_Resistance")
-                    R2_value = etree.SubElement(mesh_R2, "scalar")
-                    R2_value.text = str(mesh.R2)     
-                    mesh_C = etree.SubElement(mesh_parameters, "Compliance")
-                    C_value = etree.SubElement(mesh_C, "scalar")
-                    C_value.text = str(mesh.C)
+                    for node in self.GraphNodeToMesh:
+                        if node.Type == 'downstream network':
+                            if self.GraphNodeToMesh[node] == mesh.Id:
+                                nodeid = node.Id
+                                mesh_coordinates = etree.SubElement(element, "pcoord", nodeId=nodeid)
+                                mesh_parameters = etree.SubElement(element, "parameters")
+                                mesh_R1 = etree.SubElement(mesh_parameters, "Wave_Impedance")
+                                R1_value = etree.SubElement(mesh_R1, "scalar")
+                                R1_value.text = str(mesh.R1)
+                                mesh_R2 = etree.SubElement(mesh_parameters, "Peripheral_Resistance")
+                                R2_value = etree.SubElement(mesh_R2, "scalar")
+                                R2_value.text = str(mesh.R2)     
+                                mesh_C = etree.SubElement(mesh_parameters, "Compliance")
+                                C_value = etree.SubElement(mesh_C, "scalar")
+                                C_value.text = str(mesh.C)
         indent(root)                
         xmlmesh.write (xmlmeshpath, encoding='iso-8859-1')       
 

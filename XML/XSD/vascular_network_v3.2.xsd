@@ -307,6 +307,7 @@
 			<xsd:element minOccurs="0" name="young_modulus" type="parameterType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="resistance" type="nonlinearType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="compliance" type="nonlinearType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="nl_compliance" type="nonlinearType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="leakage" type="nonlinearType"/>
 		</xsd:sequence>
 	</xsd:complexType>
@@ -319,11 +320,11 @@
 	</xsd:complexType>
 	
 	<xsd:complexType name="valueType">
-		<xsd:choice>
-			<xsd:element name="scalar" type="xsd:float"/>
-			<xsd:element name="vector" type="vectorType"/>
-			<xsd:element name="expression" type="xsd:string"/>
-		</xsd:choice>
+		<xsd:all>
+			<xsd:element maxOccurs="1" minOccurs="0" name="scalar" type="xsd:float"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="vector" type="vectorType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="expression" type="xsd:string"/>
+		</xsd:all>
 		<xsd:attribute name="s" type="xsd:float"/>
 	</xsd:complexType>
 	

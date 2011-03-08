@@ -184,11 +184,20 @@ class FiveDofRclElementV2(Element):
         try:
             self.QLeakage = elementParameters["leakage"]
         except KeyError:
-            self.QLeakage = None    
+            self.QLeakage = None   
+        
         self.s1 = elementParameters["s1"]
         self.s2 = elementParameters["s2"]
         self.Length = elementParameters["length"]
         self.Radius = elementParameters["radius"]
+        try:
+            self.RadiusAtRest = elementParameters["radiusAtRest"]
+            self.RadiusExp = self.Radius
+            self.nonLinearParameter['radiusExp'] = True
+            self.Radius = self.RadiusAtRest
+        except KeyError:
+            self.RadiusAtRest = None
+            self.RadiusExp = None
         self.xRadius = elementParameters["xradius"]
         self.yRadius = elementParameters["yradius"]
         self.WallThickness = elementParameters["wall_thickness"]
@@ -223,6 +232,12 @@ class FiveDofRclElementV2(Element):
         This method sets WallThickness
         '''
         self.WallThickness = wallthickness
+        
+    def SetRadius(self, radius):
+        '''
+        This method sets Radius
+        '''
+        self.Radius = radius
     
     def SetResistance(self, resistance):
         '''
@@ -234,7 +249,7 @@ class FiveDofRclElementV2(Element):
         '''
         This method sets non linear compliance
         '''
-        self.C = compliance*self.Length
+        self.C = compliance
         
     def SetQLeakage(self, qleakage):
         '''
@@ -301,21 +316,24 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set Frequency[Hz] in Boundary Conditions XML File"
             raise
         
-        if self.Initialized == False:
-            z = arange(0.0,self.Length,self.dz)
-            s1 = self.s1
-            s2 = self.s2
+       
+        z = arange(0.0,self.Length,self.dz)
+        s1 = self.s1
+        s2 = self.s2
         
         if self.Initialized == True:
             for name, value in self.nonLinearParameter.iteritems():
-                if value == True and name == 'radius':
-                    pass
+                if value == True and name == 'radiusExp':
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
+                    evaluator.Evaluate(self.RadiusExp[s1])
+                    
         else:
             if self.Radius is not None:
                 r1 = ((self.Radius[s2] - self.Radius[s1])/self.Length)
                 r2 = self.Radius[s1]
                 r_z = r2+(r1*z)
                 self.Radius = r_z
+                self.RadiusAtRest = self.Radius
         
         if self.Initialized == True:
             for name, value in self.nonLinearParameter.iteritems():
@@ -395,6 +413,8 @@ class FiveDofRclElementV2(Element):
                     R = self.R
                     R = float(mean(R))
                     Ralpha = float(R * self.Womersley(self.Radius)[0])
+                else:
+                    Ralpha = self.R
         
         if self.Initialized == False:
             if self.Compliance == None:
@@ -411,12 +431,19 @@ class FiveDofRclElementV2(Element):
                 if type(self.Compliance) is not str:
                     self.C = self.Compliance*self.Length
                 else:
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.Compliance)
+                    self.C = self.C *self.dz
+                    self.C = float(sum(self.C))
+                    
                     
         if self.Initialized == True:
             for name, value in self.nonLinearParameter.iteritems():
                 if value == True and name == 'compliance':
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.Compliance)
+                    self.C = self.C *self.dz
+                    self.C = float(sum(self.C))
                     
         if self.Initialized == False: 
             if self.QLeakage is None:
@@ -522,7 +549,6 @@ class FiveDofRclElementV2(Element):
         '''
         
         self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info)/(mean(self.Radius)**3))
-        print self.Wss
         return self.Wss
     
     def GetPressure (self, info):
@@ -614,6 +640,13 @@ class FiveDofRclElementV2(Element):
         '''
         Radius = self.Radius
         return Radius
+    
+    def GetRadiusAtRest(self,info):
+        '''
+        This method returns Radius
+        '''
+        RadiusAtRest = self.RadiusAtRest
+        return RadiusAtRest
     
     def GetRadius_a(self,info):
         '''

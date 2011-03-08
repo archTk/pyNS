@@ -147,9 +147,9 @@ class Evaluator(object):
         Evaluate(expr,{'DofMap':self.DofMap}...)
         This method evaluates provided expression and returns result.
         '''
-        info = self.Info 
+        info = self.Info
+         
         if expression in self.ExpressionCache: 
-            
             elEvals = self.ExpressionCache[expression]['elEvals']
             lhsEvalDict = self.ExpressionCache[expression]['lhsEvalDict']
             lhs = self.ExpressionCache[expression]['lhs']
