@@ -37,6 +37,7 @@ class SimulationContext(object):
         '''
         self.Id = None
         self.Context = {} # dictionary of simulation parameters. {parameter:value}
+        self.Defaults = {} # dictionary of defaults simulation parameters. {parameter:value}
         self.Evaluator = None
         
     def SetEvaluator(self, evaluator):
@@ -74,11 +75,15 @@ class SimulationContext(object):
                             self.Context['gender'] = int(1)
                         if data.text == "female":
                             self.Context['gender'] = int(0)
+                        if data.text is None:
+                            self.Context['gender'] = None
                     if data.tag == "arm":
                         if data.text == "right":
                             self.Context['arm'] = int(1)
                         if data.text == "left":
                             self.Context['arm'] = int(0)
+                        if data.text is None:
+                            self.Context['arm'] = None
                     if data.tag == "ftype":
                         if data.text == "Radio-Cephalic EndToEnd":
                             self.Context['ftype'] = int(0)
@@ -93,13 +98,19 @@ class SimulationContext(object):
                         if data.text == "Brachio-Basilic EndToSide":
                             self.Context['ftype'] = int(5)
                         if data.text == "Brachio-Basilic SideToSide":
-                            self.Context['ftype'] = int(6)    
+                            self.Context['ftype'] = int(6)
+                        if data.text is None:
+                            self.Context['ftype'] = None 
                     if data.tag == "height":
                         if data.text:
                             self.Context['height'] = float(data.text)
+                        else:
+                            self.Context['height'] = None
                     if data.tag == "weight":     
                         if data.text:
                             self.Context['weight'] = float(data.text)
+                        else:
+                            self.Context['weight'] = None
                     if data.tag == "bsa":
                         for value in data.findall(".//scalar"):
                             self.Context['bsa'] = float(value.text)
@@ -108,9 +119,13 @@ class SimulationContext(object):
                     if data.tag == "sysp":     
                         if data.text:
                             self.Context['sysp'] = float(data.text)
+                        else:
+                            self.Context['sysp'] = None
                     if data.tag == "diap":     
                         if data.text:
                             self.Context['diap'] = float(data.text)
+                        else:
+                            self.Context['diap'] = None
                     if data.tag == "mean_pressure":
                         for value in data.findall(".//scalar"):
                             self.Context['mean_pressure'] = float(value.text)
@@ -125,21 +140,33 @@ class SimulationContext(object):
                     if data.tag == "period":     
                         if data.text:
                             self.Context['period'] = float(data.text)
+                        else:
+                            self.Context['period'] = None
                     if data.tag == "brachial_flow":
                         if data.text:   
                             self.Context['brachial_flow'] = float(data.text)
+                        else:
+                            self.Context['brachial_flow'] = None
                     if data.tag == "radial_flow":     
                         if data.text:
                             self.Context['radial_flow'] = float(data.text)
+                        else:
+                            self.Context['radial_flow'] = None
                     if data.tag == 'ulnar_flow':     
                         if data.text:
                             self.Context['ulnar_flow'] = float(data.text)
+                        else:
+                            self.Context['ulnar_flow'] = None
                     if data.tag == 'ht':     
                         if data.text:
                             self.Context['ht'] = float(data.text)
+                        else:
+                            self.Context['ht'] = None
                     if data.tag == 'cp':     
                         if data.text:
                             self.Context['cp'] = float(data.text)
+                        else:
+                            self.Context['cp'] = None
                     if data.tag == "dynamic_viscosity":
                         for value in data.findall(".//scalar"):
                             self.Context['dynamic_viscosity'] = float(value.text)
@@ -151,12 +178,16 @@ class SimulationContext(object):
                                 self.Context['hyp'] = int(0)
                             if data.text == "yes":
                                 self.Context['hyp'] = int(1)
+                        else:
+                            self.Context['hyp'] = None 
                     if data.tag == 'diab':     
                         if data.text:
                             if data.text == "no":
                                 self.Context['diab'] = int(0)
                             if data.text == "yes":
                                 self.Context['diab'] = int(1)
+                        else:
+                            self.Context['diab'] = None 
                         
             for parameters in dataset.findall(".//simulation_parameters"):
                 for param in parameters:
@@ -184,6 +215,26 @@ class SimulationContext(object):
                         self.Context['cycles'] = int(param.text)
                     if param.tag == "angle":
                         self.Context['angle'] = float(param.text)
+        
+        #Default generic values
+        self.Defaults['idpat'] = '00000'
+        self.Defaults['dos'] = '27/07/2010'
+        self.Defaults['dob'] = '27/07/1960'
+        self.Defaults['gender'] = int(1)
+        self.Defaults['arm'] = int(1)
+        self.Defaults['ftype'] = int(1)
+        self.Defaults['height'] = float(175)
+        self.Defaults['weight'] = float(70)
+        self.Defaults['sysp'] = float(110)
+        self.Defaults['diap'] = float(70)
+        self.Defaults['brachial_flow'] = float(130) 
+        self.Defaults['radial_flow'] = float(20)
+        self.Defaults['ulnar_flow'] = float(30)
+        self.Defaults['period'] = float(1)
+        self.Defaults['ht'] = float(45)
+        self.Defaults['cp'] = float(7)
+        self.Defaults['hyp'] = int(0)
+        self.Defaults['diab'] = int(0)
     
     def UpdateXML(self, genericXml, specificXml):
         '''
@@ -279,6 +330,7 @@ class SimulationContext(object):
         xmlcontext.write(self.xmlcontextpath,encoding='iso-8859-1')
         self.ReadFromXML(self.xmlcontextpath)
         
+        #Model Adaptor Parameters
         if self.Context['age'] < 40: 
             self.Context['K_ax'] = 1.34
             self.Context['K_sub'] = 1.675

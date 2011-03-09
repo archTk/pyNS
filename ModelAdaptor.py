@@ -91,7 +91,7 @@ class ModelAdaptor(object):
             name = el[0]
             value = el[1]
             
-            if name == 'dob' or name == 'dos':
+            if name == 'dob' or name == 'dos' or name == 'idpat':
                 self.SimulationContext.Context[name] = str(value)
             else:
                 self.SimulationContext.Context[name] = float(value)
@@ -102,11 +102,49 @@ class ModelAdaptor(object):
         This method evaluates expressions in boundary conditions file and
         re-writes a new boundary conditions xml file with computed values
         '''
+      
+        if self.SimulationContext.Context['idpat'] is None:
+            self.SimulationContext.Context['idpat'] =  self.SimulationContext.Defaults['idpat']
+        if self.SimulationContext.Context['dos'] is None:
+            self.SimulationContext.Context['dos'] =  self.SimulationContext.Defaults['dos']
+        if self.SimulationContext.Context['dob'] is None:
+            self.SimulationContext.Context['dob'] =  self.SimulationContext.Defaults['dob']
+        if self.SimulationContext.Context['gender'] is None:
+            self.SimulationContext.Context['gender'] =  self.SimulationContext.Defaults['gender']
+        if self.SimulationContext.Context['arm'] is None:
+            self.SimulationContext.Context['arm'] =  self.SimulationContext.Defaults['arm']
+        if self.SimulationContext.Context['ftype'] is None:
+            self.SimulationContext.Context['ftype'] =  self.SimulationContext.Defaults['ftype']
+        if self.SimulationContext.Context['height'] is None:
+            self.SimulationContext.Context['height'] =  self.SimulationContext.Defaults['height']
+        if self.SimulationContext.Context['weight'] is None:
+            self.SimulationContext.Context['weight'] =  self.SimulationContext.Defaults['weight']
+        if self.SimulationContext.Context['sysp'] is None:
+            self.SimulationContext.Context['sysp'] =  self.SimulationContext.Defaults['sysp']
+        if self.SimulationContext.Context['diap'] is None:
+            self.SimulationContext.Context['diap'] =  self.SimulationContext.Defaults['diap']
+        if self.SimulationContext.Context['period'] is None:
+            self.SimulationContext.Context['period'] =  self.SimulationContext.Defaults['period']
+        if self.SimulationContext.Context['brachial_flow'] is None:
+            self.SimulationContext.Context['brachial_flow'] =  self.SimulationContext.Defaults['brachial_flow']
+        if self.SimulationContext.Context['radial_flow'] is None:
+            self.SimulationContext.Context['radial_flow'] =  self.SimulationContext.Defaults['radial_flow']
+        if self.SimulationContext.Context['ulnar_flow'] is None:
+            self.SimulationContext.Context['ulnar_flow'] =  self.SimulationContext.Defaults['ulnar_flow']
+        if self.SimulationContext.Context['ht'] is None:
+            self.SimulationContext.Context['ht'] =  self.SimulationContext.Defaults['ht']
+        if self.SimulationContext.Context['cp'] is None:
+            self.SimulationContext.Context['cp'] =  self.SimulationContext.Defaults['cp']
+        if self.SimulationContext.Context['hyp'] is None:
+            self.SimulationContext.Context['hyp'] =  self.SimulationContext.Defaults['hyp']
+        if self.SimulationContext.Context['diab'] is None:
+            self.SimulationContext.Context['diab'] =  self.SimulationContext.Defaults['diab']
+      
         expressionList = []
         for name in self.SimulationContext.Context:
             if type(self.SimulationContext.Context[name]) is str:
                 expressionList.append(self.SimulationContext.Context[name])
-        while len(expressionList)>2:       
+        while len(expressionList)>3:       
             for x in expressionList:
                 try:
                     self.Evaluator.Evaluate(x)

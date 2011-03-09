@@ -27,7 +27,7 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'post'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
