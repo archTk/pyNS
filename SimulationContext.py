@@ -218,6 +218,8 @@ class SimulationContext(object):
         
         #Default generic values
         self.Defaults['idpat'] = '00000'
+        if self.Context['idpat'] is None:
+            self.Context['idpat'] =  self.Defaults['idpat']
         self.Defaults['dos'] = '27/07/2010'
         self.Defaults['dob'] = '27/07/1960'
         self.Defaults['gender'] = int(1)
