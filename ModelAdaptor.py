@@ -103,8 +103,6 @@ class ModelAdaptor(object):
         re-writes a new boundary conditions xml file with computed values
         '''
       
-        if self.SimulationContext.Context['idpat'] is None:
-            self.SimulationContext.Context['idpat'] =  self.SimulationContext.Defaults['idpat']
         if self.SimulationContext.Context['dos'] is None:
             self.SimulationContext.Context['dos'] =  self.SimulationContext.Defaults['dos']
         if self.SimulationContext.Context['dob'] is None:
@@ -144,7 +142,7 @@ class ModelAdaptor(object):
         for name in self.SimulationContext.Context:
             if type(self.SimulationContext.Context[name]) is str:
                 expressionList.append(self.SimulationContext.Context[name])
-        while len(expressionList)>3:       
+        while len(expressionList)>2:       
             for x in expressionList:
                 try:
                     self.Evaluator.Evaluate(x)

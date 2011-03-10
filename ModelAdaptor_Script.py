@@ -66,19 +66,18 @@ xsdnetpath = os.path.join(xdir, xsdNet)
 xsdboundpath = os.path.join(xdir, xsdBound)
 
 simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
-modelAdaptor.Idpat = simulationContext.Context['idpat']
 
+'''Creating NetworkGraph Object From its XML'''
+networkGraph = NetworkGraph()
+networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
+modelAdaptor.Idpat=networkGraph.PatientId
 netPost = modelAdaptor.Idpat+'_'+xmlNetGeneric
 boundPost = modelAdaptor.Idpat+'_BC_'+xmlNetGeneric
 xmlnetpath = os.path.join(wdir, netPost)
 xmlboundpath = os.path.join(wdir, boundPost)
 
-
 #starting customization
 modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
-'''Creating NetworkGraph Object From its XML'''
-networkGraph = NetworkGraph()
-networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
 
 '''NetworkGraph Model Adaptor'''
 modelAdaptor.SetNetworkGraph(networkGraph)

@@ -56,7 +56,6 @@
   </boundary_conditions>
   <specificdatasets>
     <patient_data id="1">
-      <idpat></idpat>
       <dos unit="dd/mm/yyyy"></dos>
       <dob unit="dd/mm/yyyy"></dob>
       <age unit="years">

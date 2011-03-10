@@ -59,8 +59,6 @@ class SimulationContext(object):
         for dataset in contextgraph.findall(".//specificdatasets"):
             for pdata in dataset.findall(".//patient_data"):
                 for data in pdata:
-                    if data.tag == "idpat":
-                        self.Context['idpat'] = data.text
                     if data.tag == "dos":
                         self.Context['dos'] = data.text
                     if data.tag == "dob":
@@ -217,9 +215,6 @@ class SimulationContext(object):
                         self.Context['angle'] = float(param.text)
         
         #Default generic values
-        self.Defaults['idpat'] = '00000'
-        if self.Context['idpat'] is None:
-            self.Context['idpat'] =  self.Defaults['idpat']
         self.Defaults['dos'] = '27/07/2010'
         self.Defaults['dob'] = '27/07/1960'
         self.Defaults['gender'] = int(1)
@@ -357,9 +352,6 @@ class SimulationContext(object):
         if self.Context['hyp'] == 0 and self.Context['diab'] == 0:
             self.Context['K_C1'] = 0
             
-        self.Context['Radius_cephalic_lower'] = 1.25e-3  
-            
-        
         
 class Error(Exception):
     '''

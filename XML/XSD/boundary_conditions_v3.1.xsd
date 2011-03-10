@@ -144,7 +144,6 @@
 <!--it contains a sequence of patient personal data-->
 	<xsd:complexType name="patientDataType">
 		<xsd:sequence>
-            <xsd:element maxOccurs="1" minOccurs="1" name="idpat" type="xsd:string"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dos" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="dob" type="dateType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="age" type="simParameterType"/>
