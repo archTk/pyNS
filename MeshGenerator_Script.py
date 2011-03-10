@@ -25,6 +25,7 @@ wdir = 'XML/'   #Working Directory (-w or --wdir)
 xdir = 'XML/XSD/' #XSD schema files Working Directory (-x or --xdir)
 xsdNet =  'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-t or --xsdNet)
 xsdMesh = 'vascular_mesh_v2.0.xsd' #Vascular Network Mesh XSD Schema  (-h or --xsdMesh)
+ToleranceValue = float(5e-2) #default value for tolerance
 
 try:                                
     opts, args = getopt.getopt(sys.argv[1:], "x:w:i:t:o:h:m:v:", ["xdir=", "wdir=", "xmlNet=", "xsdNet=", "xmlMesh=", "xsdMesh=","method=","tolValue="]) 
