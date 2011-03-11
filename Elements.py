@@ -878,7 +878,7 @@ class Anastomosis(Element):
         This method sets Resistance_0_1.
         '''
         self.R_0_1 = resistance
-    
+        
     def SetResistance_0_2(self, resistance):
         '''
         This method sets Resistance_0_2.
@@ -889,7 +889,7 @@ class Anastomosis(Element):
         '''
         Setting connections, proximal artery.
         '''
-        self.Proximal = proximal   
+        self.Proximal = proximal
     
     def SetDistal(self,distal):
         '''

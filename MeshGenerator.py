@@ -739,7 +739,9 @@ class MeshGenerator(object):
                 s_list=[]              
                 for s in edgeProperties['radius'].iterkeys():
                     s_list.append(s)
-                    s_list.sort()             
+                    s_list.sort()     
+                    
+                print edge.Name, s_list        
                 while i < (len(s_list)-1):
                     radius_1 = edgeProperties['radius'][s_list[i]]
                     maxVar = radius_1*self.Tolerance['radius']
@@ -751,14 +753,15 @@ class MeshGenerator(object):
                     if edgeProperties['yradius'][0.0] is not None:
                         elementParameters['yradius'] = {s_list[i]:edgeProperties['yradius'][s_list[i]], s_list[i+1]:edgeProperties['yradius'][s_list[i+1]]} 
                     else:
-                        elementParameters['yradius'] = None                                
+                        elementParameters['yradius'] = None
+                                                
                     if abs(radius_1-radius_2) <= maxVar:
                         try:
                             elementParameters['radius'].update({s_list[i]:radius_1})
                         except KeyError:
                             elementParameters['radius']={s_list[i]:radius_1}
                         if s_list[i+1] == 1.0:
-                            elementParameters['radius'].update({s_list[i+1]:radius_2})                           
+                            elementParameters['radius'].update({s_list[i+1]:radius_2})               
                         if edgeProperties['xradius'][0.0] is not None:
                             elementParameters['xradius'] = {s_list[i]:edgeProperties['xradius'][s_list[i]], s_list[i+1]:edgeProperties['xradius'][s_list[i+1]]}   
                         else:
@@ -768,13 +771,14 @@ class MeshGenerator(object):
                         else:
                             elementParameters['yradius'] = None    
                         for s in elementParameters['radius'].iterkeys():
+                            
                             if s not in s_list:
                                 s_list.append(s)
-                            try:
+                            try:                               
                                 elementParameters['wall_thickness'].update({s:edgeProperties['wallthickness'][s]})
-                            except KeyError:
+                            except KeyError:                             
                                 elementParameters['wall_thickness']={s:edgeProperties['wallthickness'][s]}
-                            try:   
+                            try: 
                                 elementParameters['young_modulus'].update({s:edgeProperties['youngmodulus'][s]})
                             except KeyError:
                                 elementParameters['young_modulus']={s:edgeProperties['youngmodulus'][s]}      
@@ -834,13 +838,13 @@ class MeshGenerator(object):
                             if s not in s_list:
                                 s_list.append(s)
                                 s_list.append(s)
-                                try:
+                                try:     
                                     elementParameters['wall_thickness'].update({s:edgeProperties['wallthickness'][s]})
-                                except KeyError:
+                                except KeyError:                           
                                     elementParameters['wall_thickness']={s:edgeProperties['wallthickness'][s]}
-                                try:   
+                                try:    
                                     elementParameters['young_modulus'].update({s:edgeProperties['youngmodulus'][s]})
-                                except KeyError:
+                                except KeyError: 
                                     elementParameters['young_modulus']={s:edgeProperties['youngmodulus'][s]}                      
                         s_start = min(s_list)
                         s_end = max(s_list)
@@ -860,7 +864,8 @@ class MeshGenerator(object):
                         if meshNode2 not in nodes_list:
                             nodes_list.append(meshNode2)
                             nodes_list_last = len(nodes_list)                       
-                        name = edge.Name + "_" + str(nameId)                                              
+                        name = edge.Name + "_" + str(nameId) 
+                                                       
                         newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                      

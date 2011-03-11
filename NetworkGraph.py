@@ -199,7 +199,7 @@ class NetworkGraph(object):
                         for windk in data.findall(".//expression"):
                             resistance['windkessel']=windk.text
                             node.SetProperties(resistance)                                                      
-            self.SetNodes(node)  # Adding New Node in Network Graph                            
+            self.SetNodes(node)  # Adding New Node in Network Graph            
         # EDGES  
         for edgeg in graph.findall(".//edge"):
             edge_dict = edgeg.attrib     
@@ -226,7 +226,8 @@ class NetworkGraph(object):
                             edge.SetLength(length_value)  # Setting Edge Length (scalar type)      
                         for length in data.findall(".//expression"):
                             length_value.append(length.text)
-                            edge.SetLength(length_value)  # Setting Edge Length(expression type)                       
+                            edge.SetLength(length_value)  # Setting Edge Length(expression type)  
+                                        
                     if data.tag == "coordinates_array":                       
                         coord_value = {}                        
                         for coord in geometry.findall(".//coordinates"):
@@ -251,6 +252,7 @@ class NetworkGraph(object):
                                 radius_dict[s] = radius_v   # Setting Edge Radius(expression type)                                                   
                         radius_value['array'] = radius_dict              
                         edge.SetRadius(radius_value)  # Setting Edge Radius (array type) 
+                        
                     if data.tag == "radius":                        
                         radius_value = {}                        
                         for radius in data.findall(".//scalar"):
@@ -258,7 +260,8 @@ class NetworkGraph(object):
                             edge.SetRadius(radius_value)  # Setting Edge Radius (scalar type)
                         for radius in data.findall(".//expression"):
                             radius_value['expression'] = radius.text
-                            edge.SetRadius(radius_value)  # Setting Edge Radius(expression type)                                                     
+                            edge.SetRadius(radius_value)  # Setting Edge Radius(expression type)
+                                                                         
                     if data.tag == "radius_a":                       
                         radius_valueA = {}                                       
                         for radiusA in data.findall(".//scalar"):
@@ -266,7 +269,8 @@ class NetworkGraph(object):
                             edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (scalar type)
                         for radiusA in data.findall(".//expression"):
                             radius_valueA['expression'] = radiusA.text
-                            edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (expression type)                                                
+                            edge.SetRadiusxAxis(radius_valueA)  # Setting Edge Radius X axis (expression type) 
+                                                                  
                     if data.tag == "radius_b":                        
                         radius_valueB = {}  
                         radius_valueAB = {}
@@ -279,7 +283,7 @@ class NetworkGraph(object):
                             edge.SetRadiusyAxis(radius_valueB)  # Setting Edge Radius Y axis (scalar type)                            
                         radius_valueAB['value'] = (radius_valueA['value']*radius_valueB['value'])**0.5                                                                  
                         edge.SetRadius(radius_valueAB)  # Setting Edge Radius (scalar type)
-                                                
+                                               
                     if data.tag == "radius_a_array":
                         radius_valueA = {}
                         radius_dict = {}                        
@@ -301,7 +305,8 @@ class NetworkGraph(object):
                                 radius_v_B = float(radius.text)                              
                                 radius_dict[s] = radius_v_B                                
                         radius_valueB['array'] = radius_dict                       
-                        edge.SetRadiusyAxis(radius_valueB)  # Setting Edge Radius X axis (array type)                            
+                        edge.SetRadiusyAxis(radius_valueB)  # Setting Edge Radius X axis (array type) 
+                                                
                     if data.tag == "distensibility":                       
                         distensibility_value = {}                        
                         for distensibility in data.findall(".//scalar"):
@@ -356,6 +361,8 @@ class NetworkGraph(object):
                                 young_modulus_dict[s] = young_modulus_v                                
                         young_modulus_value['array'] = young_modulus_dict
                         edge.SetYoungModulus(young_modulus_value)  # Setting Edge Young Modulus (array type)
+                    
+                    
                     if data.tag == "leakage":                        
                         for leakage in data.findall(".//expression"):
                             edge.SetQLeakage(leakage.text)                                 
@@ -371,7 +378,8 @@ class NetworkGraph(object):
                             edge.SetCompliance(float(compliance.text))
                     if data.tag == "nl_compliance":                        
                         for nlcompliance in data.findall(".//expression"):                       
-                            edge.SetNlCompliance(nlcompliance.text)                                      
+                            edge.SetNlCompliance(nlcompliance.text)
+                                                
             for features in edgeg.findall(".//features"):
                 for data in features:                          
                     if data.tag == "stenosis":

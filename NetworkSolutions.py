@@ -1061,7 +1061,7 @@ class NetworkSolutions(object):
                 if s.Id == str(sedg):
                     if s.SuperEdges != {}:
                         superedge = etree.SubElement(superedges, "superedge", id = str(s.Id), name = str(s.Name))
-                        superedges2 = etree.SubElement(superedges, "superedges")
+                        superedges2 = etree.SubElement(superedge, "superedges")
                     if s.SuperEdges == {}:
                         superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
                         edgeIdsel = etree.SubElement(superedge2, "edgesIds")

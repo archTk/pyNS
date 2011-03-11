@@ -166,6 +166,7 @@ if simType == 'generic':
             pass
         if modelAdaptor.ftype == 7:
             wdir = 'XML/Models/Right_Arm/PRE'
+    
             
     netPostGeneric = 'vascular_network.xml'
     boundPostGeneric = 'boundary_conditions.xml'
@@ -181,7 +182,9 @@ else:
 
 if simType == 'generic':  
     modelAdaptor.SettingParameters('XML/parameters.csv')
+    
     modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
+   
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()
 if simType == 'generic':
@@ -238,6 +241,6 @@ for element in networkMesh.Elements:
         networkSolutions.PlotFlow(element.Id)
         networkSolutions.PlotPressure(element.Id)
         networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
-        #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
+        networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
 networkSolutions.WriteToXML(xmloutpath)

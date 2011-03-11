@@ -276,6 +276,7 @@
 			<xsd:enumeration value="Pa"/>
 			<xsd:enumeration value="Pa-1"/>
 			<xsd:enumeration value="mm-1"/>
+			<xsd:enumeration value="m3/Pa"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	

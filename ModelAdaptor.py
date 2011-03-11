@@ -91,7 +91,7 @@ class ModelAdaptor(object):
             name = el[0]
             value = el[1]
             
-            if name == 'dob' or name == 'dos' or name == 'idpat':
+            if name == 'dob' or name == 'dos':
                 self.SimulationContext.Context[name] = str(value)
             else:
                 self.SimulationContext.Context[name] = float(value)
@@ -262,7 +262,7 @@ class ModelAdaptor(object):
                 if s.Id == str(sedg):
                     if s.SuperEdges != {}:
                         superedge = etree.SubElement(superedges, "superedge", id = str(s.Id), name = str(s.Name))
-                        superedges2 = etree.SubElement(superedges, "superedges")
+                        superedges2 = etree.SubElement(superedge, "superedges")
                     if s.SuperEdges == {}:
                         superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
                         edgeIdsel = etree.SubElement(superedge2, "edgesIds")
@@ -356,12 +356,17 @@ class ModelAdaptor(object):
                         ym_v = etree.SubElement(ym, "expression")
                         ym_v.text = str(e.YoungModulus['expression'])
                     if  e.Compliance is not None:
-                        com = etree.SubElement(properties, "Compliance", unit="m3/Pa")
+                        com = etree.SubElement(properties, "compliance", unit="m3/Pa")
                         com_v = etree.SubElement(com, "scalar")
                         com_v.text = str(e.Compliance)
+                    if 'expression' in e.NlCompliance:
+                        nlcom = etree.SubElement(properties, "nl_compliance", unit="m3/Pa")
+                        nlcom_v = etree.SubElement(nlcom, "expression")
+                        nlcom_v.text = str(e.NlCompliance['expression'])
                     
         indent(root)
-        xmlgraph.write (self.NetworkGraph.xmlgraphpath)  
+        xmlgraph.write (self.NetworkGraph.xmlgraphpath)
+        
             
         path = self.NetworkGraph.xmlgraphpath+'.csv' 
         ofile  = open(path, "wb")

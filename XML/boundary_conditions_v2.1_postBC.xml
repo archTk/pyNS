@@ -3,8 +3,8 @@
 <BoundaryConditionsGraph id="1" version="2.0"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:noNamespaceSchemaLocation="boundary_conditions_v2.0.xsd">
-  <boundary_conditions>
-    <boundary_condition id="1" type="transmural pressures">
+  <boundaryconditions>
+    <boundarycondition id="1" type="transmural pressures">
       <parameters>
         <pressure unit="Pa">
            <scalar>0.0</scalar>
@@ -22,13 +22,11 @@
         <entity id="ulnar"/>
         <entity id="interosseous"/>
         <entity id="cephalic_vein"/>
-        <entity id="cubiti_vein"/>
-        <entity id="basilic_vein"/>
         <entity id="subclavian_vein"/>
         <entity id="end_segment"/>
       </entities>
-    </boundary_condition>
-    <boundary_condition id="2" type="outflow pressure" name="venous">
+    </boundarycondition>
+    <boundarycondition id="2" type="outflow pressure" name="venous">
       <parameters>
         <pressure unit="Pa">
            <scalar>1333.0</scalar>
@@ -37,8 +35,8 @@
       <entities>
         <entity id="subclavian_vein"/>
       </entities>
-    </boundary_condition>
-    <boundary_condition id="3" type="inflow" name="heart">
+    </boundarycondition>
+    <boundarycondition id="3" type="inflow" name="heart">
       <parameters>
         <A0>
           <scalar>9.4770816e-5</scalar>
@@ -52,8 +50,8 @@
       <entities>
         <entity id="aorta" node_id="1"/>
       </entities>   
-    </boundary_condition>
-  </boundary_conditions>
+    </boundarycondition>
+  </boundaryconditions>
   <specificdatasets>
     <patient_data id="1">
       <mean_pressure unit="mmHg">
@@ -72,17 +70,18 @@
     </patient_data>
     <simulation_parameters id="2">
       <blood_density unit="kg/m3">1.05e3</blood_density>
-      <aorta_ratio>0.14</aorta_ratio>
-      <carotid_ratio>0.18</carotid_ratio>
-      <vertebral_ratio>0.19</vertebral_ratio>
-      <upper_arm_ratio>0.16</upper_arm_ratio>
-      <upper_arm_2_ratio>0.18</upper_arm_2_ratio>
+      <aorta_ratio>0.15</aorta_ratio>
+      <carotid_ratio>0.24</carotid_ratio>
+      <upper_arm_ratio>0.15</upper_arm_ratio>
+      <vertebral_ratio>0.33</vertebral_ratio>
       <lower_arm_ratio>0.2</lower_arm_ratio>
+      <interosseous_ratio>0.43</interosseous_ratio>
+      <innominate_ratio>0.18</innominate_ratio>
       <vein_ratio>0.2</vein_ratio>
       <poisson_ratio>0.5</poisson_ratio>
       <timestep unit="s">0.005</timestep>
       <cycles>10</cycles>
-      <angle unit="rad">0.6</angle>
+      <angle unit="rad">1.4</angle>
     </simulation_parameters>
   </specificdatasets>
 </BoundaryConditionsGraph>    

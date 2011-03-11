@@ -22,6 +22,7 @@ from numpy.lib.index_tricks import s_
 from numpy.linalg.linalg import solve
 from numpy.linalg import norm
 from numpy.core.numeric import Inf, dot
+from numpy.core.fromnumeric import mean
 
 class Solver(object):
     '''
@@ -222,6 +223,11 @@ class SolverFirstTrapezoid(Solver):
                     nltol = self.nltol
                     counter = 0 
                     #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
+                    if self.IncrementNumber > 1799:
+                        for el in self.NetworkMesh.Elements:
+                            if el.nonLinear == True:
+                                if el.Id == "19":
+                                    print mean(el.Radius)*1e3
                     break  
                 
                 counter+=1

@@ -32,7 +32,9 @@ xsdNet =  'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-t or
 xsdMesh = 'vascular_mesh_v2.0.xsd' #Vascular Network Mesh XSD Schema  (-h or --xsdMesh)
 xsdBound = 'boundary_conditions_v3.1.xsd' #Boundary Conditions XSD Schema 
 ToleranceValue = float(5e-2) #default value for tolerance
-
+xmlNet = 'v.xml'
+xmlBound = 'b.xml'
+xmlOut = 'o.xml'
 try:                                
     opts, args = getopt.getopt(sys.argv[1:], "x:w:i:t:o:h:m:v:b:d:u:", ["xdir=", "wdir=", "xmlNet=", "xsdNet=", "xmlMesh=", "xsdMesh=","method=","tolValue=","xmlBound=","xsdBound=","xmlOut="]) 
 except getopt.GetoptError: 
@@ -62,7 +64,7 @@ for opt, arg in opts:
         xmlBound = arg
     if opt in ("-u", "--xmlOut"):
         xmlOut = arg
-      
+  
 xmlnetpath = os.path.join(wdir, xmlNet)   
 xsdnetpath = os.path.join(xdir, xsdNet)
 xsdmeshpath = os.path.join(xdir, xsdMesh)
