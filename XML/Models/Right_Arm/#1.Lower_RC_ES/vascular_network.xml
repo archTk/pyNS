@@ -636,22 +636,28 @@
 	   </length>
      </geometry>
      <properties>
-       <radius_array unit="m" accuracy="10%" source="US">
+       <radius_a_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>2e-3</scalar>
-           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+           <scalar>0.002255414012739</scalar>
          </value>
          <value s = "1.0">
-           <scalar>2.5e-3</scalar>
-           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+           <scalar>0.003044585987261</scalar>
          </value>
-       </radius_array>
+       </radius_a_array>
+       <radius_b_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>0.001599044585987365</scalar>
+         </value>
+         <value s = "1.0">
+           <scalar>0.002500955414012618</scalar>
+         </value>
+       </radius_b_array>
        <wall_thickness>
          <expression>$WallThickness[cephalic_lower] = $Radius[cephalic_lower] * $vein_ratio[]</expression>
        </wall_thickness>
-       <nl_compliance>
-		<expression>$Compliance[cephalic_lower] = (($RadiusAtRest[cephalic_lower]**2*pi)*(4.4/((8.0+$Pressure[cephalic_lower])**2)))*133.32**2*1e-6</expression>
-	   </nl_compliance>
+       <young_modulus unit="Pa" accuracy="10%" source="US">
+         <scalar>1.2e5</scalar>
+       </young_modulus>
      </properties>
    </edge>
    <edge id="22" node1_id="21" node2_id="22" side="venous" name="cubiti_elbow">
