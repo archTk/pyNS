@@ -37,28 +37,16 @@ from NetworkSolutions import *
 from SimulationContext import *
 from Evaluator import *
 from InverseWomersley import *
-from ModelAdaptor import *
 
 def main():  
     simulationContext = SimulationContext()
     evaluator = Evaluator()
     evaluator.SetSimulationContext(simulationContext)
     simulationContext.SetEvaluator(evaluator)
-    simulationContext.ReadFromXML('XML/boundary_conditions_v3.1.xml','XML/XSD/boundary_conditions_v3.1.xsd')
-    #simulationContext.ReadFromXML('XML/boundary_conditions_v2.1_postRC.xml','XML/XSD/boundary_conditions_v2.1.xsd')
-    #simulationContext.ReadFromXML('XML/boundary_conditions_v2.1_pre.xml','XML/XSD/boundary_conditions_v2.1.xsd')
-    modelAdaptor = ModelAdaptor()
-    modelAdaptor.SetSimulationContext(simulationContext)
-    modelAdaptor.SetEvaluator(evaluator)
-    modelAdaptor.SettingParameters('XML/parameters.csv')
-    modelAdaptor.AdaptingParameters()
+    simulationContext.ReadFromXML('XML/boundary_conditions_v2.1_postRC.xml','XML/XSD/boundary_conditions_v3.1.xsd')
     networkGraph = NetworkGraph()
-    networkGraph.ReadFromXML('XML/vascular_network_v3.3_postRRC.xml', 'XML/XSD/vascular_network_v3.2.xsd')
-    #networkGraph.ReadFromXML('XML/vascular_network_v3.1_postRRC.xml', 'XML/XSD/vascular_network_v3.2.xsd')
-    #networkGraph.ReadFromXML('XML/vascular_network_v3.1_preR.xml', 'XML/XSD/vascular_network_v3.2.xsd')
-    modelAdaptor.SetNetworkGraph(networkGraph)
+    networkGraph.ReadFromXML('XML/vascular_network_v3.2_postRRC.xml', 'XML/XSD/vascular_network_v3.2.xsd')
     evaluator.SetNetworkGraph(networkGraph)
-    modelAdaptor.AdaptingModel()
     meshGenerator = MeshGenerator()
     meshGenerator.SetNetworkGraph(networkGraph)
     networkMesh = NetworkMesh()
@@ -68,9 +56,7 @@ def main():
     boundaryConditions = BoundaryConditions()
     boundaryConditions.SetSimulationContext(simulationContext)
     boundaryConditions.SetNetworkMesh(networkMesh)
-    boundaryConditions.ReadFromXML('XML/boundary_conditions_v3.1.xml','XML/XSD/boundary_conditions_v3.1.xsd')
-    #boundaryConditions.ReadFromXML('XML/boundary_conditions_v2.1_postRC.xml','XML/XSD/boundary_conditions_v2.1.xsd')
-    #boundaryConditions.ReadFromXML('XML/boundary_conditions_v2.1_pre.xml','XML/XSD/boundary_conditions_v2.1.xsd')
+    boundaryConditions.ReadFromXML('XML/boundary_conditions_v2.1_postRC.xml','XML/XSD/boundary_conditions_v3.1.xsd')
     evaluator = Evaluator()
     evaluator.SetNetworkGraph(networkGraph)
     evaluator.SetNetworkMesh(networkMesh)
