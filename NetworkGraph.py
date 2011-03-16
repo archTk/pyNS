@@ -782,15 +782,15 @@ class Edge(object):
         Kink[s].append(compliance)       
         self.Kink = Kink
     
-    def GetRadius(self,info):
+    def GetRadius(self, rhsAbscissa, info=None):
         '''
         This method returns edge's radius
         '''
         if 'value' in self.Radius:
             return self.Radius['value']
         if 'array' in self.Radius:
-            if info is not None:
-                return self.Radius['array'][info]
+            if rhsAbscissa is not None:
+                return self.Radius['array'][rhsAbscissa]
             else:
                 if self.edgeAbscissa is None:           
                     return mean(array((self.Radius['array'].values())))

@@ -193,8 +193,7 @@ class Evaluator(object):
             rhsParameter, rhsElement, rhsAbscissa, rhsEdge = self.GetVariableComponents(rhsVariable)
             if rhsEdge is not None:
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
-                info = rhsAbscissa
-                rhs = self.variableRe.sub('edge%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
+                rhs = self.variableRe.sub('edge%d.Get%s(rhsAbscissa,info)' % (elCount,rhsParameter),rhs,1)
             else:    
                 if rhsElement == '':
                     rhsParameter = self.SimulationContext.Context[rhsParameter]
