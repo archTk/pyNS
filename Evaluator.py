@@ -131,11 +131,21 @@ class Evaluator(object):
             abscissa = 0.0
             timeIndex = 0
             if len(element.split(',')) > 1:
+                splitElement = element.split(',')[1:]
                 try:
-                    abscissa = float(element.split(',')[1])
+                    abscissa = float(splitElement[0])
                 except:
-                    splitElement = element.split(',')[1:]
-                    for el in splitElement:
+                    el = splitElement[0]
+                    par = el.split('=')[0].strip()
+                    if par == 's':
+                        abscissa = float(el.split('=')[1])
+                    elif par == 't':
+                        timeIndex = int(el.split('=')[1])
+                if len(splitElement) > 2:
+                    try:
+                        timeIndex = int(splitElement[1])
+                    except:
+                        el = splitElement[1]
                         par = el.split('=')[0].strip()
                         if par == 's':
                             abscissa = float(el.split('=')[1])
