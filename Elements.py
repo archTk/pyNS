@@ -132,6 +132,17 @@ class Element(object):
         '''
         numberOfDofs = len(self.dof)
         return numberOfDofs
+
+    def SetParameterInHistory(self,parameterName,parameterValue,currentIncrementNumber):
+        #self.ParameterInfo = dict()
+        #self.LastIncrementNumber = 0
+        #self.MaxHistorySize = 3
+        if parameterName not in self.ParameterInfo:
+            self.ParameterInfo[parameterName] = {}
+        if self.LastIncrementNumber < currentIncrementNumber:
+            self.ParameterInfo[parameterName].insert(0,parameterValue)
+        if len(self.ParameterInfo[parameterName]) > self.MaxHistorySize:
+            self.ParameterInfo[parameterName] = self.ParameterInfo[parameterName][0:self.MaxHistorySize]
     
 class FiveDofRclElementV2(Element):
     '''
@@ -494,7 +505,7 @@ class FiveDofRclElementV2(Element):
         '''
         return [self.dof[1], self.dof[2]]
     
-    def GetFlow(self, info):
+    def GetFlow(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         If cycle is not specified, default cycle is the last one.
@@ -519,7 +530,7 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set timestep in Boundary Conditions XML File"
             raise
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise
@@ -541,17 +552,17 @@ class FiveDofRclElementV2(Element):
             self.Flow = self.Flow[0]*6.0e7 
         return self.Flow
     
-    def GetWss(self, info):
+    def GetWss(self, info, timeIndex=0):
         '''
         This method returns Wall Shear Stress on the specified element.(Pa)
         Wall Shear Stress is computed on the Poiseuille Resistance.
         If element is tapered, Radius is considered as mean value over segment length.
         '''
         
-        self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info)/(mean(self.Radius)**3))
+        self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info,timeIndex)/(mean(self.Radius)**3))
         return self.Wss
     
-    def GetPressure (self, info):
+    def GetPressure (self, info, timeIndex=0):
         '''
         This method returns pressure on the specified element.
         If cycle is not specified, default cycle is the last one.
@@ -576,7 +587,7 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set timestep in Boundary Conditions XML File"
             raise  
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise
@@ -1101,7 +1112,7 @@ class TwoDofResistanceElement(Element):
         CircuitMatrix = array ([[self.dof[0], self.dof[1], 0, self.R, 0]])        #Resistance
         return CircuitMatrix      
     
-    def GetFlow(self, info):
+    def GetFlow(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the resistance.
         '''
@@ -1110,7 +1121,7 @@ class TwoDofResistanceElement(Element):
             self.Flow = 1.0e-25
             return self.Flow   
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise

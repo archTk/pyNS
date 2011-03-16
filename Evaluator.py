@@ -129,18 +129,29 @@ class Evaluator(object):
         try:
             element = self.elementRe.findall(variable)[0][1:-1]
             abscissa = 0.0
+            timeIndex = 0
             if len(element.split(',')) > 1:
-                abscissa = float(element.split(',')[1])
+                try:
+                    abscissa = float(element.split(',')[1])
+                except:
+                    splitElement = element.split(',')[1:]
+                    for el in splitElement:
+                        par = el.split('=')[0].strip()
+                        if par == 's':
+                            abscissa = float(el.split('=')[1])
+                        elif par == 't':
+                            timeIndex = int(el.split('=')[1])
                 element = element.split(',')[0]
             edge = None
         except:
             edge = self.edgeRe.findall(variable)[0][1:-1]
             element = None
             abscissa = None
+            timeIndex = 0
             if len(edge.split(',')) > 1:
                 abscissa = float(edge.split(',')[1])
                 edge = edge.split(',')[0]
-        return parameter, element, abscissa, edge
+        return parameter, element, abscissa, timeIndex, edge
         
     def Evaluate(self,expression):
         '''
@@ -152,7 +163,7 @@ class Evaluator(object):
         if expression in self.ExpressionCache: 
             elEvals = self.ExpressionCache[expression]['elEvals']
             lhsEvalDict = self.ExpressionCache[expression]['lhsEvalDict']
-            lhs = self.ExpressionCache[expression]['lhs']
+            lhsExpr = self.ExpressionCache[expression]['lhsExpr']
             try:
                 lhsElement = lhsEvalDict['lhsElement']
                 lhsAbscissa = lhsEvalDict['lhsAbscissa']
@@ -166,14 +177,14 @@ class Evaluator(object):
                     rhsEdge = elEvalDict['rhsEdge']
                 exec(elEvalDict['elEval'])
             exec(lhsEvalDict['lhsEval'])
-            exec(lhs)
+            exec(lhsExpr)
             return
         
         splitExpression = expression.split('=')
         lhs = splitExpression[0]
         rhs = splitExpression[1]
         lhsVariable = self.variableRe.findall(lhs)[0]
-        lhsParameter, lhsElement, lhsAbscissa, lhsEdge = self.GetVariableComponents(lhsVariable)
+        lhsParameter, lhsElement, lhsAbscissa, lhsTimeIndex, lhsEdge = self.GetVariableComponents(lhsVariable)
        
         rhsVariables = self.variableRe.findall(rhs)
         elCount = 0
@@ -188,9 +199,9 @@ class Evaluator(object):
             if len(self.rhsCache[lhsElement]) == 2:
                 if self.rhsCache.has_key(lhsElement) and rhs == self.rhsCache[lhsElement][0]:
                     rhs = self.rhsCache[lhsElement][1]
-        
+       
         for rhsVariable in rhsVariables:
-            rhsParameter, rhsElement, rhsAbscissa, rhsEdge = self.GetVariableComponents(rhsVariable)
+            rhsParameter, rhsElement, rhsAbscissa, rhsTimeIndex, rhsEdge = self.GetVariableComponents(rhsVariable)
             if rhsEdge is not None:
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
                 rhs = self.variableRe.sub('edge%d.Get%s(rhsAbscissa,info)' % (elCount,rhsParameter),rhs,1)
@@ -200,21 +211,21 @@ class Evaluator(object):
                     rhs = self.variableRe.sub('%s' % (rhsParameter),rhs,1)         
                 else:     
                     elEvals.append({'elEval': 'el%d = self.GetElement(rhsElement,rhsAbscissa)' % elCount, 'rhsElement':rhsElement, 'rhsAbscissa':rhsAbscissa})
-                    rhs = self.variableRe.sub('el%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
+                    rhs = self.variableRe.sub('el%d.Get%s(info,rhsTimeIndex)' % (elCount,rhsParameter),rhs,1)
             elCount += 1  
         
         if lhsEdge is None:  
             self.rhsCache[lhsElement].append(rhs)
         
         if lhsEdge is not None:
-            lhs = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
+            lhsExpr = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
             lhsEvalDict = {'lhsEval':'lhsEdge = self.GetEdge(lhsEdge,lhsAbscissa)', 'lhsEdge':lhsEdge, 'lhsAbscissa':lhsAbscissa}
         else:
             if lhsElement == '':            
-                lhs = self.variableRe.sub('self.SimulationContext.Context[%s]=%s' % ("'"+lhsParameter+"'",rhs),lhs,1)
+                lhsExpr = self.variableRe.sub('self.SimulationContext.Context[%s]=%s' % ("'"+lhsParameter+"'",rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'', 'lhsElement':None, 'lhsAbscissa':None}
             else:
-                lhs = self.variableRe.sub('lhsEl.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
+                lhsExpr = self.variableRe.sub('lhsEl.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'lhsEl = self.GetElement(lhsElement,lhsAbscissa)', 'lhsElement':lhsElement, 'lhsAbscissa':lhsAbscissa}
 
         for elEvalDict in elEvals:
@@ -226,5 +237,7 @@ class Evaluator(object):
                 rhsAbscissa = elEvalDict['rhsAbscissa']
             exec(elEvalDict['elEval'])    
         exec(lhsEvalDict['lhsEval'])
-        exec(lhs)
-        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhs':lhs}
+        exec(lhsExpr)
+        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhsExpr':lhsExpr}
+        #TODO: if incrementNumber in info is different than first increment number in lhs history array in info, add value to info
+

@@ -203,8 +203,8 @@ class SolverFirstTrapezoid(Solver):
                 if den < 1e-12:
                     den = 1.0
                 nlerr = norm(self.p-self.pi,Inf) / den
-                
-                info = {'dofmap':assembler.DofMap,'solution':self.p}
+              
+                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':incrementNumber}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)
                 self.PrescribedPressures = assembler.PrescribedPressures
@@ -242,7 +242,7 @@ class SolverFirstTrapezoid(Solver):
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment
-        info = {'dofmap':assembler.DofMap,'solution':self.p}
+        info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':incrementNumber}
         self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
         return PressuresMatrix
@@ -384,7 +384,7 @@ class SolverNewmark(Solver):
                     break   
                 counter+=1      
                 self.pi[:,:] = self.p[:,:]       
-                info = {'dofmap':assembler.DofMap,'solution':self.p}
+                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':incrementNumber}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)          
                 self.PrescribedPressures = assembler.PrescribedPressures   
