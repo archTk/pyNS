@@ -38,6 +38,8 @@ class Element(object):
         '''
         self.simulationContext = None
         self.nonLinear = False
+        self.ParameterInfo = {}
+        self.LastIncrementNumber = 0
                
     def Initialize(self, simulationContext):
         '''
@@ -132,6 +134,21 @@ class Element(object):
         '''
         numberOfDofs = len(self.dof)
         return numberOfDofs
+
+    def SetParameterInHistory(self,parameterName,parameterValue,currentIncrementNumber):
+        '''
+        This method sets Parameter History dictionary. Each value (for each parameters name) is associated to:
+        0->Current Timestep
+        1->Previous Timestep
+        2->2 steps back
+        '''
+        self.MaxHistorySize = 3
+        if parameterName not in self.ParameterInfo:
+            self.ParameterInfo[parameterName] = []
+        if self.LastIncrementNumber < currentIncrementNumber:
+            self.ParameterInfo[parameterName].insert(0,parameterValue)
+        if len(self.ParameterInfo[parameterName]) > self.MaxHistorySize:
+            self.ParameterInfo[parameterName] = self.ParameterInfo[parameterName][0:self.MaxHistorySize]
     
 class FiveDofRclElementV2(Element):
     '''
@@ -227,31 +244,44 @@ class FiveDofRclElementV2(Element):
         self.Wss = None
         self.Initialized = False
 
-    def SetWallThickness(self, wallthickness):
+    def SetWallThickness(self, wallthickness, info):
         '''
         This method sets WallThickness
         '''
         self.WallThickness = wallthickness
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('WallThickness', self.WallThickness, info['incrementNumber'])
         
-    def SetRadius(self, radius):
+    def SetRadius(self, radius, info=None, timeIndex=0):
         '''
         This method sets Radius
         '''
+        #print  "SET", self.Name, radius
         self.Radius = radius
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Radius', self.Radius, info['incrementNumber'])
     
-    def SetResistance(self, resistance):
+    def SetResistance(self, resistance, info=None, timeIndex=0):
         '''
         This method sets non linear resistance
         '''
         self.R = resistance
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Resistance', self.R, info['incrementNumber'])   
     
-    def SetCompliance(self, compliance):
+    def SetCompliance(self, compliance, info=None, timeIndex=0):
         '''
         This method sets non linear compliance
         '''
         self.C = compliance
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Compliance', self.C, info['incrementNumber'])
         
-    def SetQLeakage(self, qleakage):
+    def SetQLeakage(self, qleakage, info):
         '''
         This method set Leakage Resistance
         '''
@@ -460,7 +490,7 @@ class FiveDofRclElementV2(Element):
             self.L = float(Lalpha)
         
         self.Initialized = True
-        
+
         return self.C, self.R, Ralpha, Lalpha, self.LeakageR
         
     def GetCircuitMatrix(self):
@@ -494,13 +524,13 @@ class FiveDofRclElementV2(Element):
         '''
         return [self.dof[1], self.dof[2]]
     
-    def GetFlow(self, info):
+    def GetFlow(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         If cycle is not specified, default cycle is the last one.
         '''
         # t=0, no flow.
-        if info is None:
+        if info['solution'] is None:
             self.Flow = 1.0e-25
             return self.Flow
         try:
@@ -519,7 +549,7 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set timestep in Boundary Conditions XML File"
             raise
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise
@@ -541,23 +571,23 @@ class FiveDofRclElementV2(Element):
             self.Flow = self.Flow[0]*6.0e7 
         return self.Flow
     
-    def GetWss(self, info):
+    def GetWss(self, info, timeIndex=0):
         '''
         This method returns Wall Shear Stress on the specified element.(Pa)
         Wall Shear Stress is computed on the Poiseuille Resistance.
         If element is tapered, Radius is considered as mean value over segment length.
         '''
         
-        self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info)/(mean(self.Radius)**3))
+        self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info,timeIndex)/(mean(self.Radius)**3))
         return self.Wss
     
-    def GetPressure (self, info):
+    def GetPressure (self, info, timeIndex=0):
         '''
         This method returns pressure on the specified element.
         If cycle is not specified, default cycle is the last one.
         '''
         # t=0, no pressure.
-        if info is None:
+        if info['solution'] is None:
             self.Pressure = 1e-12
             return self.Pressure 
         try:
@@ -576,7 +606,7 @@ class FiveDofRclElementV2(Element):
             print "Error, Please set timestep in Boundary Conditions XML File"
             raise  
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise
@@ -600,7 +630,7 @@ class FiveDofRclElementV2(Element):
             self.Pressure = 1e-12
         return self.Pressure
     
-    def GetArea(self,info):
+    def GetArea(self,info, timeIndex=0):
         '''
         This method returns vessel's Cross-Sectional Area
         '''   
@@ -634,28 +664,29 @@ class FiveDofRclElementV2(Element):
         Length = self.Length
         return Length
     
-    def GetRadius(self,info):
+    def GetRadius(self, info, timeIndex=0):
         '''
         This method returns Radius
         '''
+        #print "GET", timeIndex, self.Radius
         Radius = self.Radius
         return Radius
     
-    def GetRadiusAtRest(self,info):
+    def GetRadiusAtRest(self, info, timeIndex=0):
         '''
         This method returns Radius
         '''
         RadiusAtRest = self.RadiusAtRest
         return RadiusAtRest
     
-    def GetRadius_a(self,info):
+    def GetRadius_a(self, info, timeIndex=0):
         '''
         This method returns Radius_a axis
         '''
         Radius_a = self.xRadius
         return Radius_a
     
-    def GetRadius_b(self,info):
+    def GetRadius_b(self, info, timeIndex=0):
         '''
         This method returns Radius_b axis
         '''
@@ -761,7 +792,7 @@ class EndSegmentElement(Element):
         '''
         self.LastElement = element
     
-    def SetWindkesselRel(self, rel):
+    def SetWindkesselRel(self, rel, info):
         '''
         This method sets windkessel peripheral resistance which
         is used for generating windkessel element.
@@ -873,17 +904,23 @@ class Anastomosis(Element):
         self.Flow = None    
         self.Initialized = False
         
-    def SetResistance_0_1(self, resistance):
+    def SetResistance_0_1(self, resistance, info):
         '''
         This method sets Resistance_0_1.
         '''
         self.R_0_1 = resistance
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Resistance_0_1', self.R_0_1, info['incrementNumber'])
         
-    def SetResistance_0_2(self, resistance):
+    def SetResistance_0_2(self, resistance, info):
         '''
         This method sets Resistance_0_2.
         '''
         self.R_0_2 = resistance
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Resistance_0_2', self.R_0_2, info['incrementNumber'])
             
     def SetProximal(self,proximal):
         '''
@@ -921,62 +958,62 @@ class Anastomosis(Element):
             self.R_0_2 = self.Resistance_0_2
         self.Initialized = True
         
-    def GetFlowProximal(self, info):
+    def GetFlowProximal(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         '''
-        self.Flow = self.Proximal.GetFlow(info)
+        self.Flow = self.Proximal.GetFlow(info, timeIndex)
         return self.Flow
     
-    def GetFlowVein(self, info):
+    def GetFlowVein(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         '''           
-        self.Flow = self.Vein.GetFlow(info)
+        self.Flow = self.Vein.GetFlow(info, timeIndex)
         return self.Flow
     
-    def GetFlowDistal(self, info):
+    def GetFlowDistal(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         '''
-        self.Flow = self.Distal.GetFlow(info)
+        self.Flow = self.Distal.GetFlow(info, timeIndex)
         return self.Flow
     
-    def GetAreaProximal(self, info):
+    def GetAreaProximal(self, info, timeIndex=0):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Proximal.GetArea(info)[1]
+        Area = self.Proximal.GetArea(info, timeIndex)[1]
         return Area
     
-    def GetAreaDistal(self, info):
+    def GetAreaDistal(self, info, timeIndex=0):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Distal.GetArea(info)[0]
+        Area = self.Distal.GetArea(info, timeIndex)[0]
         return Area
     
-    def GetAreaVein(self, info):
+    def GetAreaVein(self, info, timeIndex=0):
         '''
         This method returns vessel's Cross-Sectional Area
         '''
-        Area = self.Vein.GetArea(info)[0]
+        Area = self.Vein.GetArea(info, timeIndex)[0]
         return Area
     
-    def GetFlowRatio(self,info):
+    def GetFlowRatio(self, info, timeIndex=0):
         '''
         This method returns the ratio between the volumetric flow rate
         through the vein and the volumetric flow rate through the proximal artery.(mL/min)
         '''
-        self.FlowRatio = self.GetFlowVein(info)/self.GetFlowProximal(info)
+        self.FlowRatio = self.GetFlowVein(info, timeIndex)/self.GetFlowProximal(info, timeIndex)
         return self.FlowRatio
         
-    def GetAreaRatio(self, info):
+    def GetAreaRatio(self, info, timeIndex=0):
         '''
         This method returns the ratio between the cross-sectional Area of the vein and
         the cross-sectional Area of the proximal artery (m2)
         '''
-        self.AreaRatio = self.GetAreaVein(info)/self.GetAreaProximal(info)
+        self.AreaRatio = self.GetAreaVein(info, timeIndex)/self.GetAreaProximal(info, timeIndex)
         return self.AreaRatio
     
     def GetCircuitMatrix(self):
@@ -1101,16 +1138,16 @@ class TwoDofResistanceElement(Element):
         CircuitMatrix = array ([[self.dof[0], self.dof[1], 0, self.R, 0]])        #Resistance
         return CircuitMatrix      
     
-    def GetFlow(self, info):
+    def GetFlow(self, info, timeIndex=0):
         '''
         This method returns volumetric flow rate calculated on the resistance.
         '''
         # t=0, no flow.
-        if info is None:
+        if info['solution'] is None:
             self.Flow = 1.0e-25
             return self.Flow   
         try:
-            solution = info['solution']
+            solution = info['solution'][timeIndex]
         except KeyError:
             print "Error, Please provide Solution"
             raise

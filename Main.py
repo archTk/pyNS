@@ -182,9 +182,8 @@ else:
 
 if simType == 'generic':  
     modelAdaptor.SettingParameters('XML/parameters.csv')
-    
     modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
-   
+    
 '''Creating NetworkGraph Object From its XML'''
 networkGraph = NetworkGraph()
 if simType == 'generic':
@@ -197,7 +196,7 @@ if simType == 'generic':
     modelAdaptor.SetNetworkGraph(networkGraph)
     evaluator.SetNetworkGraph(networkGraph)
     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
-
+    
 
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
 If tolerance is not provided, mesh generator uses default value = 0.3'''
@@ -207,6 +206,7 @@ networkMesh = NetworkMesh()
 meshGenerator.SetNetworkMesh(networkMesh)
 meshGenerator.SetMaxLength(5.0e-2)
 meshGenerator.GenerateMesh()
+
 
 '''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
 boundaryConditions = BoundaryConditions()

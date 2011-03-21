@@ -115,8 +115,10 @@ class Evaluator(object):
             else:
                 abscissa = None
                 self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]].edgeAbscissa = abscissa
+            
             return self.NetworkGraph.Edges[self.NetworkGraph.EdgeNamesToIds[edge]]
         elif edge in self.NetworkGraph.SuperEdgeNamesToIds:
+            
             return self.NetworkGraph.SuperEdges[self.NetworkGraph.SuperEdgeNamesToIds[edge]]
         else:
             return None
@@ -125,22 +127,48 @@ class Evaluator(object):
         '''
         This method split expression into variables.
         '''
+    
         parameter = self.parameterRe.findall(variable)[0][1:-1]
         try:
             element = self.elementRe.findall(variable)[0][1:-1]
             abscissa = 0.0
+            timeIndex = 0
             if len(element.split(',')) > 1:
-                abscissa = float(element.split(',')[1])
+                
+                splitElement = element.split(',')[1:]
+                try:
+                    abscissa = float(splitElement[0])
+                    timeIndex= int(splitElement[0])
+                   
+                except:
+                    el = splitElement[0]
+                    par = el.split('=')[0].strip()
+                    if par == 's':
+                        abscissa = float(el.split('=')[1])
+                    elif par == 't':
+                        timeIndex = int(el.split('=')[1])
+                if len(splitElement) > 2:
+                    try:
+                        timeIndex = int(splitElement[1])
+                    except:
+                        el = splitElement[1]
+                        par = el.split('=')[0].strip()
+                        if par == 's':
+                            abscissa = float(el.split('=')[1])
+                        elif par == 't':
+                            timeIndex = int(el.split('=')[1])
                 element = element.split(',')[0]
             edge = None
         except:
             edge = self.edgeRe.findall(variable)[0][1:-1]
             element = None
             abscissa = None
+            timeIndex = 0
             if len(edge.split(',')) > 1:
                 abscissa = float(edge.split(',')[1])
                 edge = edge.split(',')[0]
-        return parameter, element, abscissa, edge
+        
+        return parameter, element, abscissa, timeIndex, edge
         
     def Evaluate(self,expression):
         '''
@@ -152,7 +180,7 @@ class Evaluator(object):
         if expression in self.ExpressionCache: 
             elEvals = self.ExpressionCache[expression]['elEvals']
             lhsEvalDict = self.ExpressionCache[expression]['lhsEvalDict']
-            lhs = self.ExpressionCache[expression]['lhs']
+            lhsExpr = self.ExpressionCache[expression]['lhsExpr']
             try:
                 lhsElement = lhsEvalDict['lhsElement']
                 lhsAbscissa = lhsEvalDict['lhsAbscissa']
@@ -162,18 +190,19 @@ class Evaluator(object):
                 try:
                     rhsElement = elEvalDict['rhsElement']
                     rhsAbscissa = elEvalDict['rhsAbscissa']
+                    rhsTimeIndex = elEvalDict['rhsTimeIndex']
                 except KeyError:
                     rhsEdge = elEvalDict['rhsEdge']
                 exec(elEvalDict['elEval'])
             exec(lhsEvalDict['lhsEval'])
-            exec(lhs)
+            exec(lhsExpr)
             return
         
         splitExpression = expression.split('=')
         lhs = splitExpression[0]
         rhs = splitExpression[1]
         lhsVariable = self.variableRe.findall(lhs)[0]
-        lhsParameter, lhsElement, lhsAbscissa, lhsEdge = self.GetVariableComponents(lhsVariable)
+        lhsParameter, lhsElement, lhsAbscissa, lhsTimeIndex, lhsEdge = self.GetVariableComponents(lhsVariable)
        
         rhsVariables = self.variableRe.findall(rhs)
         elCount = 0
@@ -188,44 +217,48 @@ class Evaluator(object):
             if len(self.rhsCache[lhsElement]) == 2:
                 if self.rhsCache.has_key(lhsElement) and rhs == self.rhsCache[lhsElement][0]:
                     rhs = self.rhsCache[lhsElement][1]
-        
+       
         for rhsVariable in rhsVariables:
-            rhsParameter, rhsElement, rhsAbscissa, rhsEdge = self.GetVariableComponents(rhsVariable)
+            rhsParameter, rhsElement, rhsAbscissa, rhsTimeIndex, rhsEdge = self.GetVariableComponents(rhsVariable)
+            
             if rhsEdge is not None:
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
-                info = rhsAbscissa
-                rhs = self.variableRe.sub('edge%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
+                rhs = self.variableRe.sub('edge%d.Get%s(rhsAbscissa)' % (elCount,rhsParameter),rhs,1)
             else:    
                 if rhsElement == '':
                     rhsParameter = self.SimulationContext.Context[rhsParameter]
                     rhs = self.variableRe.sub('%s' % (rhsParameter),rhs,1)         
                 else:     
-                    elEvals.append({'elEval': 'el%d = self.GetElement(rhsElement,rhsAbscissa)' % elCount, 'rhsElement':rhsElement, 'rhsAbscissa':rhsAbscissa})
-                    rhs = self.variableRe.sub('el%d.Get%s(info)' % (elCount,rhsParameter),rhs,1)
+                    elEvals.append({'elEval': 'el%d = self.GetElement(rhsElement,rhsAbscissa)' % elCount, 'rhsElement':rhsElement, 'rhsAbscissa':rhsAbscissa, 'rhsTimeIndex':rhsTimeIndex})
+                    
+                    rhs = self.variableRe.sub('el%d.Get%s(info,rhsTimeIndex)' % (elCount,rhsParameter),rhs,1)                 
             elCount += 1  
         
         if lhsEdge is None:  
             self.rhsCache[lhsElement].append(rhs)
         
         if lhsEdge is not None:
-            lhs = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
+            lhsExpr = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
             lhsEvalDict = {'lhsEval':'lhsEdge = self.GetEdge(lhsEdge,lhsAbscissa)', 'lhsEdge':lhsEdge, 'lhsAbscissa':lhsAbscissa}
+            
         else:
             if lhsElement == '':            
-                lhs = self.variableRe.sub('self.SimulationContext.Context[%s]=%s' % ("'"+lhsParameter+"'",rhs),lhs,1)
+                lhsExpr = self.variableRe.sub('self.SimulationContext.Context[%s]=%s' % ("'"+lhsParameter+"'",rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'', 'lhsElement':None, 'lhsAbscissa':None}
             else:
-                lhs = self.variableRe.sub('lhsEl.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
+                lhsExpr = self.variableRe.sub('lhsEl.Set%s(%s, info)' % (lhsParameter,rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'lhsEl = self.GetElement(lhsElement,lhsAbscissa)', 'lhsElement':lhsElement, 'lhsAbscissa':lhsAbscissa}
 
-        for elEvalDict in elEvals:
+        for elEvalDict in elEvals:         
             try:
                 rhsEdge = elEvalDict['rhsEdge']
-                rhsAbscissa = elEvalDict['rhsAbscissa']
+                rhsAbscissa = elEvalDict['rhsAbscissa']              
             except KeyError:
                 rhsElement = elEvalDict['rhsElement']
-                rhsAbscissa = elEvalDict['rhsAbscissa']
-            exec(elEvalDict['elEval'])    
+                rhsAbscissa = elEvalDict['rhsAbscissa']           
+            exec(elEvalDict['elEval'])          
         exec(lhsEvalDict['lhsEval'])
-        exec(lhs)
-        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhs':lhs}
+        exec(lhsExpr)
+        
+        self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhsExpr':lhsExpr}
+

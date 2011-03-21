@@ -124,10 +124,12 @@ class SolverFirstTrapezoid(Solver):
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
- 
+        history = []
         assembler = Assembler()
         assembler.SetNetworkMesh(self.NetworkMesh)
-        assembler.SetBoundaryConditions(self.BoundaryConditions)      
+        assembler.SetBoundaryConditions(self.BoundaryConditions)
+        info = {'dofmap':assembler.DofMap,'solution':None,'incrementNumber':self.IncrementNumber,'history':history}
+        self.Evaluator.SetInfo(info) 
         assembler.Assemble(self.SimulationContext, self.Evaluator)
         self.PrescribedPressures = assembler.PrescribedPressures
         self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
@@ -136,7 +138,6 @@ class SolverFirstTrapezoid(Solver):
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs                                             
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
-        
         PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements+1))                                  
         self.p = zeros((NumberOfGlobalDofs,1))
         self.pt = zeros((NumberOfGlobalDofs,1))
@@ -203,8 +204,8 @@ class SolverFirstTrapezoid(Solver):
                 if den < 1e-12:
                     den = 1.0
                 nlerr = norm(self.p-self.pi,Inf) / den
-                
-                info = {'dofmap':assembler.DofMap,'solution':self.p}
+              
+                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)
                 self.PrescribedPressures = assembler.PrescribedPressures
@@ -222,12 +223,7 @@ class SolverFirstTrapezoid(Solver):
                 if nlerr < nltol:
                     nltol = self.nltol
                     counter = 0 
-                    #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
-                    if self.IncrementNumber > 1799:
-                        for el in self.NetworkMesh.Elements:
-                            if el.nonLinear == True:
-                                if el.Id == "19":
-                                    print mean(el.Radius)*1e3
+                    print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
                     break  
                 
                 counter+=1
@@ -240,9 +236,12 @@ class SolverFirstTrapezoid(Solver):
             self.fet[:,:] = self.fe[:,:]
             self.fit[:,:] = self.fi[:,:]                
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
+            history.insert(0,self.IncrementNumber)
+            history = history[:3]
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment
-        info = {'dofmap':assembler.DofMap,'solution':self.p}
+        
+        info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}      
         self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
         return PressuresMatrix
@@ -384,7 +383,7 @@ class SolverNewmark(Solver):
                     break   
                 counter+=1      
                 self.pi[:,:] = self.p[:,:]       
-                info = {'dofmap':assembler.DofMap,'solution':self.p}
+                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)          
                 self.PrescribedPressures = assembler.PrescribedPressures   
