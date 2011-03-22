@@ -669,7 +669,10 @@ class FiveDofRclElementV2(Element):
         This method returns Radius
         '''
         #print "GET", timeIndex, self.Radius
-        Radius = self.Radius
+        if timeIndex == 0:
+            Radius = self.Radius
+        else:
+            Radius = self.ParameterInfo['Radius'][timeIndex] 
         return Radius
     
     def GetRadiusAtRest(self, info, timeIndex=0):
