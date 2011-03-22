@@ -220,7 +220,6 @@ class Evaluator(object):
        
         for rhsVariable in rhsVariables:
             rhsParameter, rhsElement, rhsAbscissa, rhsTimeIndex, rhsEdge = self.GetVariableComponents(rhsVariable)
-            
             if rhsEdge is not None:
                 elEvals.append({'elEval': 'edge%d = self.GetEdge(rhsEdge,rhsAbscissa)' % elCount, 'rhsEdge':rhsEdge, 'rhsAbscissa':rhsAbscissa})
                 rhs = self.variableRe.sub('edge%d.Get%s(rhsAbscissa)' % (elCount,rhsParameter),rhs,1)
@@ -230,17 +229,15 @@ class Evaluator(object):
                     rhs = self.variableRe.sub('%s' % (rhsParameter),rhs,1)         
                 else:     
                     elEvals.append({'elEval': 'el%d = self.GetElement(rhsElement,rhsAbscissa)' % elCount, 'rhsElement':rhsElement, 'rhsAbscissa':rhsAbscissa, 'rhsTimeIndex':rhsTimeIndex})
-                    
-                    rhs = self.variableRe.sub('el%d.Get%s(info,rhsTimeIndex)' % (elCount,rhsParameter),rhs,1)                 
+                    rhs = self.variableRe.sub('el%d.Get%s(info,%d)' % (elCount,rhsParameter,rhsTimeIndex),rhs,1)                
             elCount += 1  
-        
+            
         if lhsEdge is None:  
-            self.rhsCache[lhsElement].append(rhs)
-        
+            self.rhsCache[lhsElement].append(rhs) 
+            
         if lhsEdge is not None:
             lhsExpr = self.variableRe.sub('lhsEdge.Set%s(%s)' % (lhsParameter,rhs),lhs,1)
-            lhsEvalDict = {'lhsEval':'lhsEdge = self.GetEdge(lhsEdge,lhsAbscissa)', 'lhsEdge':lhsEdge, 'lhsAbscissa':lhsAbscissa}
-            
+            lhsEvalDict = {'lhsEval':'lhsEdge = self.GetEdge(lhsEdge,lhsAbscissa)', 'lhsEdge':lhsEdge, 'lhsAbscissa':lhsAbscissa}     
         else:
             if lhsElement == '':            
                 lhsExpr = self.variableRe.sub('self.SimulationContext.Context[%s]=%s' % ("'"+lhsParameter+"'",rhs),lhs,1)
@@ -248,7 +245,6 @@ class Evaluator(object):
             else:
                 lhsExpr = self.variableRe.sub('lhsEl.Set%s(%s, info)' % (lhsParameter,rhs),lhs,1)
                 lhsEvalDict = {'lhsEval':'lhsEl = self.GetElement(lhsElement,lhsAbscissa)', 'lhsElement':lhsElement, 'lhsAbscissa':lhsAbscissa}
-
         for elEvalDict in elEvals:         
             try:
                 rhsEdge = elEvalDict['rhsEdge']
@@ -258,7 +254,6 @@ class Evaluator(object):
                 rhsAbscissa = elEvalDict['rhsAbscissa']           
             exec(elEvalDict['elEval'])          
         exec(lhsEvalDict['lhsEval'])
-        exec(lhsExpr)
-        
+        exec(lhsExpr)  
         self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhsExpr':lhsExpr}
 
