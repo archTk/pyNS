@@ -306,7 +306,7 @@ class NetworkSolutions(object):
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
-                meshname = element.Name
+                name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
                 print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
@@ -316,7 +316,7 @@ class NetworkSolutions(object):
         ylabel('Flow (mL/min)')
         title ('Flow')    
         legend()
-        savefig(self.images + meshid + '_' + meshname +'_flow.png')
+        savefig(self.images + meshid + '_' + name +'_flow.png')
         close()
         
     def PlotFlowComparative(self, cycle = None):
@@ -460,7 +460,7 @@ class NetworkSolutions(object):
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
-                meshname = element.Name
+                name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])
                  
         plot(self.t, Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
@@ -468,7 +468,7 @@ class NetworkSolutions(object):
         ylabel('Pressure (mmHg)')
         title ('Pressure')    
         legend()
-        savefig(self.images + meshid + '_' + meshname +'_pressure.png')
+        savefig(self.images + meshid + '_' + name +'_pressure.png')
         close()
 
     def PlotPressureTwo(self, meshid, meshid2, cycle = None):
