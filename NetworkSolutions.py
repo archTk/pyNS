@@ -1028,7 +1028,7 @@ class NetworkSolutions(object):
         else:
             Cycle = self.Cycles
 
-        root = etree.Element("Solutions", id=self.NetworkGraph.Id, version="1.0")
+        root = etree.Element("Solutions", id=self.NetworkGraph.Id, version="2.0")
         xmlsolutions = etree.ElementTree(root)
         
         #CASE
@@ -1045,9 +1045,22 @@ class NetworkSolutions(object):
             nodes_list.append(int(node.Id))
         nodes_list.sort()
         
-        
         for id in nodes_list:
-            etree.SubElement(nodes, "node", id = str(id))
+            for nodeG in self.NetworkGraph.Nodes.itervalues():
+                if int(nodeG.Id) == id:
+                    if nodeG.Name:
+                        n_name = nodeG.Name
+                        n_type = nodeG.Type
+                        node = etree.SubElement(nodes, "node", id = str(id), type = str(n_type), name = str(n_name))
+                        if nodeG.Name == 'anastomosis':
+                            prop = etree.SubElement(node, "properties")
+                            conn = etree.SubElement(prop, "connections")
+                            etree.SubElement(conn, "proximal_artery", edge_id=str(nodeG.Properties['proximal']))
+                            etree.SubElement(conn, "distal_artery", edge_id=str(nodeG.Properties['distal']))
+                            etree.SubElement(conn, "proximal_vein", edge_id=str(nodeG.Properties['vein']))
+                    else:
+                        etree.SubElement(nodes, "node", id = str(id))
+            
             
         #SUPEREDGES
         superedges_list = []
@@ -1078,20 +1091,23 @@ class NetworkSolutions(object):
         for edg in edges_list:
             for e in self.NetworkGraph.Edges.itervalues():
                 if e.Id == str(edg):
-                    edge = etree.SubElement(edges, "edge", id = str(e.Id), nodeIds = str(e.NodeIds).strip('[]'))
-                    edge_class = etree.SubElement(edge, "edge_classification", side = str(e.Side))
-                    edge_class.text =  str(e.Name)
+                    edge = etree.SubElement(edges, "edge", id = str(e.Id), name = str(e.Name), side = str(e.Side), node1_id = str(e.NodeIds[0]), node2_id = str(e.NodeIds[1]))
+                    
                     Flow = 0
                     i = 0                 
                     for el in self.NetworkMesh.Elements:
                         if el.NodeIds[0] == self.NetworkMesh.s_mesh[(0.0,e)]:
                             P1 = (self.Solutions[(self.DofMap.DofMap[el.Id, 0]),:])/133.3223684211
-                            P1 = mean(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])             
+                            P1Mean = mean(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
+                            P1Max = max(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
+                            P1Min = min(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])         
                             break
                     for el in self.NetworkMesh.Elements:
                         if el.NodeIds[1] == self.NetworkMesh.s_mesh[(1.0,e)]:
                             P2 = (self.Solutions[(self.DofMap.DofMap[el.Id, 2]),:])/133.3223684211
-                            P2 = mean(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])      
+                            P2Mean = mean(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
+                            P2Max = max(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])     
+                            P2Min = min(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])           
                             break                
                     for meshId, edgeId in self.NetworkMesh.MeshToGraph.iteritems():
                         if edgeId == e.Id:
@@ -1104,27 +1120,62 @@ class NetworkSolutions(object):
                                          
                     Flow = (Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7) / i
                     Wss = (Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]) / i
-                    Flow = mean(Flow)
-                    WssMean = mean(Wss)
-                    WssPeak = max(Wss)
-                            
-                    sol_P = etree.SubElement(edge, "Nodal_pressures", unit = "mmHg")
-                    sol_P_value = etree.SubElement(sol_P, "scalar")
-                    sol_P_value.text = str(P1) 
-                    sol_P_value = etree.SubElement(sol_P, "scalar")
-                    sol_P_value.text = str(P2) 
+                    FlowMean = mean(Flow)
+                    FlowMax = max(Flow)
+                    FlowMin = min(Flow)
+                    WssMean = mean(Wss)*10
+                    WssMax = max(Wss)*10
+                    WssMin = min(Wss)*10
                     
-                    sol_Flow = etree.SubElement(edge, "Flow", unit = "mL/min")
-                    sol_Flow_value = etree.SubElement(sol_Flow, "scalar")
-                    sol_Flow_value.text = str(Flow)
+                    solution = etree.SubElement(edge, "solution")
                     
-                    sol_Wss = etree.SubElement(edge, "Wss_mean", unit = "Pa")
-                    sol_Wss_value = etree.SubElement(sol_Wss, "scalar")
-                    sol_Wss_value.text = str(WssMean)
+                    solPmean = etree.SubElement(solution, "pressure_mean", unit = "mmHg")
+                    solPmean_s1 = etree.SubElement(solPmean, "value", s="0.0")
+                    solPmean_s1_v = etree.SubElement(solPmean_s1, "scalar")
+                    solPmean_s1_v.text = str(P1Mean)
+                    solPmean_s2 = etree.SubElement(solPmean, "value", s="1.0")
+                    solPmean_s2_v = etree.SubElement(solPmean_s2, "scalar")
+                    solPmean_s2_v.text = str(P2Mean)
                     
-                    sol_WssPeak = etree.SubElement(edge, "Wss_peak", unit = "Pa")
-                    sol_WssPeak_value = etree.SubElement(sol_WssPeak, "scalar")
-                    sol_WssPeak_value.text = str(WssPeak)
+                    solPmax = etree.SubElement(solution, "pressure_max", unit = "mmHg")
+                    solPmax_s1 = etree.SubElement(solPmax, "value", s="0.0")
+                    solPmax_s1_v = etree.SubElement(solPmax_s1, "scalar")
+                    solPmax_s1_v.text = str(P1Max)
+                    solPmax_s2 = etree.SubElement(solPmax, "value", s="1.0")
+                    solPmax_s2_v = etree.SubElement(solPmax_s2, "scalar")
+                    solPmax_s2_v.text = str(P2Max)
+                    
+                    solPmin = etree.SubElement(solution, "pressure_min", unit = "mmHg")
+                    solPmin_s1 = etree.SubElement(solPmin, "value", s="0.0")
+                    solPmin_s1_v = etree.SubElement(solPmin_s1, "scalar")
+                    solPmin_s1_v.text = str(P1Min)
+                    solPmin_s2 = etree.SubElement(solPmin, "value", s="1.0")
+                    solPmin_s2_v = etree.SubElement(solPmin_s2, "scalar")
+                    solPmin_s2_v.text = str(P2Min)
+                    
+                    solQmean = etree.SubElement(solution, "flow_mean", unit = "mL/min")
+                    solQmean_value = etree.SubElement(solQmean, "scalar")
+                    solQmean_value.text = str(FlowMean)
+                    
+                    solQmax = etree.SubElement(solution, "flow_max", unit = "mL/min")
+                    solQmax_value = etree.SubElement(solQmax, "scalar")
+                    solQmax_value.text = str(FlowMax)
+                    
+                    solQmin = etree.SubElement(solution, "flow_min", unit = "mL/min")
+                    solQmin_value = etree.SubElement(solQmin, "scalar")
+                    solQmin_value.text = str(FlowMin)
+                         
+                    solWssmean = etree.SubElement(solution, "wss_mean", unit = "dyne/cm2")
+                    solWssmean_value = etree.SubElement(solWssmean, "scalar")
+                    solWssmean_value.text = str(WssMean)
+                    
+                    solWssmax = etree.SubElement(solution, "wss_max", unit = "dyne/cm2")
+                    solWssmax_value = etree.SubElement(solWssmax, "scalar")
+                    solWssmax_value.text = str(WssMax)
+                    
+                    solWssmin = etree.SubElement(solution, "wss_min", unit = "dyne/cm2")
+                    solWssmin_value = etree.SubElement(solWssmin, "scalar")
+                    solWssmin_value.text = str(WssMin)
         
         indent(root)            
         xmlsolutions.write (xmlsolutionspath,encoding='iso-8859-1')   

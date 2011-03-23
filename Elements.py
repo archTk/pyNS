@@ -669,10 +669,6 @@ class FiveDofRclElementV2(Element):
         This method returns Radius
         '''
         #print "GET", timeIndex, self.Radius
-        #if 'Radius' not in self.ParameterInfo:
-        #    Radius = self.Radius
-        #else:
-        #    print self.ParameterInfo
         try:
             Radius = self.ParameterInfo['Radius'][timeIndex] 
         except:

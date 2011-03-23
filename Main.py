@@ -27,7 +27,7 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'post'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
@@ -234,6 +234,7 @@ networkSolutions.SetNetworkGraph(networkGraph)
 networkSolutions.SetSimulationContext(simulationContext)
 networkSolutions.SetSolutions(solver.Solutions)
 networkSolutions.SetImagesPath(images)
+networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
     if element.Type == '0D_FiveDofsV2':
         #networkSolutions.PlotWSS(element.Id)
@@ -243,4 +244,4 @@ for element in networkMesh.Elements:
         networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
         networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
-networkSolutions.WriteToXML(xmloutpath)
+        
