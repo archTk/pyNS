@@ -229,15 +229,15 @@
 		<xsd:sequence>
 			<xsd:element maxOccurs="unbounded" minOccurs="2" name="value" type="timedValueType"/>
 		</xsd:sequence>
+		<xsd:attribute name="time_id" type="xsd:int"/>
 		<xsd:attributeGroup ref="sharedAttributes"/>
 	</xsd:complexType>
 	
 	<xsd:complexType name="timedValueType">
-		<xsd:all>
-			<xsd:element maxOccurs="1" minOccurs="0" name="value" type="xsd:float"/>
-		</xsd:all>
+		<xsd:sequence>
+			<xsd:element maxOccurs="unbounded" minOccurs="0" name="scalar" type="xsd:float"/>
+		</xsd:sequence>
 		<xsd:attribute name="s" type="xsd:float"/>
-		<xsd:attribute name="time_id" type="xsd:int"/>
 	</xsd:complexType>
 	
 	<xsd:complexType name="arrayType">
