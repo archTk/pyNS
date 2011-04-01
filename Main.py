@@ -239,9 +239,11 @@ for element in networkMesh.Elements:
     if element.Type == '0D_FiveDofsV2':
         #networkSolutions.PlotWSS(element.Id)
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
+        #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
+        networkSolutions.PlotReynolds(element.Id)
+        #networkSolutions.PlotVelocity(element.Id)
         networkSolutions.PlotFlow(element.Id)
         networkSolutions.PlotPressure(element.Id)
         networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
         networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
-        

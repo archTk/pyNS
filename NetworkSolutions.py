@@ -318,7 +318,36 @@ class NetworkSolutions(object):
         legend()
         savefig(self.images + meshid + '_' + name +'_flow.png')
         close()
-        
+    
+    def PlotVelocity(self, meshid, cycle = None):
+        '''
+        This method plots mean flow for a single mesh
+        If cycle is not specified, default cycle is the last one
+        '''
+        if cycle is not None:
+            Cycle = cycle
+        else:
+            Cycle = self.Cycles
+                     
+        meshid = str(meshid)
+        for element in self.NetworkMesh.Elements:
+            if element.Id == meshid:
+                name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
+                dofs = element.GetPoiseuilleDofs()
+                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
+                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
+                Radius = mean(element.GetRadius(info))
+                print element.Name, Radius
+                Velocity = Flow/(pi*Radius**2)
+      
+        plot(self.t, Velocity, 'r-',linewidth = 3, label = 'Velocity')   #red line
+        xlabel('Time (s)')
+        ylabel('Velocity (m3/s)')
+        title ('Velocity')    
+        legend()
+        savefig(self.images + meshid + '_' + name +'_vel.png')
+        close()
+       
     def PlotFlowComparative(self, cycle = None):
         '''
         This method plots brachial, radial and ulnar mean flow.
@@ -445,6 +474,60 @@ class NetworkSolutions(object):
             text_file.write("\n")
         text_file.close()         
     
+    def WriteReynolds(self, meshid, txtpath, cycle = None):
+        '''
+        This method writes flow output values in a .txt file.
+        If cycle is not specified, default cycle is the last one
+        '''
+        if cycle is not None:
+            Cycle = cycle
+        else:
+            Cycle = self.Cycles
+
+        meshid = str(meshid)
+        for element in self.NetworkMesh.Elements:
+            if element.Id == meshid:
+                dofs = element.GetPoiseuilleDofs()
+                Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
+                Radius = element.GetRadius(info)
+                Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
+                    
+        text_file = open(txtpath, "w")
+        text_file.write("Reynolds Number\n")
+        for word in Reynolds:     
+            text_file.write(str(word))
+            text_file.write("\n")
+        text_file.close() 
+    
+    def PlotReynolds(self, meshid, cycle = None):
+        '''
+        This method plots mean flow for a single mesh
+        If cycle is not specified, default cycle is the last one
+        '''
+        if cycle is not None:
+            Cycle = cycle
+        else:
+            Cycle = self.Cycles
+                     
+        meshid = str(meshid)
+        for element in self.NetworkMesh.Elements:
+            if element.Id == meshid:
+                name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
+                dofs = element.GetPoiseuilleDofs()
+                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
+                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
+                Radius = element.GetRadius(info)
+                Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*mean(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
+      
+        plot(self.t, Reynolds, 'r-',linewidth = 3, label = 'Reynolds Number')   #red line
+        xlabel('Time (s)')
+        ylabel('Reynolds Number')
+        title ('Reynolds Number')    
+        legend()
+        savefig(self.images + meshid + '_' + name +'_reynoldsN.png')
+        
+        close()
     # PRESSURE METHODS
     
     def PlotPressure(self, meshid, cycle = None):
@@ -1129,7 +1212,7 @@ class NetworkSolutions(object):
                     
                     solution = etree.SubElement(edge, "solution")
                     
-                    solPmean = etree.SubElement(solution, "pressure_mean", unit = "mmHg")
+                    solPmean = etree.SubElement(solution, "pressure_timemean", unit = "mmHg")
                     solPmean_s1 = etree.SubElement(solPmean, "value", s="0.0")
                     solPmean_s1_v = etree.SubElement(solPmean_s1, "scalar")
                     solPmean_s1_v.text = str(P1Mean)
@@ -1137,7 +1220,7 @@ class NetworkSolutions(object):
                     solPmean_s2_v = etree.SubElement(solPmean_s2, "scalar")
                     solPmean_s2_v.text = str(P2Mean)
                     
-                    solPmax = etree.SubElement(solution, "pressure_max", unit = "mmHg")
+                    solPmax = etree.SubElement(solution, "pressure_timemax", unit = "mmHg")
                     solPmax_s1 = etree.SubElement(solPmax, "value", s="0.0")
                     solPmax_s1_v = etree.SubElement(solPmax_s1, "scalar")
                     solPmax_s1_v.text = str(P1Max)
@@ -1145,7 +1228,7 @@ class NetworkSolutions(object):
                     solPmax_s2_v = etree.SubElement(solPmax_s2, "scalar")
                     solPmax_s2_v.text = str(P2Max)
                     
-                    solPmin = etree.SubElement(solution, "pressure_min", unit = "mmHg")
+                    solPmin = etree.SubElement(solution, "pressure_timemin", unit = "mmHg")
                     solPmin_s1 = etree.SubElement(solPmin, "value", s="0.0")
                     solPmin_s1_v = etree.SubElement(solPmin_s1, "scalar")
                     solPmin_s1_v.text = str(P1Min)

@@ -209,19 +209,27 @@
 <!--global value of parameter of interest)-->
 	<xsd:complexType name="solutionType">
 		<xsd:all>
-			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_array" type="timedArrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_mean" type="arrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_max" type="arrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_min" type="arrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="flow_array" type="timedArrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="flow_mean" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="flow_max" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="flow_min" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="wss_array" type="timedArrayType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="wss_mean" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="wss" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="wss_max" type="parameterType"/>
-			<xsd:element maxOccurs="1" minOccurs="0" name="wss_min" type="parameterType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_array" type="timedArrayType" />
+			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_timemean" type="arrayType" />
+			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_timemax" type="arrayType" />
+     		<xsd:element maxOccurs="1" minOccurs="0" name="pressure_timemin" type="arrayType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_mean" type=" parameterType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_max" type=" parameterType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="pressure_min" type=" parameterType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_array" type="timedArrayType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_timemean" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_timemax" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_timemin" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_mean" type="parameterType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_max" type="parameterType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="flow_min" type="parameterType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_array" type="timedArrayType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_timemean" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_timemax" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_timemin" type=" arrayType " />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_mean" type="parameterType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_max" type="parameterType" />
+  			<xsd:element maxOccurs="1" minOccurs="0" name="wss_min" type="parameterType" />
 		</xsd:all>
 	</xsd:complexType>
 	
@@ -262,17 +270,11 @@
 	</xsd:complexType>
 
  <!--time type, global definition of time instances of valueType.scalar and valueType.vector values-->
-
   <xsd:complexType name="timeType">
-
       <xsd:sequence>
-
         <xsd:element name="scalar" type="xsd:float" minOccurs="0" maxOccurs="unbounded"/>
-
       </xsd:sequence>
-
-      <xsd:attribute name="unit" type="unitType"/>
-
+      <xsd:attribute name="id" type="xsd:int"/>
   </xsd:complexType>
 
 <!--sharedAttribute: defines a set of attribute declarations shared by several types-->

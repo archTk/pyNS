@@ -490,7 +490,7 @@ class FiveDofRclElementV2(Element):
             self.L = float(Lalpha)
         
         self.Initialized = True
-
+        
         return self.C, self.R, Ralpha, Lalpha, self.LeakageR
         
     def GetCircuitMatrix(self):
@@ -569,6 +569,8 @@ class FiveDofRclElementV2(Element):
             self.Flow = mean(self.Flow[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])*6.0e7
         else:
             self.Flow = self.Flow[0]*6.0e7 
+        
+        
         return self.Flow
     
     def GetWss(self, info, timeIndex=0):
@@ -626,7 +628,7 @@ class FiveDofRclElementV2(Element):
             self.Pressure = mean(self.Pressure[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])
         else:
             self.Pressure = self.Pressure[0] 
-        if self.Pressure < 0.0:
+        if self.Pressure <= 0.0:
             self.Pressure = 1e-12
         return self.Pressure
     
@@ -642,6 +644,7 @@ class FiveDofRclElementV2(Element):
                 Areas2 = pi*(Radius2**2)       
             else:
                 Radius = self.Radius[len(self.Radius)-1]
+                Radius1 = Radius2 = Radius
                 Areas1 = pi*(Radius**2)
                 Areas2 = pi*(Radius**2)
         if self.Side == 'venous':
@@ -654,7 +657,6 @@ class FiveDofRclElementV2(Element):
                 Radius = self.Radius[0]
                 Areas1 = pi*(Radius**2)
                 Areas2 = pi*(Radius**2)          
-        
         return Areas1, Areas2
     
     def GetLength(self,info):
@@ -966,6 +968,8 @@ class Anastomosis(Element):
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         '''
         self.Flow = self.Proximal.GetFlow(info, timeIndex)
+        #Re = min(900,(2.0*1050*(self.Flow/6e7))/(pi*3e-3*mean(self.Proximal.GetRadius(info, timeIndex))))
+        #print Re
         return self.Flow
     
     def GetFlowVein(self, info, timeIndex=0):
@@ -981,6 +985,23 @@ class Anastomosis(Element):
         '''
         self.Flow = self.Distal.GetFlow(info, timeIndex)
         return self.Flow
+    
+    def GetRadiusProximal(self, info, timeIndex=0):
+        '''
+        This method returns vessel's Cross-Sectional Radius
+        '''
+        Radius = mean(self.Proximal.GetRadius(info, timeIndex=0))
+        return Radius
+    
+    def GetRadiusVein(self, info, timeIndex=0):
+        '''
+        This method returns vessel's Cross-Sectional Radius
+        '''
+        if type(self.Vein.GetRadius(info, timeIndex=0)) is dict:
+            Radius = self.Vein.GetRadius(info, timeIndex=0)[0.0]
+        else:
+            Radius = mean(self.Vein.GetRadius(info, timeIndex=0))
+        return Radius
     
     def GetAreaProximal(self, info, timeIndex=0):
         '''
@@ -1010,6 +1031,14 @@ class Anastomosis(Element):
         '''
         self.FlowRatio = self.GetFlowVein(info, timeIndex)/self.GetFlowProximal(info, timeIndex)
         return self.FlowRatio
+    
+    def GetRadiusRatio(self, info, timeIndex=0):
+        '''
+        This method returns the ratio between the cross-sectional Radius of the vein and
+        the cross-sectional Radius of the proximal artery (m)
+        '''
+        self.RadiusRatio = self.GetRadiusVein(info, timeIndex)/self.GetRadiusProximal(info, timeIndex)
+        return self.RadiusRatio
         
     def GetAreaRatio(self, info, timeIndex=0):
         '''

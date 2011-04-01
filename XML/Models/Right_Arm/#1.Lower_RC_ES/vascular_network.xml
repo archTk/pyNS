@@ -55,10 +55,10 @@
          <proximal_vein edge_id="21"/>
        </connections>
        <arterial_resistance>
-         <expression>$Resistance_0_1[anastomosis] = max(1.0e-2,(-1.0/6e7)*(-0.03*(1.0-(($FlowRatio[anastomosis])**2))-0.35*(($FlowRatio[anastomosis])**2)+0.29*(1.0-($FlowRatio[anastomosis])))*0.5*$blood_density[]*(($FlowProximal[anastomosis]**2)/($FlowDistal[anastomosis]**2))*(1.0/($AreaProximal[anastomosis]**2))*abs($FlowDistal[anastomosis]))</expression>
+         <expression>$Resistance_0_1[anastomosis] = 1.0</expression>
        </arterial_resistance>
        <venous_resistance>
-         <expression>$Resistance_0_2[anastomosis] = max(1.0e-2,(-1.0/6e7)*(-0.95*((1.0-($FlowRatio[anastomosis]))**2)-(($FlowRatio[anastomosis])**2)*(1.3*(1.0/(tan(0.5*$angle[])))-0.3+((0.4-0.1*($AreaRatio[anastomosis]))/(($AreaRatio[anastomosis])**2)))-(0.49*($FlowRatio[anastomosis])*(1.0-($FlowRatio[anastomosis]))*(1.0+(1.0/($AreaRatio[anastomosis])))*(1.0/(tan(0.5*$angle[])))))*0.5*$blood_density[]*(($FlowProximal[anastomosis]**2)/($FlowVein[anastomosis]**2))*(1.0/($AreaProximal[anastomosis]**2))*abs($FlowVein[anastomosis]))</expression>
+         <expression>$Resistance_0_2[anastomosis] = max(1.0e-2,((((174.5-(4.5*$RadiusRatio[anastomosis]))*(min(900.0,(2.0*$blood_density[]*($FlowProximal[anastomosis]/6.0e7))/(pi*$RadiusProximal[anastomosis]*$dynamic_viscosity[])))**(-(0.462+e**(-((1.5)**(1.4/($RadiusRatio[anastomosis])**2))))))*$blood_density[]*(($FlowProximal[anastomosis]/6.0e7)/($AreaProximal[anastomosis]))**2)/($FlowProximal[anastomosis]/6.0e7)))</expression>
        </venous_resistance>
      </properties>
    </node>

@@ -214,11 +214,12 @@ class SolverFirstTrapezoid(Solver):
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
                 
                 if counter == 100:
+                    print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
                     self.sumv[:,:] = sumvbk[:,:]
-                    CoeffRelax *= 0.6
-                    nltol *= 0.9
+                    CoeffRelax *= 0.5
+                    nltol *= 0.98
                 
                 if nlerr < nltol:
                     nltol = self.nltol
@@ -256,8 +257,8 @@ class SolverNewmark(Solver):
         '''
         '''
         Solver.__init__(self)
-        self.Ga = 0.4
-        self.Gd = 0.75
+        self.Ga = 0.25
+        self.Gd = 0.5
     
     
     def Solve(self):
@@ -265,8 +266,7 @@ class SolverNewmark(Solver):
         This method builds System Matrix and gets Solution
         '''
         if self.SimulationContext.Id != self.NetworkMesh.Id:
-            raise XMLIdError()
-        
+            raise XMLIdError()        
         try:
             self.TimeStep = self.SimulationContext.Context['timestep']
             self.SquareTimeStep = self.TimeStep*self.TimeStep
@@ -275,27 +275,27 @@ class SolverNewmark(Solver):
             raise
         try:
             self.Period = self.SimulationContext.Context['period']
-            self.TimeStepFreq = self.Period/self.TimeStep+1.0
+            self.TimeStepFreq = self.Period/self.TimeStep
         except KeyError:
             print "Error, Please set period in Simulation Context XML File"
             raise
         try:
             self.Cycles = self.SimulationContext.Context['cycles']
-            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq)+1
+            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq) 
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
- 
+        history = []
         assembler = Assembler()
         assembler.SetNetworkMesh(self.NetworkMesh)
         assembler.SetBoundaryConditions(self.BoundaryConditions)
-        
+        info = {'dofmap':assembler.DofMap,'solution':None,'incrementNumber':self.IncrementNumber,'history':history}
+        self.Evaluator.SetInfo(info) 
         assembler.Assemble(self.SimulationContext, self.Evaluator)
         self.PrescribedPressures = assembler.PrescribedPressures
         self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
         self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
         self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix
-
 
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs
                                               
@@ -371,19 +371,24 @@ class SolverNewmark(Solver):
                 if den < 1e-12:
                     den = 1.0
                 nlerr = norm(self.p-self.pi,Inf) / den
+                
                 if counter == 100:
+                    print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
                     self.fi[:,:] = fibkp[:,:]
-                    CoeffRelax *= 0.6
-                    nltol *= 0.9
+                    CoeffRelax *= 0.5
+                    nltol *= 0.95
+                
                 if nlerr < nltol:
                     nltol = self.nltol
-                    counter = 0
-                    break   
+                    counter = 0 
+                    print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
+                    break  
+                  
                 counter+=1      
                 self.pi[:,:] = self.p[:,:]       
-                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber}
+                info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}
                 self.Evaluator.SetInfo(info)
                 assembler.Assemble(self.SimulationContext, self.Evaluator)          
                 self.PrescribedPressures = assembler.PrescribedPressures   
@@ -398,9 +403,14 @@ class SolverNewmark(Solver):
             self.dfet[:,:] = self.dfe[:,:]
             self.fit[:,:] = self.fi[:,:]
             self.dfit[:,:] = self.dfi[:,:]           
-            PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]                                  
+            PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0] 
+            history.insert(0,self.IncrementNumber)
+            history = history[:3]                                 
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment
+            
+        info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}      
+        self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
         return PressuresMatrix
     
