@@ -436,9 +436,11 @@ class MeshGenerator(object):
                     if meshNode1 not in nodes_list:
                             nodes_list.append(meshNode1)
                             nodes_list_last = len(nodes_list)                            
-                    while i < numEl:                         
-                        s1 = (i*self.MaxLength)/edgeProperties['length']
-                        s2 = ((i+1)*self.MaxLength)/edgeProperties['length']                                       
+                    while i < numEl:
+                        s1 = i / numEl
+                        s2 = (i+1) / numEl                    
+                        #s1 = (i*self.MaxLength)/edgeProperties['length']
+                        #s2 = ((i+1)*self.MaxLength)/edgeProperties['length']                                       
                         if s2 >= 1.0:
                             s2 = 1.0
                             elLength = edgeProperties['length']-(i*self.MaxLength)

@@ -49,6 +49,8 @@ class NetworkSolutions(object):
     PlotFlowComparative: a method for plotting brachial, radial and ulnar mean flow.
     GetFlowSignal: a method for returning flow signal for specific mesh.
     WriteFlowOutput: a method for writing flow output values for a specific mesh in a .txt file.
+    PlotReynolds: a method for plotting reynolds number for a single mesh.
+    WriteReynoldsOutput: a method for writing reynolds number output values for a specific mesh in a .txt file.
     #Pressure Methods:
     PlotPressure: a method for plotting mean pressure for a single mesh.
     PlotPressureTwo: a method for plotting pressures for a couple of meshes.
@@ -476,7 +478,7 @@ class NetworkSolutions(object):
     
     def WriteReynolds(self, meshid, txtpath, cycle = None):
         '''
-        This method writes flow output values in a .txt file.
+        This method writes reynolds number output values in a .txt file.
         If cycle is not specified, default cycle is the last one
         '''
         if cycle is not None:
@@ -502,7 +504,7 @@ class NetworkSolutions(object):
     
     def PlotReynolds(self, meshid, cycle = None):
         '''
-        This method plots mean flow for a single mesh
+        This method plots reybolds number for a single mesh
         If cycle is not specified, default cycle is the last one
         '''
         if cycle is not None:
@@ -526,8 +528,8 @@ class NetworkSolutions(object):
         title ('Reynolds Number')    
         legend()
         savefig(self.images + meshid + '_' + name +'_reynoldsN.png')
-        
         close()
+        
     # PRESSURE METHODS
     
     def PlotPressure(self, meshid, cycle = None):
