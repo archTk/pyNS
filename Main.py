@@ -34,7 +34,7 @@ ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
-netPost = 'vascular_network_v3.2_postRRC_COM.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
+netPost = 'vascular_network_v3.2_postRRC_NL.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
 boundPre = 'boundary_conditions_v2.1_pre.xml'     #Boundary Conditions XML file PREOP (-r or --boundPre)
 boundPost = 'boundary_conditions_v2.1_postRC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
@@ -224,6 +224,23 @@ solver.SetNetworkMesh(networkMesh)
 solver.SetBoundaryConditions(boundaryConditions)
 solver.SetSimulationContext(simulationContext)
 solver.SetEvaluator(evaluator)
+
+'''Pre-run'''
+solver.SetSteadyFlow()
+solver.Solve()
+parameters = ["Radius","Compliance"]
+networkMesh.WriteToXML(xmlmeshpath)
+for el in networkMesh.Elements:
+    el.SetLinearValues(parameters)
+   
+'''Run'''
+evaluator.ExpressionCache = {}
+solver = SolverFirstTrapezoid()
+solver.SetNetworkMesh(networkMesh)
+solver.SetBoundaryConditions(boundaryConditions)
+solver.SetSimulationContext(simulationContext)
+solver.SetEvaluator(evaluator) 
+solver.SetPulseFlow()
 solver.Solve()
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''

@@ -113,7 +113,6 @@ class Assembler(object):
             #Boundary Condition: Inlet Flow.
             self.BoundaryConditions.SetSimulationContext(simulationContext)
             self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
-            
                
             #Assembling global matrices from local matrices.
             self.LinearZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))

@@ -311,7 +311,7 @@ class NetworkSolutions(object):
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
+                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min", element.R 
       
         plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
         xlabel('Time (s)')

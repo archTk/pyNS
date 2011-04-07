@@ -114,10 +114,10 @@ class NetworkMesh(object):
                     mesh_radius = etree.SubElement(mesh_parameters, "radius", unit="m")
                     radius_v1 = etree.SubElement(mesh_radius, "value", s=str(s_coord1))
                     radius_value1 = etree.SubElement(radius_v1, "scalar")
-                    radius_value1.text = str(mesh.Radius[s_coord1])
+                    radius_value1.text = str(mesh.Radius[0])
                     radius_v2 = etree.SubElement(mesh_radius, "value", s=str(s_coord2))
                     radius_value2 = etree.SubElement(radius_v2, "scalar")
-                    radius_value2.text = str(mesh.Radius[s_coord2])  
+                    radius_value2.text = str(mesh.Radius[len(mesh.Radius)-1])
                     wall_thickness = etree.SubElement(mesh_parameters, "wall_thickness", unit="m")
                     if type(mesh.WallThickness) is str:
                         wall_thickness_v = etree.SubElement(wall_thickness, "value")

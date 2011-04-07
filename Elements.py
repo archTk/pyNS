@@ -257,7 +257,6 @@ class FiveDofRclElementV2(Element):
         '''
         This method sets Radius
         '''
-        #print  "SET", self.Name, radius
         self.Radius = radius
         if info['history'] != []:
             self.LastIncrementNumber = info['history'][0]
@@ -276,7 +275,7 @@ class FiveDofRclElementV2(Element):
         '''
         This method sets non linear compliance
         '''
-        
+        self.C2 = compliance
         self.C = compliance
         if info['history'] != []:
             self.LastIncrementNumber = info['history'][0]
@@ -287,6 +286,28 @@ class FiveDofRclElementV2(Element):
         This method set Leakage Resistance
         '''
         self.LeakageR = qleakage*self.Leakages
+        
+    def SetLinearValues(self,parameters):
+        '''
+        '''
+        for el in parameters:
+            if el == 'Compliance':
+                self.Compliance = self.C/self.Length
+                self.C = 0.0
+                self.nonLinearParameter['compliance'] = False
+            if el == 'Radius':
+                self.R = 0.0
+                self.L = 0.0
+                self.nonLinearParameter['radiusExp'] = False
+        self.Initialized = False
+        self.Flow = None
+        self.Pressure = None
+        self.Wss = None
+        self.nonLinear = False       
+        for val in self.nonLinearParameter.itervalues():
+            if val == True:
+                self.nonLinear = True
+                break
     
     def Womersley (self, r):
         '''
@@ -357,14 +378,23 @@ class FiveDofRclElementV2(Element):
                 if value == True and name == 'radiusExp':
                     evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.RadiusExp[s1])
-                    
+                    R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
+                    R = float(sum(R))
+                    L = (self.rho*self.dz)/(pi*self.Radius**2)
+                    L = float(sum(L))
+                    Ralpha = float(R * self.Womersley(self.Radius)[0])
+                    Lalpha = float(L * self.Womersley(self.Radius)[1])
+                    self.L = Lalpha
+                    self.R = Ralpha
         else:
             if self.Radius is not None:
-                r1 = ((self.Radius[s2] - self.Radius[s1])/self.Length)
-                r2 = self.Radius[s1]
-                r_z = r2+(r1*z)
-                self.Radius = r_z
-                self.RadiusAtRest = self.Radius
+                if type(self.Radius) is dict:    
+                    r1 = ((self.Radius[s2] - self.Radius[s1])/self.Length)
+                    r2 = self.Radius[s1]
+                    r_z = r2+(r1*z)
+                    self.Radius = r_z
+                    self.RadiusAtRest = self.Radius
+               
         
         if self.Initialized == True:
             for name, value in self.nonLinearParameter.iteritems():
@@ -434,7 +464,6 @@ class FiveDofRclElementV2(Element):
                 L = float(sum(L))
             
             Ralpha = float(R * self.Womersley(self.Radius)[0])
-            
             Lalpha = float(L * self.Womersley(self.Radius)[1])
             
         if self.Initialized == True:
@@ -464,7 +493,7 @@ class FiveDofRclElementV2(Element):
                 else:
                     evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.Compliance)
-                    self.C = self.C *self.dz
+                    self.C = self.C*self.dz
                     self.C = float(sum(self.C))
                     
                     
@@ -491,6 +520,7 @@ class FiveDofRclElementV2(Element):
             self.L = float(Lalpha)
         
         self.Initialized = True
+        
         
         return self.C, self.R, Ralpha, Lalpha, self.LeakageR
         
@@ -805,6 +835,14 @@ class EndSegmentElement(Element):
         '''
         self.Rel = rel
         
+    def SetLinearValues(self,parameters):
+        '''
+        '''
+        self.Initialized = False
+        self.R1 = 0.0
+        self.C = 0.0
+        self.R2 = 0.0
+        
     def InputParameters(self, evaluator=None):
         '''
         This methods calculates windkessel parameters for specific patient
@@ -945,6 +983,14 @@ class Anastomosis(Element):
         Setting connections, proximal vein.
         '''
         self.Vein = vein
+    
+    def SetLinearValues(self,parameters):
+        '''
+        '''
+        self.R_0_1 = None
+        self.R_0_2 = None
+        self.Flow = None    
+        self.Initialized = False
           
     def InputParameters(self, evaluator=None):
         '''
@@ -969,8 +1015,6 @@ class Anastomosis(Element):
         This method returns volumetric flow rate calculated on the poiseuille resistance.(mL/min)
         '''
         self.Flow = self.Proximal.GetFlow(info, timeIndex)
-        #Re = min(900,(2.0*1050*(self.Flow/6e7))/(pi*3e-3*mean(self.Proximal.GetRadius(info, timeIndex))))
-        #print Re
         return self.Flow
     
     def GetFlowVein(self, info, timeIndex=0):

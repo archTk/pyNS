@@ -74,6 +74,16 @@ class BoundaryConditions(object):
         Setting NetworkMesh
         '''
         self.NetworkMesh = networkMesh    
+    
+    def GetSteadyFlow(self):
+        '''
+        Calculating flow as steady (mean A0 value)
+        '''
+        
+        Flow = self.A0_v
+        self.Flow = Flow 
+        return Flow
+        
       
     def GetFlow(self):
         '''

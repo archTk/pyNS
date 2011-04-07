@@ -22,7 +22,6 @@ from numpy.lib.index_tricks import s_
 from numpy.linalg.linalg import solve
 from numpy.linalg import norm
 from numpy.core.numeric import Inf, dot
-from numpy.core.fromnumeric import mean
 
 class Solver(object):
     '''
@@ -76,6 +75,18 @@ class Solver(object):
         Setting BoundaryConditions
         '''
         self.BoundaryConditions = boundaryConditions
+        
+    def SetSteadyFlow(self):
+        '''
+        Setting Steady Flow
+        '''
+        self.steady = True
+        
+    def SetPulseFlow(self):
+        '''
+        Setting Pulsatile Flow
+        '''
+        self.steady = False
     
     def SetSimulationDays(self, daysList):
         '''
@@ -124,6 +135,12 @@ class SolverFirstTrapezoid(Solver):
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
+        if self.steady == True:
+            self.TimeStep = 0.001
+            self.SquareTimeStep = self.TimeStep*self.TimeStep
+            self.TimeStepFreq = self.Period/self.TimeStep
+            self.Cycles = 0.05
+            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq) 
         history = []
         assembler = Assembler()
         assembler.SetNetworkMesh(self.NetworkMesh)
@@ -164,7 +181,11 @@ class SolverFirstTrapezoid(Solver):
             icc = (self.IncrementNumber%self.TimeStepFreq)
             if icc == 0:
                 icc = self.TimeStepFreq
-            self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
+            if self.steady == True:
+                self.Flow = assembler.BoundaryConditions.GetSteadyFlow()
+            else:  
+                self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
+                
             self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
             CoeffRelax = 0.9
             nltol = self.nltol
@@ -214,17 +235,17 @@ class SolverFirstTrapezoid(Solver):
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
                 
                 if counter == 100:
-                    #print nlerr, nltol, CoeffRelax
+                    print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
                     self.sumv[:,:] = sumvbk[:,:]
-                    CoeffRelax *= 0.5
-                    nltol *= 0.98
+                    CoeffRelax *= 0.6
+                    nltol *= 0.95
                 
                 if nlerr < nltol:
                     nltol = self.nltol
                     counter = 0 
-                    #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
+                    print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
                     break  
                 
                 counter+=1

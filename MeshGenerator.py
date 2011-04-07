@@ -438,19 +438,16 @@ class MeshGenerator(object):
                             nodes_list_last = len(nodes_list)                            
                     while i < numEl:
                         s1 = i / numEl
-                        s2 = (i+1) / numEl                    
-                        #s1 = (i*self.MaxLength)/edgeProperties['length']
-                        #s2 = ((i+1)*self.MaxLength)/edgeProperties['length']                                       
+                        s2 = (i+1) / numEl 
+                        elLength = edgeProperties['length']/numEl                                                      
                         if s2 >= 1.0:
                             s2 = 1.0
-                            elLength = edgeProperties['length']-(i*self.MaxLength)
                             try:
                                 meshNode2 = self.NetworkMesh.meshToEdges[edge.NodeIds[1]]
                             except KeyError:
                                 meshNode2 = nodes_list_last+1
                             self.NetworkMesh.meshToEdges[edge.NodeIds[1]] = meshNode2                 
                         else:
-                            elLength = (i+1)*self.MaxLength-(i*self.MaxLength)
                             meshNode2 = nodes_list_last+1    
                                            
                         elementParameters['s1'] = s1 
