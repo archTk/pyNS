@@ -221,8 +221,8 @@
 	
 	<xsd:simpleType name="elementType">
 		<xsd:restriction base="xsd:string">
-			<xsd:enumeration value="0D_FiveDofsV2"/>
-			<xsd:enumeration value="0D_TwoDofsResistance"/>
+			<xsd:enumeration value="WavePropagation"/>
+			<xsd:enumeration value="Resistance"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	

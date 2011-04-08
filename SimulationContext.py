@@ -211,8 +211,6 @@ class SimulationContext(object):
                         self.Context['timestep'] = float(param.text)
                     if param.tag == "cycles":
                         self.Context['cycles'] = int(param.text)
-                    if param.tag == "angle":
-                        self.Context['angle'] = float(param.text)
         
         #Default generic values
         self.Defaults['dos'] = '27/07/2010'

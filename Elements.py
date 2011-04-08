@@ -150,7 +150,7 @@ class Element(object):
         if len(self.ParameterInfo[parameterName]) > self.MaxHistorySize:
             self.ParameterInfo[parameterName] = self.ParameterInfo[parameterName][0:self.MaxHistorySize]
     
-class FiveDofRclElementV2(Element):
+class WavePropagationElement(Element):
     '''
     Each Element is marked by n nodes and unique Id.
     Side: Arterial or Venous side.
@@ -183,7 +183,7 @@ class FiveDofRclElementV2(Element):
         '''
         Element.__init__(self)
         
-        self.Type = "0D_FiveDofsV2"
+        self.Type = "WavePropagation"
         self.Side = side
         self.Id = id
         self.Name = name
@@ -369,24 +369,15 @@ class FiveDofRclElementV2(Element):
             raise
         
        
+        #Computing dz steps and finding curvilinear abscissas
         z = arange(0.0,self.Length,self.dz)
         s1 = self.s1
         s2 = self.s2
         
-        if self.Initialized == True:
-            for name, value in self.nonLinearParameter.iteritems():
-                if value == True and name == 'radiusExp':
-                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
-                    evaluator.Evaluate(self.RadiusExp[s1])
-                    R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
-                    R = float(sum(R))
-                    L = (self.rho*self.dz)/(pi*self.Radius**2)
-                    L = float(sum(L))
-                    Ralpha = float(R * self.Womersley(self.Radius)[0])
-                    Lalpha = float(L * self.Womersley(self.Radius)[1])
-                    self.L = Lalpha
-                    self.R = Ralpha
-        else:
+        #Element is not initialized. Computing linear and non-linear parameters.
+        if self.Initialized == False:
+            
+            #Radius
             if self.Radius is not None:
                 if type(self.Radius) is dict:    
                     r1 = ((self.Radius[s2] - self.Radius[s1])/self.Length)
@@ -394,14 +385,21 @@ class FiveDofRclElementV2(Element):
                     r_z = r2+(r1*z)
                     self.Radius = r_z
                     self.RadiusAtRest = self.Radius
-               
-        
-        if self.Initialized == True:
-            for name, value in self.nonLinearParameter.iteritems():
-                if value == True and name == 'wall_thickness':
-                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
-                    evaluator.Evaluate(self.WallThickness)
-        else:
+                    
+            #xRadius and yRadius, for elliptical geometry
+            if self.xRadius is not None:
+                xr1 = ((self.xRadius[s2] - self.xRadius[s1])/self.Length)
+                xr2 = self.xRadius[s1]
+                xr_z = xr2+(xr1*z)
+                self.xRadius = xr_z
+            if self.yRadius is not None:
+                yr1 = ((self.yRadius[s2] - self.yRadius[s1])/self.Length) 
+                yr2 = self.yRadius[s1]
+                yr_z = yr2+(yr1*z)
+                self.yRadius = yr_z
+                self.Radius = (self.xRadius*self.yRadius)**0.5
+                
+            #Wall-Thickness
             if type(self.WallThickness) is not str:
                 h1 = (self.WallThickness[s2] - self.WallThickness[s1])/self.Length
                 h2 = self.WallThickness[s1]
@@ -410,117 +408,131 @@ class FiveDofRclElementV2(Element):
             else:
                 evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                 evaluator.Evaluate(self.WallThickness)
-        
-        if self.Initialized == True:
-            for name, value in self.nonLinearParameter.iteritems():
-                if value == True and name == 'xradius':
-                    pass
-        else:  
-            if self.xRadius is not None:
-                xr1 = ((self.xRadius[s2] - self.xRadius[s1])/self.Length)
-                xr2 = self.xRadius[s1]
-                xr_z = xr2+(xr1*z)
-                self.xRadius = xr_z
-        
-        if self.Initialized == True:
-            for name, value in self.nonLinearParameter.iteritems():
-                if value == True and name == 'yradius':
-                    pass
-        else:      
-            if self.yRadius is not None:
-                yr1 = ((self.yRadius[s2] - self.yRadius[s1])/self.Length) 
-                yr2 = self.yRadius[s1]
-                yr_z = yr2+(yr1*z)
-                self.yRadius = yr_z
-                self.Radius = (self.xRadius*self.yRadius)**0.5
-        
-        if self.Initialized == False:
+                
+            #Young's Modulus
             E1 = (self.YoungModulus[s2] - self.YoungModulus[s1])/self.Length
             E2 = self.YoungModulus[s1]
             E_z = E2+(E1*z)
-            self.YoungModulus = E_z       
-        
-        if self.Initialized == False:
+            self.YoungModulus = E_z 
+            
+            #Resistance
             if self.Resistance == None:
+                #Resistance without elliptical geometry
                 if self.xRadius == None and self.yRadius == None:
                     R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
                     R = float(sum(R))
                 else:
+                    #Resistance with elliptical geometry
                     R = (8.0*self.eta*self.dz*((self.xRadius*self.xRadius)+(self.yRadius*self.yRadius)))/(2.0*pi*self.xRadius**3*self.yRadius**3)
                     R = float(sum(R))
             else:
+                #Specific Linear Resistance
                 if type(self.Resistance) is not str:
                     self.R = self.Resistance
                 else:
+                    #Specific Non-Linear Resistance
                     evaluator.Evaluate(self.Resistance)
                     R = self.R
                     R = float(mean(R))
                     
+            Ralpha = float(R * self.Womersley(self.Radius)[0])
+            
+            #Inductance
+            #Inductance without elliptical geometry
             if self.xRadius == None and self.yRadius == None:
                 L = (self.rho*self.dz)/(pi*self.Radius**2)
                 L = float(sum(L))
             else:
+                #Inductance with elliptical geometry
                 L = (self.rho*self.dz)/(pi*self.xRadius*self.yRadius)
                 L = float(sum(L))
             
-            Ralpha = float(R * self.Womersley(self.Radius)[0])
             Lalpha = float(L * self.Womersley(self.Radius)[1])
             
+            #Compliance
+            if self.Compliance == None:
+                #Arterial Compliance computed from Young's Modulus and Wall-thickness 
+                if self.Side == "arterial":
+                    self.C = ((2.0*pi*self.Radius**2)*(((2.0*self.Radius**2*(1.0-self.mu**2))/(self.WallThickness**2))+((1.0+self.mu)*(((2.0*self.Radius)/self.WallThickness)+1.0)))*self.dz)/(self.YoungModulus*(((2.0*self.Radius)/self.WallThickness)+1.0))         
+                    self.C = float(sum(self.C))
+                if self.Side == "venous":
+                    #Venous Compliance computed from Young's Modulus and Wall-thickness without elliptical geometry
+                    if self.xRadius == None and self.yRadius == None:
+                        self.C = ((2.0*pi*(sqrt(self.Radius*self.Radius))**3)*(1.0-self.mu**2)*self.dz)/(self.YoungModulus*self.WallThickness)
+                    #Venous Compliance computed from Young's Modulus and Wall-thickness with elliptical geometry
+                    else:
+                        self.C = ((2.0*pi*(sqrt(self.xRadius*self.yRadius))**3)*(1.0-self.mu**2)*self.dz)/(self.YoungModulus*self.WallThickness)
+                    self.C = float(sum(self.C))
+            else:
+                #Specific Linear Compliance
+                if type(self.Compliance) is not str:
+                    self.C = self.Compliance*self.Length
+                else:
+                    #Specific Non-Linear Compliance
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
+                    evaluator.Evaluate(self.Compliance)
+                    self.C = self.C*self.dz
+                    self.C = float(sum(self.C))
+                    
+            #Leakage Resistance
+            if self.QLeakage is None:
+                self.LeakageR = 1.0e25
+            else:
+                evaluator.Evaluate(self.QLeakage)
+            
+            #Element Initialized
+            self.C = float(self.C)
+            self.R = float(Ralpha)    
+            self.L = float(Lalpha)
+            self.Initialized = True   
+            
         if self.Initialized == True:
+            #Radius
+            for name, value in self.nonLinearParameter.iteritems():
+                if value == True and name == 'radiusExp':
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
+                    evaluator.Evaluate(self.RadiusExp[s1])
+                    
+                    #Resistance and Inductance are radius dependents
+                    R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
+                    R = float(sum(R))
+                    L = (self.rho*self.dz)/(pi*self.Radius**2)
+                    L = float(sum(L))
+                    Ralpha = float(R * self.Womersley(self.Radius)[0])
+                    Lalpha = float(L * self.Womersley(self.Radius)[1])
+                    self.L = Lalpha
+                    self.R = Ralpha 
+            
+            #xRadius and yRadius for elliptical geometry
+            for name, value in self.nonLinearParameter.iteritems():
+                if value == True and name == 'xradius':
+                    pass
+            for name, value in self.nonLinearParameter.iteritems():
+                if value == True and name == 'yradius':
+                    pass
+            
+            #Wall-Thickness
+            for name, value in self.nonLinearParameter.iteritems():
+                if value == True and name == 'wall_thickness':
+                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
+                    evaluator.Evaluate(self.WallThickness)              
+            
+            #Resistance        
             for name, value in self.nonLinearParameter.iteritems():              
                 if value == True and name == 'resistance':         
                     evaluator.Evaluate(self.Resistance)
                     R = self.R
                     R = float(mean(R))
                     Ralpha = float(R * self.Womersley(self.Radius)[0])
-                else:
-                    Ralpha = self.R
-        
-        if self.Initialized == False:
-            if self.Compliance == None:
-                if self.Side == "arterial":
-                    self.C = ((2.0*pi*self.Radius**2)*(((2.0*self.Radius**2*(1.0-self.mu**2))/(self.WallThickness**2))+((1.0+self.mu)*(((2.0*self.Radius)/self.WallThickness)+1.0)))*self.dz)/(self.YoungModulus*(((2.0*self.Radius)/self.WallThickness)+1.0))         
-                    self.C = float(sum(self.C))
-                if self.Side == "venous":
-                    if self.xRadius == None and self.yRadius == None:
-                        self.C = ((2.0*pi*(sqrt(self.Radius*self.Radius))**3)*(1.0-self.mu**2)*self.dz)/(self.YoungModulus*self.WallThickness)
-                    else:
-                        self.C = ((2.0*pi*(sqrt(self.xRadius*self.yRadius))**3)*(1.0-self.mu**2)*self.dz)/(self.YoungModulus*self.WallThickness)
-                    self.C = float(sum(self.C))
-            else:
-                if type(self.Compliance) is not str:
-                    self.C = self.Compliance*self.Length
-                else:
-                    evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
-                    evaluator.Evaluate(self.Compliance)
-                    self.C = self.C*self.dz
-                    self.C = float(sum(self.C))
-                    
-                    
-        if self.Initialized == True:
+                    self.R = float(Ralpha)
+            
+            #Compliance
             for name, value in self.nonLinearParameter.iteritems():
                 if value == True and name == 'compliance':
                     evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.Compliance)
                     self.C = self.C *self.dz
                     self.C = float(sum(self.C))
-                    
-        if self.Initialized == False: 
-            if self.QLeakage is None:
-                self.LeakageR = 1.0e25
-            else:
-                evaluator.Evaluate(self.QLeakage)
-                 
-        self.C = float(self.C)
-        self.R = float(Ralpha)
-        
-        if self.Initialized == True:
-            Lalpha = self.L
-        else:
-            self.L = float(Lalpha)
-        
-        self.Initialized = True
-        
         
         return self.C, self.R, Ralpha, Lalpha, self.LeakageR
         
@@ -777,14 +789,14 @@ class FiveDofRclElementV2(Element):
         DofNodes = [DofNodeId1,DofNodeId2]
         return DofNodes
 
-class EndSegmentElement(Element):
+class WindkesselElement(Element):
     '''
-    EndSegment Element is an element used for downstream network.
-    EndSegment is marked by 2 nodes and unique Id.
-    EndSegment has 3 local dofs.
+    Windkessel Element is an element used for downstream network.
+    Windkessel Element is marked by 2 nodes and unique Id.
+    Windkessel Element has 3 local dofs.
     Side: Arterial or Venous side (optional)
     Name: End Vessel Name.
-    Each EndSegment is modeled like a 0D Lumped parameter or  Windkessel Element consisting of
+    Each Windkessel Element is modeled like a 0D Lumped parameter Windkessel Element consisting of
     a resistance R1 in series with a parallel resistance R2 and a Compliance C.
     R1: Wave impedance. The value is chosen such that wave reflections at the interface between the Windkessel element
     and the wave propagation element are minimal.
@@ -805,7 +817,7 @@ class EndSegmentElement(Element):
         Constructor
         '''
         Element.__init__(self)
-        self.Type = "0D_EndSegment"
+        self.Type = "Windkessel"
         self.Side = side
         self.Id = "E%s" % (id)
         self.Name = name
@@ -920,7 +932,7 @@ class Anastomosis(Element):
         Constructor
         '''
         Element.__init__(self)
-        self.Type = "0D_Anastomosis"
+        self.Type = "Anastomosis"
         self.Side = side
         self.Id = id
         self.Name = name
@@ -1142,14 +1154,14 @@ class Anastomosis(Element):
         DofNodes = [DofNodeId1, DofNodeId2, DofNodeId3]
         return DofNodes
 
-class TwoDofResistanceElement(Element):
+class ResistanceElement(Element):
     '''
-    TwoDofResistance Element is an element used for anastomosis.
-    TwoDofResistance is marked by 2 nodes and unique Id.
-    TwoDofResistance has 2 local dofs.
+    Resistance Element is an element used for anastomosis.
+    Resistance is marked by 2 nodes and unique Id.
+    Resistance has 2 local dofs.
     Side: Arterial or Venous side (optional)
-    Name: TwoDofsResistance Name (optional)
-    Each TwoDofResistance is modeled like a resistance (linear or not) between two nodes.(R)
+    Name: Resistance Name (optional)
+    Each Resistance Element is modeled like a resistance (linear or not) between two nodes.(R)
     This class provides the following methods:
     SetResistance: a method for setting resistance.
     InputParameters: Setting Resistance value.
@@ -1164,7 +1176,7 @@ class TwoDofResistanceElement(Element):
         Constructor
         '''
         Element.__init__(self)
-        self.Type = "0D_TwoDofsResistance"
+        self.Type = "Resistance"
         self.Side = side
         self.Id = id
         self.Name = name

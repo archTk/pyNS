@@ -73,7 +73,7 @@ def main():
     networkSolutions.SetSimulationContext(simulationContext)
     networkSolutions.SetSolutions(solver.Solutions)
     #for element in networkMesh.Elements:
-        #if element.Type == '0D_FiveDofsV2':
+        #if element.Type == 'WavePropagation':
             # networkSolutions.PlotFlow(element.Id)
             #networkSolutions.PlotPressure(element.Id)
             #networkSolutions.WriteFlowOutput(element.Id,'Output/Flow/Flow_'+element.Id+'.txt')

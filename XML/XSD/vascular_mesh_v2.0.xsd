@@ -105,10 +105,10 @@
 	
 	<xsd:simpleType name="meshElementType">
 		<xsd:restriction base="xsd:string">
-			<xsd:enumeration value="0D_FiveDofsV2"/>
-			<xsd:enumeration value="0D_EndSegment"/>
-			<xsd:enumeration value="0D_Anastomosis"/>
-			<xsd:enumeration value="0D_TwoDofsResistance"/>
+			<xsd:enumeration value="WavePropagation"/>
+			<xsd:enumeration value="Windkessel"/>
+			<xsd:enumeration value="Anastomosis"/>
+			<xsd:enumeration value="Resistance"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	

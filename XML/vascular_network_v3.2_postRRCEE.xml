@@ -57,14 +57,13 @@
      <properties>
        <connections>
          <proximal_artery edge_id="12"/>
-         <distal_artery edge_id="13"/>
          <proximal_vein edge_id="20"/>
        </connections>
        <arterial_resistance>
-         <expression>$Resistance_0_1[anastomosis] = 1.0</expression>
+         <expression>$Resistance_0_1[anastomosis] = 1e25</expression>
        </arterial_resistance>
        <venous_resistance>
-         <expression>$Resistance_0_2[anastomosis] = max(1.0e-2,((((174.5-(4.5*$RadiusRatio[anastomosis]))*(min(900.0,(2.0*$blood_density[]*($FlowProximal[anastomosis]/6.0e7))/(pi*$RadiusProximal[anastomosis]*$dynamic_viscosity[])))**(-(0.462+e**(-((1.5)**(1.4/($RadiusRatio[anastomosis])**2))))))*$blood_density[]*(($FlowProximal[anastomosis]/6.0e7)/($AreaProximal[anastomosis]))**2)/($FlowProximal[anastomosis]/6.0e7)))</expression>
+         <expression>$Resistance_0_2[anastomosis] = max(1.0e-2,(((0.004249*($RadiusRatio[anastomosis]**(-1.991848)))*(((2.0*$blood_density[]*($FlowProximal[anastomosis]/6.0e7))/(pi*$RadiusProximal[anastomosis]*$dynamic_viscosity[]))**2))+((7.71986*((e**(-($RadiusRatio[anastomosis]**2))))**2)+0.24436*(e**(-($RadiusRatio[anastomosis]**2)))+1.30064)*(((2.0*$blood_density[]*($FlowProximal[anastomosis]/6.0e7))/(pi*$RadiusProximal[anastomosis]*$dynamic_viscosity[]))))*(($dynamic_viscosity[]**2)/(1.1557e-2*$blood_density[]*($RadiusProximal[anastomosis])**2))*(1./($FlowProximal[anastomosis]/6.0e7)))</expression>
        </venous_resistance>
      </properties>
    </node>
@@ -286,7 +285,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="6" node1_id="19" node2_id="7" side="arterial" name="right_subclavian_A">
+   <edge id="6" node1_id="18" node2_id="7" side="arterial" name="right_subclavian_A">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.4e-2</scalar>
@@ -536,7 +535,7 @@
          <scalar>6.545805976100211e-04</scalar>
        </radius>
        <wall_thickness>
-         <expression>$WallThickness[interosseous] = $Radius[interosseous] * $upper_arm_ratio[]</expression>
+         <expression>$WallThickness[interosseous] = $Radius[interosseous] * $interosseous_ratio[]</expression>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>16e5</scalar>
@@ -572,7 +571,7 @@
          <scalar>0.004459779895805</scalar>
        </radius>
        <wall_thickness>
-         <expression>$WallThickness[innominate] = $Radius[innominate] * $aorta_ratio[]</expression>
+         <expression>$WallThickness[innominate] = $Radius[innominate] * $innominate_ratio[]</expression>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
          <scalar>4e5</scalar>

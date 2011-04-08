@@ -311,7 +311,7 @@ class NetworkSolutions(object):
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min", element.R 
+                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
       
         plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
         xlabel('Time (s)')
@@ -368,17 +368,17 @@ class NetworkSolutions(object):
         k = 0
                     
         for element in self.NetworkMesh.Elements:
-            if element.Type is not '0D_EndSegment' and element.Name.find('brachial') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('brachial') != -1:
                 dofs = element.GetPoiseuilleDofs()
                 FlowBrachial += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
                 i += 1               
         
-            if element.Type is not '0D_EndSegment' and element.Name.find('radial') != -1:   
+            if element.Type is not 'Windkessel' and element.Name.find('radial') != -1:   
                 dofs = element.GetPoiseuilleDofs()
                 FlowRadial += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
                 j += 1
                 
-            if element.Type is not '0D_EndSegment' and element.Name.find('ulnar') != -1: 
+            if element.Type is not 'Windkessel' and element.Name.find('ulnar') != -1: 
                 dofs = element.GetPoiseuilleDofs()
                 FlowUlnar += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
                 k += 1
@@ -604,15 +604,15 @@ class NetworkSolutions(object):
         j = 0
         k = 0
         for element in self.NetworkMesh.Elements:
-            if element.Type is not '0D_EndSegment' and element.Name.find('brachial') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('brachial') != -1:
                 PressureBrachial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
                 i += 1               
         
-            if element.Type is not '0D_EndSegment' and element.Name.find('radial') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('radial') != -1:
                 PressureRadial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
                 j += 1
                 
-            if element.Type is not '0D_EndSegment' and element.Name.find('ulnar') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('ulnar') != -1:
                 PressureUlnar += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
                 k += 1
         
@@ -763,8 +763,8 @@ class NetworkSolutions(object):
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
-                Wss = -((4.0*element.eta)/pi) * (Flow/pow(element.Radius, 3))
-                print "Wss(mean) = ", mean(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa\n", "Wss(peak) = ", max(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa"
+                Wss = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
+                print element.Name, "Wss(mean) = ", mean(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa\n", "Wss(peak) = ", max(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa"
                 
         plot(self.t, Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))], 'r-',linewidth = 3, label = 'wss')   #red line
         xlabel('Time (s)')
@@ -794,22 +794,22 @@ class NetworkSolutions(object):
         j = 0
         k = 0
         for element in self.NetworkMesh.Elements:
-            if element.Type is not '0D_EndSegment' and element.Name.find('rachial') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('rachial') != -1:
                 dofs = element.GetPoiseuilleDofs()
                 FlowBrachial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
-                WSSBrachial += ((4.0*element.eta)/pi) * (FlowBrachial/pow(element.Radius, 3))
+                WSSBrachial += ((4.0*element.eta)/pi) * (FlowBrachial/(mean(element.Radius))**3)
                 i += 1               
         
-            if element.Type is not '0D_EndSegment' and element.Name.find('adial') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('adial') != -1:
                 dofs = element.GetPoiseuilleDofs()
                 FlowRadial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
-                WSSRadial += ((4.0*element.eta)/pi) * (FlowRadial/pow(element.Radius, 3))
+                WSSRadial += ((4.0*element.eta)/pi) * (FlowRadial/(mean(element.Radius))**3)
                 j += 1
                 
-            if element.Type is not '0D_EndSegment' and element.Name.find('lnar') != -1:
+            if element.Type is not 'Windkessel' and element.Name.find('lnar') != -1:
                 dofs = element.GetPoiseuilleDofs()
                 FlowUlnar = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
-                WSSUlnar += ((4.0*element.eta)/pi) * (FlowUlnar/pow(element.Radius, 3))
+                WSSUlnar += ((4.0*element.eta)/pi) * (FlowUlnar/(mean(element.Radius))**3)
                 k += 1
         
         if i != 0:
@@ -860,7 +860,7 @@ class NetworkSolutions(object):
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R2
                 Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
-                WSS = ((4.0*element.eta)/pi) * (Flow/pow(element.radius, 3))
+                WSS = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
                 
         return WSS
         
@@ -881,7 +881,7 @@ class NetworkSolutions(object):
                 dofs = element.GetPoiseuilleDofs()
                 Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
                 Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
-                WSS = ((4.0*element.eta)/pi) * (Flow/pow(mean(element.Radius), 3))
+                WSS = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
         
         text_file = open(txtpath, "w")
         text_file.write("Wall Shear Stress Output (Pa)\n")
@@ -1141,7 +1141,10 @@ class NetworkSolutions(object):
                             prop = etree.SubElement(node, "properties")
                             conn = etree.SubElement(prop, "connections")
                             etree.SubElement(conn, "proximal_artery", edge_id=str(nodeG.Properties['proximal']))
-                            etree.SubElement(conn, "distal_artery", edge_id=str(nodeG.Properties['distal']))
+                            try:
+                                etree.SubElement(conn, "distal_artery", edge_id=str(nodeG.Properties['distal']))
+                            except:
+                                pass
                             etree.SubElement(conn, "proximal_vein", edge_id=str(nodeG.Properties['vein']))
                     else:
                         etree.SubElement(nodes, "node", id = str(id))

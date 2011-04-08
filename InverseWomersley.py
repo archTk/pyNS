@@ -150,6 +150,7 @@ class InverseWomersley(object):
                 self.radius = mean(el.Radius)
                 self.Res = el.R
                 self.length = el.Length
+                self.Name = el.Name
         #WOMERSLEY NUMBER
         self.alpha = self.radius * sqrt((2.0 *pi*self.density)/(self.tPeriod*self.viscosity))
         #FOURIER SIGNAL
@@ -217,14 +218,15 @@ class InverseWomersley(object):
         '''
         This method plots Wss signal.
         '''
+        #print self.Name, "Wss(mean) = ", mean(self.Tauplot), "(dyne/cm^2)\n", "Wss(peak) = ", max(self.Tauplot), "(dyne/cm^2)"
         tplot = arange(0,self.tPeriod,self.dtPlot)
         plot(tplot, self.Tauplot,'r-',linewidth = 3, label = 'WSS')
         plot(tplot, self.yTaoplot,'b-',linewidth = 3, label = 'WSSPoiseuille')
         xlabel('Time (s)')
         ylabel('Shear Stress (dyne/cm^2)')
-        title ('MeanWom=' + str(mean(self.Tauplot)) + '  MeanPoi=' + str(mean(self.yTaoplot)))    
+        title (str(self.Name)+ ' peak:'+str(round(max(self.Tauplot),1))+' mean:'+str(round(mean(self.Tauplot),1)))    
         legend()
-        savefig(imagpath+meshid+'wss.png')
+        savefig(imagpath+meshid+'_'+str(self.Name)+'_wss.png')
         close()
         
     def PlotFlow(self, mesh, imagpath):

@@ -21,22 +21,10 @@
         <entity id="radial"/>
         <entity id="ulnar"/>
         <entity id="interosseous"/>
-        <entity id="cephalic_vein"/>
-        <entity id="subclavian_vein"/>
         <entity id="end_segment"/>
       </entities>
     </boundary_condition>
-    <boundary_condition id="2" type="outflow pressure" name="venous">
-      <parameters>
-        <pressure unit="Pa">
-           <scalar>1333.0</scalar>
-        </pressure>
-      </parameters>  
-      <entities>
-        <entity id="subclavian_vein"/>
-      </entities>
-    </boundary_condition>
-    <boundary_condition id="3" type="inflow" name="heart">
+    <boundary_condition id="2" type="inflow" name="heart">
       <parameters>
         <A0>
           <scalar>9.4770816e-5</scalar>
@@ -54,19 +42,38 @@
   </boundary_conditions>
   <specificdatasets>
     <patient_data id="1">
+      <dos unit="dd/mm/yyyy"></dos>
+      <dob unit="dd/mm/yyyy"></dob>
+      <age unit="years">
+        <expression>$age[]=(((datetime.strptime("$dos[]","%d/%m/%Y"))-(datetime.strptime("$dob[]","%d/%m/%Y"))).days)/365</expression>
+      </age>
+      <gender></gender>
+      <arm></arm>
+      <ftype></ftype>
+      <height unit="cm"></height>
+      <weight unit="kg"></weight>
+      <bsa unit="m2">
+        <expression>$bsa[]=0.007184*($weight[]**0.425)*($height[]**0.725)</expression>
+      </bsa>
+      <sysp unit="mmHg"></sysp>
+      <diap unit="mmHg"></diap>
       <mean_pressure unit="mmHg">
-        <scalar>115</scalar>
+        <expression>$mean_pressure[]=$diap[]+(($sysp[]-$diap[])/3.0)</expression>
       </mean_pressure>
       <cardiac_output unit="mL/min">
-        <scalar>5.686e3</scalar>
+        <expression>$cardiac_output[]=((4.874-0.023*$age[])*$bsa[])*1e3</expression>
       </cardiac_output>
-      <period unit="s">1.0</period>
-      <brachial_flow unit="mL/min">190</brachial_flow>
-      <radial_flow unit="mL/min">20</radial_flow>
-      <ulnar_flow unit="mL/min">28</ulnar_flow>
+      <period unit="s"></period>
+      <brachial_flow unit="mL/min"></brachial_flow>
+      <radial_flow unit="mL/min"></radial_flow>
+      <ulnar_flow unit="mL/min"></ulnar_flow>
+      <ht unit="%"></ht>
+      <cp unit="g/dL"></cp>
       <dynamic_viscosity unit="Pa*s">
-        <scalar>3.0e-3</scalar>
+        <expression>$dynamic_viscosity[]=((1-(0.5*($ht[]/100)*e**(1.3435-2.803*($ht[]/100)+2.71*($ht[]/100)**2-0.6479*($ht[]/100)**3)))**-2)*(0.204+0.177*$cp[])*1e-3</expression>
       </dynamic_viscosity>
+      <hyp></hyp>
+      <diab></diab>
     </patient_data>
     <simulation_parameters id="2">
       <blood_density unit="kg/m3">1.05e3</blood_density>
@@ -82,4 +89,4 @@
       <cycles>10</cycles>
     </simulation_parameters>
   </specificdatasets>
-</BoundaryConditionsGraph>    
+</BoundaryConditionsGraph>

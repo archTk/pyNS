@@ -200,7 +200,6 @@ class ModelAdaptor(object):
                     self.Evaluator.Evaluate(x)
                     expressionList.remove(x)
                 except:
-                    
                     pass
           
         

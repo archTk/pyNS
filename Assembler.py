@@ -85,7 +85,7 @@ class Assembler(object):
             
             # Searching for prescribed pressure output
             for element in self.NetworkMesh.Elements:
-                if element.Type != "0D_Anastomosis" and element.Type != "0D_TwoDofsResistance":
+                if element.Type != "Anastomosis" and element.Type != "Resistance":
                     for dof in element.GetExternalPressureLocalDofs():
                         numberOfElements+=1
             if self.BoundaryConditions.OutP is not None:
@@ -95,7 +95,7 @@ class Assembler(object):
             PrescribedPressures = zeros((numberOfElements,2))
             done = 0
             for element in self.NetworkMesh.Elements:
-                if element.Type != "0D_Anastomosis" and element.Type != "0D_TwoDofsResistance":
+                if element.Type != "Anastomosis" and element.Type != "Resistance":
                     for dof in element.GetExternalPressureLocalDofs():      
                         if self.BoundaryConditions.OutP is not None:
                             if element.Id == self.BoundaryConditions.elementOut.Id:

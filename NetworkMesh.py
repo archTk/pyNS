@@ -103,7 +103,7 @@ class NetworkMesh(object):
                 s1.text = str(s_coord1)
                 s2.text = str(s_coord2)  
                 mesh_parameters = etree.SubElement(element, "parameters")               
-                if mesh.Type == '0D_TwoDofsResistance':
+                if mesh.Type == 'Resistance':
                     mesh_R = etree.SubElement(mesh_parameters, "Resistance")
                     R_value = etree.SubElement(mesh_R, "scalar")
                     R_value.text = str(mesh.R)
@@ -145,7 +145,7 @@ class NetworkMesh(object):
                     C_value.text = str(mesh.C)
         for mesh in self.Elements:       
             if self.MeshToGraph.has_key(mesh.Id) == False:               
-                if mesh.Type == '0D_Anastomosis':
+                if mesh.Type == 'Anastomosis':
                     element = etree.SubElement(elements, "element", id = str(mesh.Id), nodeIds = str(mesh.NodeIds).strip('[]'), type = mesh.Type)
                     for node in self.GraphNodeToMesh:
                         if node.Type == 'anastomosis':

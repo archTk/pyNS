@@ -407,11 +407,11 @@ class MeshGenerator(object):
                     #############  
                     if edgeId in self.MeshType:
                         if self.MeshType[edgeId] == None:            
-                            newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
-                        if self.MeshType[edgeId] == '0D_TwoDofsResistance':
-                            newElement = Elements.TwoDofResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
+                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
+                        if self.MeshType[edgeId] == 'Resistance':
+                            newElement = Elements.ResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
                     else:                    
-                        newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)                                 
+                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)                                 
                     self.NetworkMesh.Elements.append(newElement)                
                     #Dicts###
                     self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement    
@@ -492,11 +492,11 @@ class MeshGenerator(object):
                         #############                        
                         if edgeId in self.MeshType:
                             if self.MeshType[edgeId] == None: 
-                                newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
-                            if self.MeshType[edgeId] == '0D_TwoDofsResistance':   
-                                newElement = Elements.TwoDofResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
+                                newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
+                            if self.MeshType[edgeId] == 'Resistance':   
+                                newElement = Elements.ResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
                         else:                    
-                            newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)                             
+                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)                             
                         self.NetworkMesh.Elements.append(newElement)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement                                           
                         self.NetworkMesh.s_mesh[(s1,edge)] = meshNode1
@@ -542,7 +542,7 @@ class MeshGenerator(object):
                             self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)      
         #SETTING LEAKAGES
         for el in self.NetworkMesh.Elements:
-            if el.Type == "0D_FiveDofsV2":
+            if el.Type == "WavePropagation":
                 el.Leakages = nLeak
                            
                        
@@ -554,7 +554,7 @@ class MeshGenerator(object):
                 for key, value in self.NetworkMesh.MeshToGraph.iteritems():                    
                     if value == edge.Id:
                         for el in self.NetworkMesh.Elements:
-                            if el.Type != '0D_TwoDofsResistance':  
+                            if el.Type != 'Resistance':  
                                 if el.Id == key:                             
                                     if self.NetworkMesh.Entities.has_key(entity):
                                         self.NetworkMesh.Entities[entity].append(el)
@@ -577,7 +577,7 @@ class MeshGenerator(object):
                         meshNode1 = self.NetworkMesh.meshToEdges[int(node.Id)]                      
                         for el in self.NetworkMesh.Elements:
                             if el.NodeIds[1] == self.NetworkMesh.meshToEdges[int(node.Id)]:                                      
-                                newElement = Elements.EndSegmentElement(meshEndId, [meshNode1,meshNode2], node.Name, el.Side)
+                                newElement = Elements.WindkesselElement(meshEndId, [meshNode1,meshNode2], node.Name, el.Side)
                                 newId = newElement.Id
                                 newElement.SetLastElement(el)
                                 newElement.RelExpression = node.Properties['windkessel']                         
@@ -800,7 +800,7 @@ class MeshGenerator(object):
                             nodes_list.append(meshNode2)
                             nodes_list_last = len(nodes_list)                       
                         name = edge.Name + "_" + str(nameId)                                           
-                        newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
+                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                        
                         self.NetworkMesh.s_mesh[(s_start,edge)] = meshNode1
@@ -864,8 +864,8 @@ class MeshGenerator(object):
                             nodes_list.append(meshNode2)
                             nodes_list_last = len(nodes_list)                       
                         name = edge.Name + "_" + str(nameId) 
-                                                       
-                        newElement = Elements.FiveDofRclElementV2(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
+                               
+                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                      
                         self.NetworkMesh.s_mesh[(s1,edge)] = meshNode1
@@ -906,7 +906,7 @@ class MeshGenerator(object):
                             self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein) 
         #SETTING LEAKAGES
         for el in self.NetworkMesh.Elements:
-            if el.Type == "0D_FiveDofsV2":
+            if el.Type == "WavePropagation":
                 el.Leakages = nLeak
         #ENTITIES DICTIONARY                
         for sedge in self.NetworkGraph.SuperEdges.values():
@@ -916,7 +916,7 @@ class MeshGenerator(object):
                 for key, value in self.NetworkMesh.MeshToGraph.iteritems():                    
                     if value == edge.Id:
                         for el in self.NetworkMesh.Elements:
-                            if el.Type != '0fD_TwoDofsResistance':  
+                            if el.Type != 'Resistance':  
                                 if el.Id == key:                             
                                     if self.NetworkMesh.Entities.has_key(entity):
                                         self.NetworkMesh.Entities[entity].append(el)
@@ -961,7 +961,7 @@ class MeshGenerator(object):
                         meshNode1 = self.NetworkMesh.meshToEdges[int(node.Id)]                       
                         for el in self.NetworkMesh.Elements:                           
                             if el.NodeIds[1] == self.NetworkMesh.meshToEdges[int(node.Id)]:                               
-                                newElement = Elements.EndSegmentElement(meshEndId, [meshNode1,meshNode2], node.Name, el.Side)
+                                newElement = Elements.WindkesselElement(meshEndId, [meshNode1,meshNode2], node.Name, el.Side)
                                 newId = newElement.Id
                                 newElement.SetLastElement(el)
                                 newElement.RelExpression = node.Properties['windkessel']

@@ -27,17 +27,17 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'post'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
-netPost = 'vascular_network_v3.2_postRRC_NL.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
+netPost = 'vascular_network_v3.2_postRBC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
 boundPre = 'boundary_conditions_v2.1_pre.xml'     #Boundary Conditions XML file PREOP (-r or --boundPre)
-boundPost = 'boundary_conditions_v2.1_postRC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
+boundPost = 'boundary_conditions_v2.1_postBC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
 out = 'vascular_output.xml'  #Vascular Network Output XML file (-o or --out)
 xsd = 'XML/XSD/' #XSD schema files Working Directory (-x or --xsd)
 netSchema = 'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-c or --netSchema)
@@ -91,15 +91,19 @@ source = "".join(args)
 if simType == 'pre':
     xmlnetpath = os.path.join(wdir, netPre)   
     xmlboundpath = os.path.join(wdir, boundPre)
+    preRun = False
 if simType == 'post':
     xmlnetpath = os.path.join(wdir, netPost)   
     xmlboundpath = os.path.join(wdir, boundPost)
+    preRun = True
 if simType == 'tube':
     xmlnetpath = os.path.join(testTube,netTube)
     xmlboundpath = os.path.join(testTube, boundTube)
+    preRun = False
 if simType == 'tape':
     xmlnetpath = os.path.join(testTape,netTape)
     xmlboundpath = os.path.join(testTape, boundTape)
+    preRun = False
     
 xmlmeshpath = os.path.join(wdir, mesh)
 xmloutpath = os.path.join(odir, out)
@@ -135,37 +139,47 @@ if simType == 'generic':
     if modelAdaptor.arm == 0:
         if modelAdaptor.ftype == 0:
             wdir = 'XML/Models/Left_Arm/#0.Lower_RC_EE'
+            preRun = True
         if modelAdaptor.ftype == 1:
             wdir = 'XML/Models/Left_Arm/#1.Lower_RC_ES'
+            preRun = True
         if modelAdaptor.ftype == 2:
             pass
         if modelAdaptor.ftype == 3:
             wdir = 'XML/Models/Left_Arm/#3.Upper_BC_ES'
+            preRun = True
         if modelAdaptor.ftype == 4:
             pass
         if modelAdaptor.ftype == 5:
             wdir = 'XML/Models/Left_Arm/#5.Upper_BB_ES'
+            preRun = True
         if modelAdaptor.ftype == 6:
             pass
         if modelAdaptor.ftype == 7:
             wdir = 'XML/Models/Left_Arm/PRE'
+            preRun = False
     if modelAdaptor.arm == 1:
         if modelAdaptor.ftype == 0:
             wdir = 'XML/Models/Right_Arm/#0.Lower_RC_EE'
+            preRun = True
         if modelAdaptor.ftype == 1:
             wdir = 'XML/Models/Right_Arm/#1.Lower_RC_ES'
+            preRun = True
         if modelAdaptor.ftype == 2:
             pass
         if modelAdaptor.ftype == 3:
             wdir = 'XML/Models/Right_Arm/#3.Upper_BC_ES'
+            preRun = True
         if modelAdaptor.ftype == 4:
             pass
         if modelAdaptor.ftype == 5:
             wdir = 'XML/Models/Right_Arm/#5.Upper_BB_ES'
+            preRun = True
         if modelAdaptor.ftype == 6:
             pass
         if modelAdaptor.ftype == 7:
             wdir = 'XML/Models/Right_Arm/PRE'
+            preRun = False
     
             
     netPostGeneric = 'vascular_network.xml'
@@ -196,7 +210,6 @@ if simType == 'generic':
     modelAdaptor.SetNetworkGraph(networkGraph)
     evaluator.SetNetworkGraph(networkGraph)
     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
-    
 
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
 If tolerance is not provided, mesh generator uses default value = 0.3'''
@@ -226,12 +239,14 @@ solver.SetSimulationContext(simulationContext)
 solver.SetEvaluator(evaluator)
 
 '''Pre-run'''
-solver.SetSteadyFlow()
-solver.Solve()
-parameters = ["Radius","Compliance"]
-networkMesh.WriteToXML(xmlmeshpath)
-for el in networkMesh.Elements:
-    el.SetLinearValues(parameters)
+if preRun is True:
+    solver.SetSteadyFlow()
+    print "Steady Pre-Run, setting non-linear parameters"
+    solver.Solve() 
+    parameters = ["Radius","Compliance"]
+    networkMesh.WriteToXML(xmlmeshpath)
+    for el in networkMesh.Elements:
+        el.SetLinearValues(parameters)
    
 '''Run'''
 evaluator.ExpressionCache = {}
@@ -241,6 +256,7 @@ solver.SetBoundaryConditions(boundaryConditions)
 solver.SetSimulationContext(simulationContext)
 solver.SetEvaluator(evaluator) 
 solver.SetPulseFlow()
+print "Solving system"
 solver.Solve()
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
@@ -253,15 +269,15 @@ networkSolutions.SetSolutions(solver.Solutions)
 networkSolutions.SetImagesPath(images)
 networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
-    if element.Type == '0D_FiveDofsV2':
-        #networkSolutions.PlotWSS(element.Id)
+    if element.Type == 'WavePropagation':
+        networkSolutions.PlotWSS(element.Id)
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
         #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
         #networkSolutions.PlotReynolds(element.Id)
         #networkSolutions.PlotVelocity(element.Id)
-        networkSolutions.PlotFlow(element.Id)
-        networkSolutions.PlotPressure(element.Id)
-        networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
-        networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
+        #networkSolutions.PlotFlow(element.Id)
+        #networkSolutions.PlotPressure(element.Id)
+        #networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
+        #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
     

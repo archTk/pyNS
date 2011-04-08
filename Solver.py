@@ -235,7 +235,7 @@ class SolverFirstTrapezoid(Solver):
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
                 
                 if counter == 100:
-                    print nlerr, nltol, CoeffRelax
+                    #print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
                     self.sumv[:,:] = sumvbk[:,:]
@@ -245,7 +245,7 @@ class SolverFirstTrapezoid(Solver):
                 if nlerr < nltol:
                     nltol = self.nltol
                     counter = 0 
-                    print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
+                    #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
                     break  
                 
                 counter+=1

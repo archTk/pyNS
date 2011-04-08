@@ -118,7 +118,7 @@ networkSolutions.SetSimulationContext(simulationContext)
 networkSolutions.SetSolutions(solver.Solutions)
 networkSolutions.SetImagesPath(images)
 for element in networkMesh.Elements:
-    if element.Type == '0D_FiveDofsV2':
+    if element.Type == 'WavePropagation':
         networkSolutions.PlotFlow(element.Id)
         networkSolutions.PlotPressure(element.Id)
 networkSolutions.WriteToXML(xmloutpath)
