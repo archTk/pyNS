@@ -1164,7 +1164,10 @@ class NetworkSolutions(object):
                         superedge = etree.SubElement(superedges, "superedge", id = str(s.Id), name = str(s.Name))
                         superedges2 = etree.SubElement(superedge, "superedges")
                     if s.SuperEdges == {}:
-                        superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
+                        try:
+                            superedge2 = etree.SubElement(superedges2,"superedge", id = str(s.Id), name = str(s.Name))
+                        except:
+                            superedge2 = etree.SubElement(superedges,"superedge", id = str(s.Id), name = str(s.Name))
                         edgeIdsel = etree.SubElement(superedge2, "edgesIds")
                         for edgeIds in s.Edges.iterkeys():
                             etree.SubElement(edgeIdsel, "edgeIds", edge_id = str(edgeIds))

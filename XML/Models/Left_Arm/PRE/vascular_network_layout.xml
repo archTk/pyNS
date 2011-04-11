@@ -1,0 +1,83 @@
+<!--Vascular Network Model: graph layout description-->
+<NetworkGraphLayout id="1" version ="69"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
+<nodes_layout>
+<node_layout id="1" x="80" y="300">
+</node_layout>
+<node_layout id="2" x="80" y="160">
+</node_layout>
+<node_layout id="3" x="160" y="100">
+</node_layout>
+<node_layout id="4" x="160" y="40">
+</node_layout>
+<node_layout id="5" x="240" y="160">
+</node_layout>
+<node_layout id="6" x="240" y="300">
+</node_layout>
+<node_layout id="7" x="320" y="120">
+</node_layout>
+<node_layout id="8" x="420" y="80">
+</node_layout>
+<node_layout id="9" x="420" y="160">
+</node_layout>
+<node_layout id="10" x="420" y="240">
+</node_layout>
+<node_layout id="11" x="420" y="340">
+</node_layout>
+<node_layout id="12" x="420" y="420">
+</node_layout>
+<node_layout id="13" x="400" y="480">
+</node_layout>
+<node_layout id="14" x="440" y="560">
+</node_layout>
+<node_layout id="15" x="380" y="540">
+</node_layout>
+<node_layout id="16" x="480" y="500">
+</node_layout>
+<node_layout id="17" x="540" y="580">
+</node_layout>
+<node_layout id="18" x="20" y="60">
+</node_layout>
+<node_layout id="19" x="360" y="600">
+</node_layout>
+</nodes_layout>
+<edges_layout>
+<edge_layout id="1" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="2" s="0.453448" d="17.084">
+</edge_layout>
+<edge_layout id="3" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="4" s="0.442308" d="18.8598">
+</edge_layout>
+<edge_layout id="5" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="6" s="0.545" d="8.04984">
+</edge_layout>
+<edge_layout id="7" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="8" s="0.594828" d="9.47046">
+</edge_layout>
+<edge_layout id="9" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="10" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="11" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="12" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="13" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="14" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="15" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="16" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="17" s="0.5" d="0">
+</edge_layout>
+<edge_layout id="18" s="0.5" d="0">
+</edge_layout>
+</edges_layout>
+</NetworkGraphLayout>

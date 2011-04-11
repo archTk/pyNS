@@ -26,7 +26,7 @@
  </superedges>
  <edges>
    <edge id="1" node1_id="1" node2_id="2" side="arterial" name="tape1">
-     <geometry transformation_id="1">
+     <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>0.414</scalar>
 	     </length>
@@ -54,16 +54,4 @@
      </properties>
    </edge>
  </edges>
- <transformations>
-   <transformation id="1" type="pat2vox" seriesID="1301">
-    <matrix_4x4>
-    3.0 0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0
-    </matrix_4x4>  
-   </transformation>
-   <transformation id="2" type="pat2vox" seriesID="1302">
-    <matrix_4x4>
-    2.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0
-    </matrix_4x4>
-   </transformation> 
- </transformations> 
 </NetworkGraph>

@@ -158,9 +158,9 @@
 			<xsd:element maxOccurs="1" minOccurs="1" name="mean_pressure" type="simParameterType"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="cardiac_output" type="simParameterType"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="period" type="scalarType"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="brachial_flow" type="scalarType"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="radial_flow" type="scalarType"/>
-			<xsd:element maxOccurs="1" minOccurs="1" name="ulnar_flow" type="scalarType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="brachial_flow" type="scalarType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="radial_flow" type="scalarType"/>
+			<xsd:element maxOccurs="1" minOccurs="0" name="ulnar_flow" type="scalarType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="ht" type="scalarType"/>
 			<xsd:element maxOccurs="1" minOccurs="0" name="cp" type="scalarType"/>
 			<xsd:element maxOccurs="1" minOccurs="1" name="dynamic_viscosity" type="simParameterType"/>
