@@ -413,7 +413,7 @@
            <expression>$Radius{radial_prox,0.0} = 1.03*$Radius{radial_prox,1.0}</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{radial_prox,1.0} = 0.63*$Radius{brachial_dist,1.0}</expression>
+           <expression>$Radius{radial_prox,1.0} = 0.5*$Radius{brachial_dist,1.0}</expression>
          </value>
        </radius_array>
        <wall_thickness>

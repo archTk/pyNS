@@ -34,10 +34,10 @@ ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
-netPost = 'vascular_network_v3.2_postRBC.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
+netPost = 'vascular_network_v3.2_postRRCEE.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
 boundPre = 'boundary_conditions_v2.1_pre.xml'     #Boundary Conditions XML file PREOP (-r or --boundPre)
-boundPost = 'boundary_conditions_v2.1_postBC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
+boundPost = 'boundary_conditions_v2.1_postRC.xml' #Boundary Conditions XML file POSTOP (-d or --boundPost)
 out = 'vascular_output.xml'  #Vascular Network Output XML file (-o or --out)
 xsd = 'XML/XSD/' #XSD schema files Working Directory (-x or --xsd)
 netSchema = 'vascular_network_v3.2.xsd' #Vascular Network Graph XSD Schema  (-c or --netSchema)
@@ -211,6 +211,7 @@ if simType == 'generic':
     evaluator.SetNetworkGraph(networkGraph)
     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
 
+
 '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
 If tolerance is not provided, mesh generator uses default value = 0.3'''
 meshGenerator = MeshGenerator()
@@ -219,7 +220,6 @@ networkMesh = NetworkMesh()
 meshGenerator.SetNetworkMesh(networkMesh)
 meshGenerator.SetMaxLength(5.0e-2)
 meshGenerator.GenerateMesh()
-
 
 '''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
 boundaryConditions = BoundaryConditions()
@@ -270,13 +270,13 @@ networkSolutions.SetImagesPath(images)
 networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
     if element.Type == 'WavePropagation':
-        #networkSolutions.PlotWSS(element.Id)
+        networkSolutions.PlotWSS(element.Id)
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
         #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
         #networkSolutions.PlotReynolds(element.Id)
         #networkSolutions.PlotVelocity(element.Id)
         networkSolutions.PlotFlow(element.Id)
-        #networkSolutions.PlotPressure(element.Id)
+        networkSolutions.PlotPressure(element.Id)
         #networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
         #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
         #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')

@@ -629,130 +629,130 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
             </compliance>
         </properties>
     </edge>
-    <edge node2_id="21" node1_id="16" side="venous" id="21" name="cephalic_lower">
-        <geometry>
-            <length accuracy="10%" unit="m" source="US">
-                <scalar>17.7e-2</scalar>
-            </length>
-        </geometry>
-        <properties>
-            <radius_array accuracy="10%" unit="m" source="US">
-                <value s="0.0">
-                    <scalar>2e-3</scalar>
-                    <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
-                </value>
-                <value s="1.0">
-                    <scalar>2.5e-3</scalar>
-                    <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
-                </value>
-            </radius_array>
-            <wall_thickness>
-                <expression>$WallThickness[cephalic_lower] = $Radius[cephalic_lower] * $vein_ratio[]</expression>
-            </wall_thickness>
-            <nl_compliance>
-                <expression>$Compliance[cephalic_lower] = (($RadiusAtRest[cephalic_lower]**2*pi)*(4.4/((8.0+$Pressure[cephalic_lower])**2)))*133.32**2*1e-6</expression>
-            </nl_compliance>
-        </properties>
-    </edge>
-    <edge node2_id="22" node1_id="21" side="venous" id="22" name="cubiti_elbow">
-        <geometry>
-            <length accuracy="10%" unit="m" source="US">
-                <scalar>4e-2</scalar>
-            </length>
-        </geometry>
-        <properties>
-            <radius_array accuracy="10%" unit="m" source="US">
-                <value s="0.0">
-                    <scalar>2.5e-3</scalar>
-                    <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
-                </value>
-                <value s="1.0">
-                    <scalar>2.7e-3</scalar>
-                    <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
-                </value>
-            </radius_array>
-            <wall_thickness>
-                <expression>$WallThickness[cubiti_elbow] = $Radius[cubiti_elbow] * $vein_ratio[]</expression>
-            </wall_thickness>
-            <nl_compliance>
-                <expression>$Compliance[cubiti_elbow] = (($RadiusAtRest[cubiti_elbow]**2*pi)*(4.4/((8.0+$Pressure[cubiti_elbow])**2)))*133.32**2*1e-6</expression>
-            </nl_compliance>
-        </properties>
-    </edge>
-    <edge node2_id="23" node1_id="22" side="venous" id="23" name="basilic_vein">
-        <geometry>
-            <length accuracy="10%" unit="m" source="US">
-                <scalar>30.3e-2</scalar>
-            </length>
-        </geometry>
-        <properties>
-            <radius_array accuracy="10%" unit="m" source="US">
-                <value s="0.0">
-                    <scalar>2.7e-3</scalar>
-                    <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
-                </value>
-                <value s="1.0">
-                    <scalar>3.7e-3</scalar>
-                    <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
-                </value>
-            </radius_array>
-            <wall_thickness>
-                <expression>$WallThickness[basilic_vein] = $Radius[basilic_vein] * $vein_ratio[]</expression>
-            </wall_thickness>
-            <nl_compliance>
-                <expression>$Compliance[basilic_vein] = (($RadiusAtRest[basilic_vein]**2*pi)*(4.4/((8.0+$Pressure[basilic_vein])**2)))*133.32**2*1e-6</expression>
-            </nl_compliance>
-        </properties>
-    </edge>
-    <edge node2_id="23" node1_id="21" side="venous" id="24" name="cephalic_upper">
-        <geometry>
-            <length accuracy="10%" unit="m" source="US">
-                <scalar>30.3e-2</scalar>
-            </length>
-        </geometry>
-        <properties>
-            <radius_array accuracy="10%" unit="m" source="US">
-                <value s="0.0">
-                    <scalar>2.5e-3</scalar>
-                    <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
-                </value>
-                <value s="1.0">
-                    <scalar>3.7e-3</scalar>
-                    <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
-                </value>
-            </radius_array>
-            <wall_thickness>
-                <expression>$WallThickness[cephalic_upper] = $Radius[cephalic_upper] * $vein_ratio[]</expression>
-            </wall_thickness>
-            <nl_compliance>
-                <expression>$Compliance[cephalic_upper] = (($RadiusAtRest[cephalic_upper]**2*pi)*(4.4/((8.0+$Pressure[cephalic_upper])**2)))*133.32**2*1e-6</expression>
-            </nl_compliance>
-        </properties>
-    </edge>
-    <edge node2_id="24" node1_id="23" side="venous" id="25" name="subclavian_vein">
-        <geometry>
-            <length accuracy="10%" unit="m" source="US">
-                <scalar>17.4e-2</scalar>
-            </length>
-        </geometry>
-        <properties>
-            <radius_array accuracy="10%" unit="m" source="US">
-                <value s="0.0">
-                    <scalar>3.7e-3</scalar>
-                    <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
-                </value>
-                <value s="1.0">
-                    <scalar>4.5e-3</scalar>
-                    <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
-                </value>
-            </radius_array>
-            <wall_thickness>
-                <expression>$WallThickness[subclavian_vein] = $Radius[subclavian_vein] * $vein_ratio[]</expression>
-            </wall_thickness>
-            <nl_compliance>
-                <expression>$Compliance[subclavian_vein] = (($RadiusAtRest[subclavian_vein]**2*pi)*(4.4/((8.0+$Pressure[subclavian_vein])**2)))*133.32**2*1e-6</expression>
-            </nl_compliance>
-        </properties>
-    </edge>
+    <edge id="21" node1_id="16" node2_id="21" side="venous" name="cephalic_lower">
+     <geometry>
+	   <length unit="m" accuracy="10%" source="US">
+	    <scalar>17.7e-2</scalar>
+	   </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>1.2e-3</scalar>
+           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+         </value>
+         <value s = "1.0">
+           <scalar>1.5e-3</scalar>
+           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+         </value>
+       </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[cephalic_lower] = $Radius[cephalic_lower] * $vein_ratio[]</expression>
+       </wall_thickness>
+       <nl_compliance>
+		<expression>$Compliance[cephalic_lower] =(($RadiusAtRest[cephalic_lower]**2*pi)*(4.4/((1066.6+$Pressure[cephalic_lower])**2)))</expression>
+	   </nl_compliance>
+     </properties>
+   </edge>
+   <edge id="22" node1_id="21" node2_id="22" side="venous" name="cubiti_elbow">
+     <geometry>
+	   <length unit="m" accuracy="10%" source="US">
+	    <scalar>4e-2</scalar>
+	   </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>1.0e-3</scalar>
+           <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
+         </value>
+         <value s = "1.0">
+           <scalar>1.1e-3</scalar>
+           <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
+       </value>
+     </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[cubiti_elbow] = $Radius[cubiti_elbow] * $vein_ratio[]</expression>
+       </wall_thickness>
+       <nl_compliance>
+		<expression>$Compliance[cubiti_elbow] =(($RadiusAtRest[cubiti_elbow]**2*pi)*(4.4/((1066.6+$Pressure[cubiti_elbow])**2)))</expression>
+	   </nl_compliance>
+     </properties>
+   </edge>
+   <edge id="23" node1_id="22" node2_id="23" side="venous" name="basilic_vein">
+     <geometry>
+	   <length unit="m" accuracy="10%" source="US">
+	    <scalar>30.3e-2</scalar>
+	   </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>1.1e-3</scalar>
+           <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
+         </value>
+         <value s = "1.0">
+           <scalar>1.5e-3</scalar>
+           <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
+         </value>
+       </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[basilic_vein] = $Radius[basilic_vein] * $vein_ratio[]</expression>
+       </wall_thickness>
+       <nl_compliance>
+		<expression>$Compliance[basilic_vein] =(($RadiusAtRest[basilic_vein]**2*pi)*(4.4/((1066.6+$Pressure[basilic_vein])**2)))</expression>
+	   </nl_compliance>
+     </properties>
+   </edge>
+   <edge id="24" node1_id="21" node2_id="23" side="venous" name="cephalic_upper">
+     <geometry>
+	   <length unit="m" accuracy="10%" source="US">
+	    <scalar>30.3e-2</scalar>
+	   </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>1.5e-3</scalar>
+           <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
+         </value>
+         <value s = "1.0">
+           <scalar>2.5e-3</scalar>
+           <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
+         </value>
+       </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[cephalic_upper] = $Radius[cephalic_upper] * $vein_ratio[]</expression>
+       </wall_thickness>
+       <nl_compliance>
+		<expression>$Compliance[cephalic_upper] =(($RadiusAtRest[cephalic_upper]**2*pi)*(4.4/((1066.6+$Pressure[cephalic_upper])**2)))</expression>
+	   </nl_compliance>
+     </properties>
+   </edge>
+   <edge id="25" node1_id="23" node2_id="24" side="venous" name="subclavian_vein">
+     <geometry>
+	   <length unit="m" accuracy="10%" source="US">
+	    <scalar>17.4e-2</scalar>
+	   </length>
+     </geometry>
+     <properties>
+       <radius_array unit="m" accuracy="10%" source="US">
+         <value s = "0.0">
+           <scalar>3.5e-3</scalar>
+           <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
+         </value>
+         <value s = "1.0">
+           <scalar>4.5e-3</scalar>
+           <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
+         </value>
+       </radius_array>
+       <wall_thickness>
+         <expression>$WallThickness[subclavian_vein] = $Radius[subclavian_vein] * $vein_ratio[]</expression>
+       </wall_thickness>
+       <nl_compliance>
+		<expression>$Compliance[subclavian_vein] =(($RadiusAtRest[subclavian_vein]**2*pi)*(4.4/((1066.6+$Pressure[subclavian_vein])**2)))</expression>
+	   </nl_compliance>
+     </properties>
+   </edge>
 </edges>
 </NetworkGraph>

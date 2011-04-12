@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import math
 
 ## Program:   PyNS
 ## Module:    MeshGenerator.py
@@ -201,7 +202,8 @@ class MeshGenerator(object):
             for rad in edgeProperty['radius'].itervalues():
                 if type(rad) is not str:
                     edgeProperty['ScalarRadius'] = edgeProperty['radius']
-    
+        
+        
         return edgeProperty
 
     def GenerateMesh(self):

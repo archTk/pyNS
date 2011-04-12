@@ -108,8 +108,7 @@ class Assembler(object):
                         PrescribedPressures[i,1] = self.BoundaryConditions.PressureValues[element.Id]          
                         i+=1    
             self.PrescribedPressures = PrescribedPressures.astype(Int32)
-            
-            
+           
             #Boundary Condition: Inlet Flow.
             self.BoundaryConditions.SetSimulationContext(simulationContext)
             self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]

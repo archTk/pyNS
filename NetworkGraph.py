@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import math
+import csv
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
@@ -439,6 +441,98 @@ class NetworkGraph(object):
                 edgeg_dict = edgeg.attrib           
                 if self.Edges.has_key(edgeg_dict['edge_id']):
                     superEdge.SetEdges(self.Edges[edgeg_dict['edge_id']])  # Setting Edges dictionary
+                    
+    def WriteCsv(self):
+        '''
+        This method writes network graph arterial properties
+        (length, radius and compliance) in a csv file.
+        '''
+        
+        edges_list = []
+        for edge in self.Edges.iterkeys():
+            edges_list.append(int(edge))
+        edges_list.sort()
+        
+        path = self.xmlgraphpath+'.csv' 
+        ofile  = open(path, "wb")
+        csv_writer = csv.writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
+        
+        for edg in edges_list:    
+            for e in self.Edges.itervalues():
+                if e.xRadius or e.yRadius:
+                    ellipticGeometry = True
+                else:
+                    ellipticGeometry = False
+        
+        
+        if ellipticGeometry == True:
+            csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1", "Compliance", "YoungModulus"])
+            csv_writer.writerow(["","", "cm", "mm", "mm","mm", "mm","mm", "mm", "mm2/kPa", "Pa"])
+        if ellipticGeometry == False:
+            csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1", "Compliance", "YoungModulus"])
+            csv_writer.writerow(["","", "cm", "mm", "mm", "mm2/kPa", "Pa"])
+            
+        for edg in edges_list:    
+            for e in self.Edges.itervalues():
+                if e.Id == str(edg):
+                    try:
+                        if 'value' in e.Radius:
+                            e.Radius_0 = e.Radius['value']
+                            e.Radius_1 = e.Radius['value']
+                        else:
+                            if type(e.Radius['array'][0.0]) is str:
+                                e.Radius_0 = e.ScalarRadius[0.0]
+                            else:
+                                e.Radius_0 = e.Radius['array'][0.0]
+                            if type(e.Radius['array'][1.0]) is str:
+                                e.Radius_1 = e.ScalarRadius[1.0]
+                            else:
+                                e.Radius_1 = e.Radius['array'][1.0]   
+                        e.xRadius_0 = e.yRadius_0 = e.xRadius_1 = e.yRadius_1 = 0.0
+                    except KeyError:
+                        if 'value' in e.xRadius:
+                            e.xRadius_0 = e.xRadius['value']
+                            e.xRadius_1 = e.xRadius['value']
+                        else:
+                            try:
+                                e.xRadius_0 = e.xRadius['array'][0.0]
+                                e.xRadius_1 = e.xRadius['array'][1.0]
+                            except:
+                                e.xRadius_0 = 0
+                                e.xRadius_1 = 0
+                        if 'value' in e.yRadius:
+                            e.yRadius_0 = e.yRadius['value']
+                            e.yRadius_1 = e.yRadius['value']
+                        else:
+                            try:
+                                e.yRadius_0 = e.yRadius['array'][0.0]
+                                e.yRadius_1 = e.yRadius['array'][1.0]
+                            except:
+                                e.yRadius_0 = 0
+                                e.yRadius_1 = 0
+                        e.Radius_0 = e.Radius_1 = 0.0
+                        
+                    if e.Compliance is not None:
+                        C = e.Compliance*1e9
+                    else:
+                        C = ''
+                    if 'value' in e.YoungModulus:
+                        ym = e.YoungModulus['value']
+                        rm = ((e.Radius_0+e.Radius_1)/2)*1e3
+                        wt = rm * 0.2
+                        C = (((2.0*math.pi*rm**2)*(((2.0*rm**2*(1.0-3.e-3**2))/(wt**2))+((1.0+3.e-3)*(((2.0*rm)/wt)+1.0))))/(ym*(((2.0*rm)/wt)+1.0)))*1e3
+                    else:
+                        ym = ''
+                    if ellipticGeometry == True:
+                        csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3,e.xRadius_0*1e3, e.xRadius_1*1e3,e.yRadius_0*1e3, e.yRadius_1*1e3, C, ym])
+                    if ellipticGeometry == False:
+                        csv_writer.writerow([e.Name, e.Side, e.Length['value']*1e2, e.Radius_0*1e3, e.Radius_1*1e3, C, ym])
+        csv_writer.writerow([])
+        csv_writer.writerow([])
+        csv_writer.writerow(["idpat", "gender", "age", "arm", "fistula type", "height", "weight", "bsa", "pressure", "cardiac output", "cardiac frequency", "brachial flow", "radial flow", "ulnar flow", "hematocrit", "plasma concentration","dynamic_viscosity", "blood_density","hypertension", "diabetes"])
+        csv_writer.writerow(["", "", "" , "", "", "cm", "kg", "m2", "mmHg", "mL/min", "Hz", "mL/min", "mL/min", "mL/min", "%", "g/dL", "cP", "Kg/m3", "", ""])
+        
+        
                      
 class Node(object):
     '''

@@ -75,13 +75,15 @@ class BoundaryConditions(object):
         '''
         self.NetworkMesh = networkMesh    
     
-    def GetSteadyFlow(self):
+    def GetSteadyFlow(self, timestep, time):
         '''
         Calculating flow as steady (mean A0 value)
         '''
-        
-        Flow = self.A0_v
-        self.Flow = Flow 
+        if time < (10*timestep):
+            Flow = self.A0_v*((time/timestep)/10)
+        else:
+            Flow = self.A0_v
+        self.Flow = Flow
         return Flow
         
       
