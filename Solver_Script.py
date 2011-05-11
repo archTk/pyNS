@@ -101,13 +101,36 @@ boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
 '''Setting Evaluator'''
 evaluator.SetNetworkGraph(networkGraph)
 evaluator.SetNetworkMesh(networkMesh)
+preRun = False
+for el in networkMesh.Elements:
+    if el.Type == 'WavePropagation' and el.nonLinear is True:
+        preRun = True
+        break
 
-''' Setting Solver Class'''
-solver = SolverFirstTrapezoid()  
+'''Pre-run'''
+if preRun is True:
+    ''' Setting Solver Class'''
+    solver = SolverFirstTrapezoid()  
+    solver.SetNetworkMesh(networkMesh)
+    solver.SetBoundaryConditions(boundaryConditions)
+    solver.SetSimulationContext(simulationContext)
+    solver.SetEvaluator(evaluator)
+    solver.SetSteadyFlow()
+    print "Steady Pre-Run, setting non-linear parameters"
+    solver.Solve() 
+    parameters = ["Radius","Compliance"]
+    for el in networkMesh.Elements:
+        el.SetLinearValues(parameters)
+
+'''Run'''
+evaluator.ExpressionCache = {}
+solver = SolverFirstTrapezoid() 
 solver.SetNetworkMesh(networkMesh)
 solver.SetBoundaryConditions(boundaryConditions)
 solver.SetSimulationContext(simulationContext)
-solver.SetEvaluator(evaluator)
+solver.SetEvaluator(evaluator) 
+solver.SetPulseFlow()
+print "Solving System"
 solver.Solve()
 
 '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
@@ -116,7 +139,7 @@ networkSolutions.SetNetworkMesh(networkMesh)
 networkSolutions.SetNetworkGraph(networkGraph)
 networkSolutions.SetSimulationContext(simulationContext)
 networkSolutions.SetSolutions(solver.Solutions)
-networkSolutions.SetImagesPath(images)
+networkSolutions.SetImagesPath({'im':images})
 for element in networkMesh.Elements:
     if element.Type == 'WavePropagation':
         networkSolutions.PlotFlow(element.Id)

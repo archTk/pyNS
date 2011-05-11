@@ -335,7 +335,7 @@ class SimulationContext(object):
             self.Context['K_sub'] = 1.788
             self.Context['K_ver'] = 3.3
         if self.Context['age'] > 60:
-            self.Context['K_ax'] = 1.64
+            self.Context['K_ax'] = 1.43
             self.Context['K_sub'] = 2.05
             self.Context['K_ver'] = 3.6
         if self.Context['age'] <= 70:

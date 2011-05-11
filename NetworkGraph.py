@@ -661,7 +661,7 @@ class SuperEdge(object):
                 
 class Edge(object):
     '''
-    Edge represent a vessel of vascular network layout.
+    Edge represents a vessel of vascular network layout.
     Edge is marked by n nodes, name, id, side.
     Edge has geometries and properties parameters.
     This class has the following methods:

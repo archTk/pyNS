@@ -20,6 +20,7 @@ from numpy.numarray.numerictypes import Int32
 from math import pi
 from numpy.core.fromnumeric import sum, mean
 from numpy.lib.scimath import sqrt
+from InverseWomersley import InverseWomersley
 
 class Element(object):
     '''
@@ -207,6 +208,7 @@ class WavePropagationElement(Element):
         self.s2 = elementParameters["s2"]
         self.Length = elementParameters["length"]
         self.Radius = elementParameters["radius"]
+        self.dayRadius = {} #day:radius
         try:
             self.RadiusAtRest = elementParameters["radiusAtRest"]
             self.RadiusExp = self.Radius
@@ -605,15 +607,13 @@ class WavePropagationElement(Element):
             Cycle = info['cycle']
         except KeyError:
             Cycle = self.Cycles
-            
+        
         dofs = self.GetPoiseuilleDofs()
         self.Flow = (solution[(dofmap.DofMap[self.Id, dofs[0]]),:] - solution[(dofmap.DofMap[self.Id, dofs[1]]),:])/self.R
         if len(self.Flow) != 1:
             self.Flow = mean(self.Flow[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])*6.0e7
         else:
             self.Flow = self.Flow[0]*6.0e7 
-        
-        
         return self.Flow
     
     def GetWss(self, info, timeIndex=0):
@@ -622,7 +622,6 @@ class WavePropagationElement(Element):
         Wall Shear Stress is computed on the Poiseuille Resistance.
         If element is tapered, Radius is considered as mean value over segment length.
         '''
-        
         self.Wss = ((4.0*self.eta)/6.0e7*pi) * (self.GetFlow(info,timeIndex)/(mean(self.Radius)**3))
         return self.Wss
     
@@ -713,7 +712,6 @@ class WavePropagationElement(Element):
         '''
         This method returns Radius
         '''
-        #print "GET", timeIndex, self.Radius
         try:
             Radius = self.ParameterInfo['Radius'][timeIndex] 
         except:
@@ -1047,8 +1045,9 @@ class Anastomosis(Element):
         '''
         This method returns vessel's Cross-Sectional Radius
         '''
-        Radius = mean(self.Proximal.GetRadius(info, timeIndex=0))
-        return Radius
+        Radius = self.Proximal.GetRadius(info, timeIndex=0)
+        RadiusProx = Radius[len(Radius)-1]
+        return RadiusProx
     
     def GetRadiusVein(self, info, timeIndex=0):
         '''
@@ -1057,7 +1056,7 @@ class Anastomosis(Element):
         if type(self.Vein.GetRadius(info, timeIndex=0)) is dict:
             Radius = self.Vein.GetRadius(info, timeIndex=0)[0.0]
         else:
-            Radius = mean(self.Vein.GetRadius(info, timeIndex=0))
+            Radius = self.Vein.GetRadius(info, timeIndex=0)[0]
         return Radius
     
     def GetAreaProximal(self, info, timeIndex=0):
@@ -1095,6 +1094,8 @@ class Anastomosis(Element):
         the cross-sectional Radius of the proximal artery (m)
         '''
         self.RadiusRatio = self.GetRadiusVein(info, timeIndex)/self.GetRadiusProximal(info, timeIndex)
+        #Radius ratio is forced to be equal to 1.0
+        #self.RadiusRatio = 1.0
         return self.RadiusRatio
         
     def GetAreaRatio(self, info, timeIndex=0):

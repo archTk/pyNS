@@ -73,7 +73,20 @@ class BoundaryConditions(object):
         '''
         Setting NetworkMesh
         '''
-        self.NetworkMesh = networkMesh    
+        self.NetworkMesh = networkMesh   
+    
+    def SetSpecificCardiacOutput(self):
+        '''
+        '''                                   
+        #SPECIFIC PATIENT CARDIAC OUTPUT STROKE VOLUME REMODELING                               
+        if self.signal is None:
+            if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
+                print "Adapting Cardiac Inflow"
+                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)    #*0.95 #5% coronarie
+                shift = 9.18388663e-06
+                k =((A1+shift)/(self.A0_v+shift))
+                self.A0_v = A1
+                self.f_coeff  = self.f_coeff*k     
     
     def GetSteadyFlow(self, timestep, time):
         '''
@@ -293,17 +306,7 @@ class BoundaryConditions(object):
                                     if str(el.NodeIds[0]) == str(self.NetworkMesh.meshToEdges[int(node_flow)]):                                    
                                         self.elementFlow = el
                                         self.NodeFlow = el.NodeIds[0]
-                                             
-        #SPECIFIC PATIENT CARDIAC OUTPUT STROKE VOLUME REMODELING                               
         
-        if self.signal is None:
-            if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
-                print "Adapting Cardiac Inflow"
-                A1 = self.SimulationContext.Context['cardiac_output']/6.0e7
-                shift = 9.18388663e-06
-                k =((A1+shift)/(self.A0_v+shift))
-                self.A0_v = A1
-                self.f_coeff  = self.f_coeff*k
             
 class Error(Exception):
     '''
