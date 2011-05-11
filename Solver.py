@@ -22,7 +22,6 @@ from numpy.lib.index_tricks import s_
 from numpy.linalg.linalg import solve
 from numpy.linalg import norm
 from numpy.core.numeric import Inf, dot
-from numpy.ma.core import ceil
 
 class Solver(object):
     '''
@@ -89,6 +88,12 @@ class Solver(object):
         '''
         self.steady = False
     
+    def SetSimulationDays(self, daysList):
+        '''
+        Setting Simulation Days' list
+        '''
+        self.SimulationDays = daysList
+    
     def SetNonLinearTolerance(self, nltol):
         '''
         Setting Non Linear Tolerance Value
@@ -146,7 +151,7 @@ class SolverFirstTrapezoid(Solver):
         self.PrescribedPressures = assembler.PrescribedPressures
         self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
         self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
-        self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix   
+        self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs                                             
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
@@ -177,7 +182,7 @@ class SolverFirstTrapezoid(Solver):
             if icc == 0:
                 icc = self.TimeStepFreq
             if self.steady == True:
-                self.Flow = assembler.BoundaryConditions.GetSteadyFlow(self.TimeStep,icc*self.TimeStep)
+                self.Flow = assembler.BoundaryConditions.GetSteadyFlow()
             else:  
                 self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
                 
@@ -228,20 +233,24 @@ class SolverFirstTrapezoid(Solver):
                 self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
+                
                 if counter == 100:
-                    print nlerr, nltol, CoeffRelax
+                    #print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
                     self.sumv[:,:] = sumvbk[:,:]
                     CoeffRelax *= 0.6
                     nltol *= 0.95
+                
                 if nlerr < nltol:
                     nltol = self.nltol
                     counter = 0 
                     #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
-                    break
+                    break  
+                
                 counter+=1
-                self.pi[:,:] = self.p[:,:]             
+                self.pi[:,:] = self.p[:,:]
+                               
             self.ptt[:,:] = self.pt[:,:]
             self.pt[:,:] = self.p[:,:]
             self.dpt[:,:] = self.dp[:,:]
@@ -251,17 +260,10 @@ class SolverFirstTrapezoid(Solver):
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
             history.insert(0,self.IncrementNumber)
             history = history[:3]
-            if self.IncrementNumber==ceil(0.25*self.NumberOfIncrements):
-                print "25%"
-            if self.IncrementNumber==ceil(0.5*self.NumberOfIncrements):
-                print "50%"   
-            if self.IncrementNumber==ceil(0.70*self.NumberOfIncrements):
-                print "70%" 
-            if self.IncrementNumber==ceil(0.90*self.NumberOfIncrements):
-                print "90%"     
             self.IncrementNumber = self.IncrementNumber+1
-            self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment 
-        info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history,'allSolution':PressuresMatrix}      
+            self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment
+        
+        info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}      
         self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
         return PressuresMatrix

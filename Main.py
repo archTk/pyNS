@@ -24,7 +24,6 @@ from Solver import SolverFirstTrapezoid
 from NetworkSolutions import NetworkSolutions
 from SimulationContext import SimulationContext
 from Evaluator import Evaluator
-from Adaptation import Adaptation
 import sys, getopt, os
 
 '''Default Values'''
@@ -34,9 +33,6 @@ odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
-f_images = os.path.join(images, 'Flow/') #subfolder for flow images
-p_images = os.path.join(images, 'Pressure/') #subfolder for pressure images
-w_images = os.path.join(images, 'Wss/') #subfolder for wss images
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
 netPost = 'vascular_network_v3.2_postRRCEE.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
@@ -72,9 +68,6 @@ for opt, arg in opts:
         opdir = arg
     if opt in ("-i", "--imag"):
         images = arg
-        f_images = os.path.join(images, 'Flow/') 
-        p_images = os.path.join(images, 'Pressure/') 
-        w_images = os.path.join(images, 'Wss/') 
     if opt in ("-n", "--netPre"):
         netPre = arg
     if opt in ("-k", "--netPost"):
@@ -124,212 +117,167 @@ if not os.path.exists (xsd):
     os.mkdir(xsd)
 if not os.path.exists (images):
     os.mkdir(images)
-    os.mkdir(f_images)
-    os.mkdir(p_images)
-    os.mkdir(w_images)
 if not os.path.exists (odir):
     os.mkdir(odir)   
 if not os.path.exists (ofdir):
     os.mkdir(ofdir)
 if not os.path.exists (opdir):
     os.mkdir(opdir)
-
-'''Setting Simulation Days'''
-adaptation = Adaptation()
-#daysList = [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
-daysList = [-1,0,1,2,3,4,5,6,7,8,9,10]
-#daysList = [-1,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-
+    
 '''Setting Simulation Context Parameters for Simulation'''
 simulationContext = SimulationContext()
 evaluator = Evaluator()
 evaluator.SetSimulationContext(simulationContext)
 simulationContext.SetEvaluator(evaluator)
 
-for day in daysList:
-    if day <= 0:
-        '''Parameters Model Adaptor'''
-        if simType == 'generic':
-            modelAdaptor = ModelAdaptor()
-            modelAdaptor.SetSimulationContext(simulationContext)
-            modelAdaptor.SetEvaluator(evaluator)
-            modelAdaptor.ChoosingTemplate('XML/parameters.csv')
-            if day == -1:
-                modelAdaptor.ftype = 7
-            if modelAdaptor.arm == 0:
-                if modelAdaptor.ftype == 0:
-                    wdir = 'XML/Models/Left_Arm/#0.Lower_RC_EE'
-                    preRun = True
-                if modelAdaptor.ftype == 1:
-                    wdir = 'XML/Models/Left_Arm/#1.Lower_RC_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 2:
-                    pass
-                if modelAdaptor.ftype == 3:
-                    wdir = 'XML/Models/Left_Arm/#3.Upper_BC_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 4:
-                    pass
-                if modelAdaptor.ftype == 5:
-                    wdir = 'XML/Models/Left_Arm/#5.Upper_BB_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 6:
-                    pass
-                if modelAdaptor.ftype == 7:
-                    wdir = 'XML/Models/Left_Arm/PRE'
-                    preRun = False
-            if modelAdaptor.arm == 1:
-                if modelAdaptor.ftype == 0:
-                    wdir = 'XML/Models/Right_Arm/#0.Lower_RC_EE'
-                    preRun = True
-                if modelAdaptor.ftype == 1:
-                    wdir = 'XML/Models/Right_Arm/#1.Lower_RC_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 2:
-                    pass
-                if modelAdaptor.ftype == 3:
-                    wdir = 'XML/Models/Right_Arm/#3.Upper_BC_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 4:
-                    pass
-                if modelAdaptor.ftype == 5:
-                    wdir = 'XML/Models/Right_Arm/#5.Upper_BB_ES'
-                    preRun = True
-                if modelAdaptor.ftype == 6:
-                    pass
-                if modelAdaptor.ftype == 7:
-                    wdir = 'XML/Models/Right_Arm/PRE'
-                    preRun = False
+'''Parameters Model Adaptor'''
+if simType == 'generic':
+    modelAdaptor = ModelAdaptor()
+    modelAdaptor.SetSimulationContext(simulationContext)
+    modelAdaptor.SetEvaluator(evaluator)
+    modelAdaptor.ChoosingTemplate('XML/parameters.csv')
+    if modelAdaptor.arm == 0:
+        if modelAdaptor.ftype == 0:
+            wdir = 'XML/Models/Left_Arm/#0.Lower_RC_EE'
+            preRun = True
+        if modelAdaptor.ftype == 1:
+            wdir = 'XML/Models/Left_Arm/#1.Lower_RC_ES'
+            preRun = True
+        if modelAdaptor.ftype == 2:
+            pass
+        if modelAdaptor.ftype == 3:
+            wdir = 'XML/Models/Left_Arm/#3.Upper_BC_ES'
+            preRun = True
+        if modelAdaptor.ftype == 4:
+            pass
+        if modelAdaptor.ftype == 5:
+            wdir = 'XML/Models/Left_Arm/#5.Upper_BB_ES'
+            preRun = True
+        if modelAdaptor.ftype == 6:
+            pass
+        if modelAdaptor.ftype == 7:
+            wdir = 'XML/Models/Left_Arm/PRE'
+            preRun = False
+    if modelAdaptor.arm == 1:
+        if modelAdaptor.ftype == 0:
+            wdir = 'XML/Models/Right_Arm/#0.Lower_RC_EE'
+            preRun = True
+        if modelAdaptor.ftype == 1:
+            wdir = 'XML/Models/Right_Arm/#1.Lower_RC_ES'
+            preRun = True
+        if modelAdaptor.ftype == 2:
+            pass
+        if modelAdaptor.ftype == 3:
+            wdir = 'XML/Models/Right_Arm/#3.Upper_BC_ES'
+            preRun = True
+        if modelAdaptor.ftype == 4:
+            pass
+        if modelAdaptor.ftype == 5:
+            wdir = 'XML/Models/Right_Arm/#5.Upper_BB_ES'
+            preRun = True
+        if modelAdaptor.ftype == 6:
+            pass
+        if modelAdaptor.ftype == 7:
+            wdir = 'XML/Models/Right_Arm/PRE'
+            preRun = False
     
             
-            netPostGeneric = 'vascular_network.xml'
-            boundPostGeneric = 'boundary_conditions.xml'
-            netPost = modelAdaptor.Idpat+'_vascular_network.xml'
-            boundPost = modelAdaptor.Idpat+'_boundary_conditions.xml'
-            xmlnetpathGeneric = os.path.join(wdir, netPostGeneric)
-            xmlboundpathGeneric = os.path.join(wdir, boundPostGeneric)
-            xmlnetpath = os.path.join(wdir, netPost)
-            xmlboundpath = os.path.join(wdir, boundPost)
-            simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
-        else:  
-            simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
-        
-        if simType == 'generic':  
-            modelAdaptor.SettingParameters('XML/parameters.csv')
-            modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
+    netPostGeneric = 'vascular_network.xml'
+    boundPostGeneric = 'boundary_conditions.xml'
+    netPost = modelAdaptor.Idpat+'_vascular_network.xml'
+    boundPost = modelAdaptor.Idpat+'_boundary_conditions.xml'
+    xmlnetpathGeneric = os.path.join(wdir, netPostGeneric)
+    xmlboundpathGeneric = os.path.join(wdir, boundPostGeneric)
+    xmlnetpath = os.path.join(wdir, netPost)
+    xmlboundpath = os.path.join(wdir, boundPost)
+    simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
+else:  
+    simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
+
+if simType == 'generic':  
+    modelAdaptor.SettingParameters('XML/parameters.csv')
+    modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
     
-        '''Creating NetworkGraph Object From its XML'''
-        networkGraph = NetworkGraph()
-        if simType == 'generic':
-            networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
-        else:
-            networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
-        
-        '''NetworkGraph Model Adaptor'''
-        if simType == 'generic':
-            modelAdaptor.SetNetworkGraph(networkGraph)
-            evaluator.SetNetworkGraph(networkGraph)
-            modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
+'''Creating NetworkGraph Object From its XML'''
+networkGraph = NetworkGraph()
+if simType == 'generic':
+    networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
+else:
+    networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
 
-        '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
-        If tolerance is not provided, mesh generator uses default value = 0.3'''
-        meshGenerator = MeshGenerator()
-        meshGenerator.SetNetworkGraph(networkGraph)
-        networkMesh = NetworkMesh()
-        meshGenerator.SetNetworkMesh(networkMesh)
-        meshGenerator.SetMaxLength(5.0e-2)
-        meshGenerator.GenerateMesh()
-
-    '''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
-    boundaryConditions = BoundaryConditions()
-    boundaryConditions.SetSimulationContext(simulationContext)
-    boundaryConditions.SetNetworkMesh(networkMesh)
-    boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
-    boundaryConditions.SetSpecificCardiacOutput()
-
-    '''Setting Evaluator'''
-    evaluator.SetSimulationContext(simulationContext)
+'''NetworkGraph Model Adaptor'''
+if simType == 'generic':
+    modelAdaptor.SetNetworkGraph(networkGraph)
     evaluator.SetNetworkGraph(networkGraph)
-    evaluator.SetNetworkMesh(networkMesh)
-    
-    '''Adaptation Model'''
+    modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
 
-    adaptation.SetBoundaryConditions(boundaryConditions)
-    preRun = adaptation.Adapt(day)
-    print "Day %d" %day
-    
-    '''Pre-run'''
-    if preRun is True:
-        ''' Setting Solver Class'''
-        solver = SolverFirstTrapezoid()  
-        solver.SetNetworkMesh(networkMesh)
-        solver.SetBoundaryConditions(boundaryConditions)
-        solver.SetSimulationContext(simulationContext)
-        solver.SetEvaluator(evaluator)
-        solver.SetSteadyFlow()
-        print "Steady Pre-Run, setting non-linear parameters"
-        solver.Solve() 
-        parameters = ["Radius","Compliance"]
-        networkMesh.WriteToXML(xmlmeshpath)
-        for el in networkMesh.Elements:
-            el.SetLinearValues(parameters)
-    
-    '''Run'''
-    evaluator.ExpressionCache = {}
-    solver = SolverFirstTrapezoid() 
-    solver.SetNetworkMesh(networkMesh)
-    solver.SetBoundaryConditions(boundaryConditions)
-    solver.SetSimulationContext(simulationContext)
-    solver.SetEvaluator(evaluator) 
-    solver.SetPulseFlow()
-    print "Solving System"
-    solver.Solve()
-    
-    '''Post Processing'''
-    meshdirpath = os.path.join(odir,str(day))
-    if not os.path.exists(meshdirpath):
-        os.mkdir(meshdirpath)
-    xmlmeshpath = os.path.join(meshdirpath,mesh)
-    outdirpath = os.path.join(odir,str(day))
-    if not os.path.exists(outdirpath):
-        os.mkdir(outdirpath)
-    xmloutpath = os.path.join(outdirpath,out)    
-    daystr = str(day)+'/' 
-    f_dayImages = os.path.join(f_images,daystr)   
-    p_dayImages = os.path.join(p_images,daystr)
-    w_dayImages = os.path.join(w_images,daystr)    
-    if not os.path.exists(images):
-        os.mkdir(images)
-    if not os.path.exists(f_dayImages):
-        os.mkdir(f_dayImages)
-    if not os.path.exists(p_dayImages):
-        os.mkdir(p_dayImages)
-    if not os.path.exists(w_dayImages):
-        os.mkdir(w_dayImages)
-      
+
+'''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
+If tolerance is not provided, mesh generator uses default value = 0.3'''
+meshGenerator = MeshGenerator()
+meshGenerator.SetNetworkGraph(networkGraph)
+networkMesh = NetworkMesh()
+meshGenerator.SetNetworkMesh(networkMesh)
+meshGenerator.SetMaxLength(5.0e-2)
+meshGenerator.GenerateMesh()
+
+'''Setting Boundary Conditions Mesh input and reading XML Boundary Conditions File'''
+boundaryConditions = BoundaryConditions()
+boundaryConditions.SetSimulationContext(simulationContext)
+boundaryConditions.SetNetworkMesh(networkMesh)
+boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
+
+'''Setting Evaluator'''
+evaluator.SetNetworkGraph(networkGraph)
+evaluator.SetNetworkMesh(networkMesh)
+
+''' Setting Solver Class'''
+solver = SolverFirstTrapezoid()  
+solver.SetNetworkMesh(networkMesh)
+solver.SetBoundaryConditions(boundaryConditions)
+solver.SetSimulationContext(simulationContext)
+solver.SetEvaluator(evaluator)
+
+'''Pre-run'''
+if preRun is True:
+    solver.SetSteadyFlow()
+    print "Steady Pre-Run, setting non-linear parameters"
+    solver.Solve() 
+    parameters = ["Radius","Compliance"]
     networkMesh.WriteToXML(xmlmeshpath)
-    networkSolutions = NetworkSolutions() 
-    networkSolutions.SetNetworkMesh(networkMesh)
-    networkSolutions.SetNetworkGraph(networkGraph)
-    networkSolutions.SetSimulationContext(simulationContext)
-    networkSolutions.SetSolutions(solver.Solutions)
-    networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages})
-    networkSolutions.WriteToXML(xmloutpath)
-    adaptation.SetSolutions(day, networkSolutions)
-    adaptation.SetRefValues(day, networkMesh)
+    for el in networkMesh.Elements:
+        el.SetLinearValues(parameters)
+   
+'''Run'''
+evaluator.ExpressionCache = {}
+solver = SolverFirstTrapezoid()
+solver.SetNetworkMesh(networkMesh)
+solver.SetBoundaryConditions(boundaryConditions)
+solver.SetSimulationContext(simulationContext)
+solver.SetEvaluator(evaluator) 
+solver.SetPulseFlow()
+print "Solving system"
+solver.Solve()
+
+'''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
+networkMesh.WriteToXML(xmlmeshpath)
+networkSolutions = NetworkSolutions()
+networkSolutions.SetNetworkMesh(networkMesh)
+networkSolutions.SetNetworkGraph(networkGraph)
+networkSolutions.SetSimulationContext(simulationContext)
+networkSolutions.SetSolutions(solver.Solutions)
+networkSolutions.SetImagesPath(images)
+networkSolutions.WriteToXML(xmloutpath)
+for element in networkMesh.Elements:
+    if element.Type == 'WavePropagation':
+        networkSolutions.PlotWSS(element.Id)
+        #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
+        #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
+        #networkSolutions.PlotReynolds(element.Id)
+        #networkSolutions.PlotVelocity(element.Id)
+        networkSolutions.PlotFlow(element.Id)
+        networkSolutions.PlotPressure(element.Id)
+        #networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
+        #networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
+        #networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Id+'.txt')
     
-    for element in networkMesh.Elements:
-        if element.Type == 'WavePropagation':
-            networkSolutions.PlotWSS(element)
-            networkSolutions.PlotFlow(element.Id)
-            networkSolutions.PlotPressure(element.Id)
-            print "Radius", round(element.Radius[0]*1e3,3), "--", round(element.Radius[len(element.Radius)-1]*1e3,3), "mm"
-            print "######################################################"
-        if element.Type == 'Anastomosis':
-            print "Anastomosis Resistance", element.R_0_2
-            print "######################################################"
-            
-networkSolutions.WriteToCsv(adaptation, 'Diameter')
-networkSolutions.WriteToCsv(adaptation, 'Pressure')
-networkSolutions.WriteToCsv(adaptation, 'Flow')
-networkSolutions.WriteToCsv(adaptation, 'Wss')
