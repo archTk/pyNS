@@ -251,14 +251,16 @@ class SolverFirstTrapezoid(Solver):
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
             history.insert(0,self.IncrementNumber)
             history = history[:3]
+            if self.IncrementNumber==ceil(0.05*self.NumberOfIncrements):
+                print "->5%"
             if self.IncrementNumber==ceil(0.25*self.NumberOfIncrements):
-                print "25%"
+                print "->25%"
             if self.IncrementNumber==ceil(0.5*self.NumberOfIncrements):
-                print "50%"   
+                print "->50%"   
             if self.IncrementNumber==ceil(0.70*self.NumberOfIncrements):
-                print "70%" 
+                print "->70%" 
             if self.IncrementNumber==ceil(0.90*self.NumberOfIncrements):
-                print "90%"     
+                print "->90%"     
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment 
         info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history,'allSolution':PressuresMatrix}      
