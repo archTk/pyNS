@@ -266,6 +266,7 @@ class SolverFirstTrapezoid(Solver):
         info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history,'allSolution':PressuresMatrix}      
         self.Evaluator.SetInfo(info)
         self.Solutions = PressuresMatrix
+        print "->100%, elaborating results"
         return PressuresMatrix
     
      
