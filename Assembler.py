@@ -84,9 +84,8 @@ class Assembler(object):
             numberOfElements = 0
             
             # Searching for prescribed pressure output
-            for element in self.NetworkMesh.Elements:
-                if element.Type != "Anastomosis" and element.Type != "Resistance":
-                    for dof in element.GetExternalPressureLocalDofs():
+            for element in self.NetworkMesh.Elements:  
+                for dof in element.GetExternalPressureLocalDofs():
                         numberOfElements+=1
             if self.BoundaryConditions.OutP is not None:
                 numberOfElements+=1
@@ -95,18 +94,17 @@ class Assembler(object):
             PrescribedPressures = zeros((numberOfElements,2))
             done = 0
             for element in self.NetworkMesh.Elements:
-                if element.Type != "Anastomosis" and element.Type != "Resistance":
-                    for dof in element.GetExternalPressureLocalDofs():      
-                        if self.BoundaryConditions.OutP is not None:
-                            if element.Id == self.BoundaryConditions.elementOut.Id:
-                                if done == 0:   
-                                    PrescribedPressures[i,0] = self.DofMap.DofMap[(self.BoundaryConditions.elementOut.Id,self.BoundaryConditions.elementOut.GetLocalDof(int(self.BoundaryConditions.NodeOut)))]
-                                    PrescribedPressures[i,1] = self.BoundaryConditions.OutP
-                                    done = 1
-                                    i+=1
-                        PrescribedPressures[i,0] = self.DofMap.DofMap[(element.Id,dof)]
-                        PrescribedPressures[i,1] = self.BoundaryConditions.PressureValues[element.Id]          
-                        i+=1    
+                for dof in element.GetExternalPressureLocalDofs():    
+                    if self.BoundaryConditions.OutP is not None:
+                        if element.Id == self.BoundaryConditions.elementOut.Id:
+                            if done == 0:   
+                                PrescribedPressures[i,0] = self.DofMap.DofMap[(self.BoundaryConditions.elementOut.Id,self.BoundaryConditions.elementOut.GetLocalDof(int(self.BoundaryConditions.NodeOut)))]
+                                PrescribedPressures[i,1] = self.BoundaryConditions.OutP
+                                done = 1
+                                i+=1
+                    PrescribedPressures[i,0] = self.DofMap.DofMap[(element.Id,dof)]
+                    PrescribedPressures[i,1] = self.BoundaryConditions.PressureValues[element.Id]          
+                    i+=1    
             self.PrescribedPressures = PrescribedPressures.astype(Int32)
            
             #Boundary Condition: Inlet Flow.

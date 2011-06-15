@@ -82,7 +82,7 @@ class BoundaryConditions(object):
         if self.signal is None:
             if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
                 print "Adapting Cardiac Inflow"
-                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)    #*0.95 #5% coronarie
+                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)*0.95 #5% coronarie
                 shift = 9.18388663e-06
                 k =((A1+shift)/(self.A0_v+shift))
                 self.A0_v = A1

@@ -81,6 +81,7 @@ class ModelAdaptor(object):
             if name == 'ftype':
                 self.ftype = int(value)
         
+        
     def SettingParameters(self, csvfilepath):
         '''
         This method reads parameters from a .csv file and sets them into
@@ -103,7 +104,7 @@ class ModelAdaptor(object):
         This method evaluates expressions in boundary conditions file and
         re-writes a new boundary conditions xml file with computed values
         '''
-      
+        
         if self.SimulationContext.Context['dos'] is None:
             self.SimulationContext.Context['dos'] =  self.SimulationContext.Defaults['dos']
         if self.SimulationContext.Context['dob'] is None:
@@ -176,10 +177,10 @@ class ModelAdaptor(object):
                             edge.Radius['array'] = {0.0:(float(value1)*1e-3),1.0:(float(value2)*1e-3)}
                         else:
                             edge.Radius['value'] = (float(value1)*1e-3)
+                        
         
         expressionList = []                    
         for edgeId, edge in self.NetworkGraph.Edges.iteritems():
-           
             if 'expression' in edge.Radius:
                 expressionList.append(edge.Radius['expression'])  
             if 'expression' in edge.Length:

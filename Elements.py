@@ -20,7 +20,6 @@ from numpy.numarray.numerictypes import Int32
 from math import pi
 from numpy.core.fromnumeric import sum, mean
 from numpy.lib.scimath import sqrt
-from InverseWomersley import InverseWomersley
 
 class Element(object):
     '''
@@ -1127,6 +1126,12 @@ class Anastomosis(Element):
             LocalDof = 2
         return LocalDof
     
+    def GetExternalPressureLocalDofs(self):
+        '''
+        Setting Transmural pressure in the correct local dofs.
+        '''
+        return []
+    
     def GetNodeLocalDofs(self):
         '''
         This method returns local dof number corresponding to its NodeId (if exist)
@@ -1157,7 +1162,7 @@ class Anastomosis(Element):
 
 class ResistanceElement(Element):
     '''
-    Resistance Element is an element used for anastomosis.
+    Resistance Element is an element realized with a non-linear resistance between two nodes.
     Resistance is marked by 2 nodes and unique Id.
     Resistance has 2 local dofs.
     Side: Arterial or Venous side (optional)
@@ -1227,6 +1232,12 @@ class ResistanceElement(Element):
         '''        
         CircuitMatrix = array ([[self.dof[0], self.dof[1], 0, self.R, 0]])        #Resistance
         return CircuitMatrix      
+    
+    def GetExternalPressureLocalDofs(self):
+        '''
+        Setting Transmural pressure in the correct local dofs.
+        '''
+        return []
     
     def GetFlow(self, info, timeIndex=0):
         '''

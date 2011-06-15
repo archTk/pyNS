@@ -22,11 +22,13 @@ from numpy.core.fromnumeric import mean
 from numpy.core.numeric import array
 from math import pi
 from numpy.lib.function_base import linspace
+from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+    
 try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
-from pylab import *
+
 from numpy.ma.core import ceil
 from csv import *
 import csv
@@ -154,6 +156,7 @@ class NetworkSolutions(object):
                 self.f_images = path
                 self.p_images = path
                 self.w_images = path
+        for name, path in imagDict.iteritems():
             if name == 'f':
                 self.f_images = path
             if name == 'p':
@@ -190,7 +193,6 @@ class NetworkSolutions(object):
                 savefig(self.images+'brachial_flow.png')
                 close()
                 indexcolour = 0 
-                
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
                     PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211  
@@ -533,7 +535,7 @@ class NetworkSolutions(object):
     
     def PlotReynolds(self, meshid, cycle = None):
         '''
-        This method plots reybolds number for a single mesh
+        This method plots reynolds number for a single mesh
         If cycle is not specified, default cycle is the last one
         '''
         if cycle is not None:

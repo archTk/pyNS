@@ -18,11 +18,10 @@
 from math import pi, cos, sin
 from numpy.core.numeric import arange
 from numpy.core.fromnumeric import mean
-from pylab import *
+from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
 from csv import *
 from numpy.lib.scimath import sqrt
 from numpy.ma.core import exp
-from numpy.lib.function_base import linspace
 
 '''
 Defining Bessel Function. If scipy package is not installed,

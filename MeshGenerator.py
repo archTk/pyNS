@@ -406,7 +406,9 @@ class MeshGenerator(object):
                     elementParameters["leakage"] = edge.QLeakage
                     if edge.QLeakage:
                         nLeak+=1
-                    #############  
+                    ##############################################
+                    # MESHING AN EDGE ACCORDING TO ITS MESH TYPE #
+                    ##############################################
                     if edgeId in self.MeshType:
                         if self.MeshType[edgeId] == None:            
                             newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
@@ -498,7 +500,7 @@ class MeshGenerator(object):
                             if self.MeshType[edgeId] == 'Resistance':   
                                 newElement = Elements.ResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
                         else:                    
-                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)                             
+                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)                          
                         self.NetworkMesh.Elements.append(newElement)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement                                           
                         self.NetworkMesh.s_mesh[(s1,edge)] = meshNode1
