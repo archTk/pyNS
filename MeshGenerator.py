@@ -409,13 +409,13 @@ class MeshGenerator(object):
                     ##############################################
                     # MESHING AN EDGE ACCORDING TO ITS MESH TYPE #
                     ##############################################
+                    
                     if edgeId in self.MeshType:
-                        if self.MeshType[edgeId] == None:            
-                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
-                        if self.MeshType[edgeId] == 'Resistance':
-                            newElement = Elements.ResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
-                    else:                    
-                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)                                 
+                        Elements.Element.SetType(self.MeshType[edgeId])
+                    newElement = Elements.Element()
+                    newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)          
+                             
+                                 
                     self.NetworkMesh.Elements.append(newElement)                
                     #Dicts###
                     self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement    
@@ -495,12 +495,10 @@ class MeshGenerator(object):
                         name = edge.Name + "_" + str(nameId)                                        
                         #############                        
                         if edgeId in self.MeshType:
-                            if self.MeshType[edgeId] == None: 
-                                newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
-                            if self.MeshType[edgeId] == 'Resistance':   
-                                newElement = Elements.ResistanceElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)
-                        else:                    
-                            newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)                          
+                            Elements.Element.SetType(self.MeshType[edgeId])
+                        newElement = Elements.Element()
+                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                                                 
                         self.NetworkMesh.Elements.append(newElement)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement                                           
                         self.NetworkMesh.s_mesh[(s1,edge)] = meshNode1
@@ -803,8 +801,12 @@ class MeshGenerator(object):
                         if meshNode2 not in nodes_list:
                             nodes_list.append(meshNode2)
                             nodes_list_last = len(nodes_list)                       
-                        name = edge.Name + "_" + str(nameId)                                           
-                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
+                        name = edge.Name + "_" + str(nameId)  
+                        if edgeId in self.MeshType:
+                            Elements.Element.SetType(self.MeshType[edgeId])
+                        newElement = Elements.Element()
+                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                        
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                        
                         self.NetworkMesh.s_mesh[(s_start,edge)] = meshNode1
@@ -869,7 +871,11 @@ class MeshGenerator(object):
                             nodes_list_last = len(nodes_list)                       
                         name = edge.Name + "_" + str(nameId) 
                                
-                        newElement = Elements.WavePropagationElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name)
+                        if edgeId in self.MeshType:
+                            Elements.Element.SetType(self.MeshType[edgeId])
+                        newElement = Elements.Element()
+                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                        
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                      
                         self.NetworkMesh.s_mesh[(s1,edge)] = meshNode1

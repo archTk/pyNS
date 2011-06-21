@@ -40,6 +40,7 @@ class Element(object):
         self.nonLinear = False
         self.ParameterInfo = {}
         self.LastIncrementNumber = 0
+        self.Type = None
                
     def Initialize(self, simulationContext):
         '''
@@ -149,6 +150,22 @@ class Element(object):
             self.ParameterInfo[parameterName].insert(0,parameterValue)
         if len(self.ParameterInfo[parameterName]) > self.MaxHistorySize:
             self.ParameterInfo[parameterName] = self.ParameterInfo[parameterName][0:self.MaxHistorySize]
+            
+    def SetType(self, type):
+        '''
+        This method sets the element type.
+        '''
+        self.Type = type
+        
+    def NewElement(self, id, nodeIds, elementParameters, side=None, name=None):
+        '''
+        This method creates a new element according to its mesh type.
+        '''
+        if self.Type == None or self.Type == "WavePropagation":
+            element = WavePropagationElement(id, nodeIds, elementParameters, side, name)
+        if self.Type == "Resistance":
+            element = ResistanceElement(id, nodeIds, elementParameters, side, name)
+        return element
     
 class WavePropagationElement(Element):
     '''
