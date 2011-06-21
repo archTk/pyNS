@@ -306,7 +306,7 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{right_subclavian_A,0.0} = 5.13*$bsa[]*0.5e-3</expression>
+           <expression>$Radius{right_subclavian_A,0.0} = 6.0*$bsa[]*0.5e-3</expression>
          </value>
          <value s = "1.0">
            <expression>$Radius{right_subclavian_A,1.0} = $Radius{right_subclavian_A,0.0}*0.95</expression>
@@ -352,7 +352,7 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{right_subclavian_B,0.0} =$Radius{axillarian,1.0}*$K_sub[]</expression>
+           <expression>$Radius{right_subclavian_B,0.0} =$Radius{right_subclavian_A,1.0}*0.95</expression>
          </value>
          <value s = "1.0">
            <expression>$Radius{right_subclavian_B,1.0} =$Radius{axillarian,0.0}*1.0</expression>
@@ -637,11 +637,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.2e-3</scalar>
-           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+           <scalar>1.44e-3</scalar>
+           <expression>$Radius[cephalic_lower]=0.8*($RadiusAtRest[cephalic_lower]*$RadiusProximal[anastomosis])/($RadiusAtRest[cephalic_lower])</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
          </value>
        </radius_array>
@@ -662,11 +662,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.0e-3</scalar>
+           <scalar>1.2e-3</scalar>
            <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.1e-3</scalar>
+           <scalar>1.32e-3</scalar>
            <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
        </value>
      </radius_array>
@@ -687,11 +687,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.1e-3</scalar>
+           <scalar>1.32e-3</scalar>
            <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
          </value>
        </radius_array>
@@ -712,11 +712,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>2.5e-3</scalar>
+           <scalar>3.00e-3</scalar>
            <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
          </value>
        </radius_array>
@@ -737,11 +737,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>3.5e-3</scalar>
+           <scalar>4.2e-3</scalar>
            <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>4.5e-3</scalar>
+           <scalar>5.4e-3</scalar>
            <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
          </value>
        </radius_array>

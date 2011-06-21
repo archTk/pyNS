@@ -191,7 +191,7 @@
     <edge id="1" node1_id="1" node2_id="2" side="arterial" name="aorta_asc">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{aorta_asc} = ((2.0/3.0)*(0.9*$age[]+26.1))*1e-3</expression>
+	       <expression>$Length{aorta_asc} = (0.072*$age[]+2.088)*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -214,7 +214,7 @@
    <edge id="2" node1_id="2" node2_id="3" side="arterial" name="aortich_arch_A_1">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{aortich_arch_A_1} = ((1.0/3.0)*(0.9*$age[]+26.1))*1e-3</expression>
+	       <expression>$Length{aortich_arch_A_1} = (0.018*$age[]+0.522)*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -237,7 +237,7 @@
    <edge id="3" node1_id="3" node2_id="4" side="arterial" name="left_carotid">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{left_carotid} = (1.24*$height[])*1e-3</expression>
+	       <expression>$Length{left_carotid} = (0.126*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -255,7 +255,7 @@
    <edge id="4" node1_id="3" node2_id="5" side="arterial" name="aortich_arch_A_2">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{aortich_arch_A_2} = ((1.0/9.0)*(0.9*$age[]+26.1))*1e-3</expression>
+	       <expression>$Length{aortich_arch_A_2} = (0.0108*$age[]+0.3132)*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -278,7 +278,7 @@
    <edge id="5" node1_id="5" node2_id="6" side="arterial" name="aortich_Arch_B_and_thoracic_aorta">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{aortich_Arch_B_and_thoracic_aorta} = (-26.253+1.507*$height[])*1e-3</expression>
+	       <expression>$Length{aortich_Arch_B_and_thoracic_aorta} = (-1.59138+0.09042*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -301,7 +301,7 @@
    <edge id="6" node1_id="19" node2_id="7" side="arterial" name="right_subclavian_A">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{right_subclavian_A} = (0.67725*$height[])*1e-3</expression>
+	       <expression>$Length{right_subclavian_A} = (0.01935*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -324,7 +324,7 @@
    <edge id="7" node1_id="7" node2_id="8" side="arterial" name="vertebral">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{vertebral} = (0.882*$height[])*1e-3</expression>
+	       <expression>$Length{vertebral} = (0.0882*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -347,13 +347,13 @@
    <edge id="8" node1_id="7" node2_id="9" side="arterial" name="right_subclavian_B">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{right_subclavian_B} = (0.322*$height[])*1e-3</expression>
+	       <expression>$Length{right_subclavian_B} = (0.0496*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{right_subclavian_B,0.0} =$Radius{axillarian,1.0}*$K_sub[]</expression>
+           <expression>$Radius{right_subclavian_B,0.0} = ((((5.13*$bsa[])**2)-($K_ver[]**2))**0.5)*0.5e-3</expression>
          </value>
          <value s = "1.0">
            <expression>$Radius{right_subclavian_B,1.0} =$Radius{axillarian,0.0}*1.0</expression>
@@ -368,15 +368,15 @@
      </properties>
    </edge>
    <edge id="9" node1_id="9" node2_id="10" side="arterial" name="axillarian">
-     <geometry>
+    <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{axillarian} = (0.645*$height[])*1e-3</expression>
+	       <expression>$Length{axillarian} = (0.0608715*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{axillarian,0.0} =$Radius{axillarian,1.0}*$K_ax[]</expression>
+           <expression>$Radius{axillarian,0.0} =$Radius{brachial_prox,0.0}*(1.51*$gender[]+1.42*(1.0-$gender[]))</expression>
          </value>
          <value s = "1.0">
            <expression>$Radius{axillarian,1.0} =$Radius{brachial_prox,0.0}*1.0</expression>
@@ -393,13 +393,13 @@
    <edge id="10" node1_id="10" node2_id="11" side="arterial" name="brachial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{brachial_prox} = (0.75*(1.537*$height[]))*1e-3</expression>
+	       <expression>$Length{brachial_prox} = (0.08625*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{brachial_prox,0.0} =$Radius{brachial_prox,1.0}+(0.01775*1e-3)*$gender[]+(0.014*1e-3)*(1-$gender[])</expression>
+           <expression>$Radius{brachial_prox,0.0} =$Radius{brachial_prox,1.0}*1.045</expression>
          </value>
          <value s = "1.0">
            <expression>$Radius{brachial_prox,1.0} =((0.0083*$age[]+4.3673)*$gender[]+(0.0184*$age[]+2.23746)*(1-$gender[]))*0.5e-3</expression>
@@ -414,12 +414,11 @@
        <leakage>
          <expression>$QLeakage[brachial_prox] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-1.39*$ulnar_flow[]))*(133.32*6.0e7)</expression>
        </leakage>
-     </properties>
-   </edge>
+     </properties>   </edge>
    <edge id="11" node1_id="11" node2_id="12" side="arterial" name="brachial_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{brachial_dist} = (0.25*(1.537*$height[]))*1e-3</expression>
+	       <expression>$Length{brachial_dist} = (0.02875*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -428,7 +427,7 @@
            <expression>$Radius{brachial_dist,0.0} =((0.0083*$age[]+4.3673)*$gender[]+(0.0184*$age[]+2.3746)*(1-$gender[]))*0.5e-3</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{brachial_dist,1.0} =$Radius{brachial_dist,0.0}-(0.01775*1e-3)*$gender[]-(0.014*1e-3)*(1-$gender[])</expression>
+           <expression>$Radius{brachial_dist,1.0} =$Radius{brachial_dist,0.0}*0.985</expression>
          </value>
        </radius_array>
        <wall_thickness>
@@ -441,20 +440,20 @@
          <expression>$QLeakage[brachial_dist] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-1.39*$ulnar_flow[]))*(133.32*6.0e7)</expression>
        </leakage>
      </properties>
-   </edge>   
+    </edge>   
    <edge id="12" node1_id="12" node2_id="16" side="arterial" name="radial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{radial_prox} = (0.75*(1.46*$height[]))*1e-3</expression>
+	       <expression>$Length{radial_prox} = (0.09855*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{radial_prox,0.0} = 1.03*$Radius{radial_prox,1.0}</expression>
+           <expression>$Radius{radial_prox,0.0} = 1.25*$Radius{radial_prox,1.0}</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{radial_prox,1.0} = 0.63*$Radius{brachial_dist,1.0}</expression>
+           <expression>$Radius{radial_prox,1.0} = 0.52*$Radius{brachial_dist,1.0}</expression>
          </value>
        </radius_array>
        <wall_thickness>
@@ -468,7 +467,7 @@
    <edge id="13" node1_id="16" node2_id="17" side="arterial" name="radial_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{radial_dist} = (0.25*(1.46*$height[]))*1e-3</expression>
+	       <expression>$Length{radial_dist} = (0.03285*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -477,7 +476,7 @@
            <expression>$Radius{radial_dist,0.0} = $Radius{radial_prox,1.0}*1.0</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{radial_dist,1.0} = 0.97*$Radius{radial_prox,1.0}</expression>
+           <expression>$Radius{radial_dist,1.0} = 0.923*$Radius{radial_prox,1.0}</expression>
          </value>
        </radius_array>
        <wall_thickness>
@@ -489,9 +488,9 @@
      </properties>
    </edge>
    <edge id="14" node1_id="12" node2_id="13" side="arterial" name="ulnar_prox">
-     <geometry>
+    <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{ulnar_prox} = (0.438*$height[])*1e-3</expression>
+	       <expression>$Length{ulnar_prox} = (0.02628*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -509,16 +508,16 @@
    <edge id="15" node1_id="13" node2_id="15" side="arterial" name="ulnar_dist_1">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{ulnar_dist_1} = (1.022*$height[])*0.5e-3</expression>
+	       <expression>$Length{ulnar_dist_1} = (0.0526*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <expression>$Radius{ulnar_dist_1,0.0} = 1.06*$Radius{ulnar_dist_1,1.0}</expression>
+           <expression>$Radius{ulnar_dist_1,0.0} = 0.45*$Radius{brachial_dist,1.0}</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{ulnar_dist_1,1.0} = 0.63*$Radius{brachial_dist,1.0}</expression>
+           <expression>$Radius{ulnar_dist_1,1.0} = 0.97*$Radius{ulnar_dist_1,0.0}</expression>
          </value>
        </radius_array>
        <wall_thickness>
@@ -532,7 +531,7 @@
    <edge id="16" node1_id="15" node2_id="25" side="arterial" name="ulnar_dist_2">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{ulnar_dist_2} = (1.022*$height[])*0.5e-3</expression>
+	       <expression>$Length{ulnar_dist_2} = (0.0526*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -541,7 +540,7 @@
            <expression>$Radius{ulnar_dist_2,0.0} = $Radius{ulnar_dist_1,1.0}*1.0</expression>
          </value>
          <value s = "1.0">
-           <expression>$Radius{ulnar_dist_2,1.0} = 0.94*$Radius{ulnar_dist_1,1.0}</expression>
+           <expression>$Radius{ulnar_dist_2,1.0} = 0.97*$Radius{ulnar_dist_1,1.0}</expression>
          </value>
        </radius_array>
        <wall_thickness>
@@ -555,12 +554,12 @@
    <edge id="17" node1_id="13" node2_id="14" side="arterial" name="interosseous">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{interosseous} = (1.022*$height[])*1e-3</expression>
+	       <expression>$Length{interosseous} = (0.07884*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
        <radius unit="m" accuracy="10%" source="US">
-         <expression>$Radius{interosseous} = 0.8*$Radius{ulnar_dist_1,1.0}</expression>
+         <expression>$Radius{interosseous} = 0.35*$Radius{brachial_dist,1.0}</expression>
        </radius>
        <wall_thickness>
          <expression>$WallThickness[interosseous] = $Radius[interosseous] * $lower_arm_ratio[]</expression>
@@ -573,7 +572,7 @@
    <edge id="18" node1_id="5" node2_id="18" side="arterial" name="left_subclavian_A">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{left_subclavian_A} = (0.67725*$height[])*1e-3</expression>
+	       <expression>$Length{left_subclavian_A} = (0.0258*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -596,7 +595,7 @@
    <edge id="19" node1_id="2" node2_id="19" side="arterial" name="innominate">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{innominate} = (0.19*$height[])*1e-3</expression>
+	       <expression>$Length{innominate} = (0.021*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -614,7 +613,7 @@
    <edge id="20" node1_id="19" node2_id="20" side="arterial" name="right_carotid">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
-	       <expression>$Length{right_carotid} = (1.05*$height[])*1e-3</expression>
+	       <expression>$Length{right_carotid} = (0.105*$height[])*1e-2</expression>
 	     </length>
      </geometry>
      <properties>
@@ -638,11 +637,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.2e-3</scalar>
-           <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
+           <scalar>1.44e-3</scalar>
+           <expression>$Radius[cephalic_lower]=0.8*($RadiusAtRest[cephalic_lower]*$RadiusProximal[anastomosis])/($RadiusAtRest[cephalic_lower])</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
          </value>
        </radius_array>
@@ -663,11 +662,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.0e-3</scalar>
+           <scalar>1.2e-3</scalar>
            <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.1e-3</scalar>
+           <scalar>1.32e-3</scalar>
            <expression>$Radius[cubiti_elbow]=$RadiusAtRest[cubiti_elbow]*sqrt((1.0-0.55*(1.0-($Pressure[cubiti_elbow]/(1066.66+$Pressure[cubiti_elbow])))))</expression>
        </value>
      </radius_array>
@@ -688,11 +687,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.1e-3</scalar>
+           <scalar>1.32e-3</scalar>
            <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[basilic_vein]=$RadiusAtRest[basilic_vein]*sqrt((1.0-0.55*(1.0-($Pressure[basilic_vein]/(1066.66+$Pressure[basilic_vein])))))</expression>
          </value>
        </radius_array>
@@ -713,11 +712,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.5e-3</scalar>
+           <scalar>1.8e-3</scalar>
            <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>2.5e-3</scalar>
+           <scalar>3.00e-3</scalar>
            <expression>$Radius[cephalic_upper]=$RadiusAtRest[cephalic_upper]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_upper]/(1066.66+$Pressure[cephalic_upper])))))</expression>
          </value>
        </radius_array>
@@ -738,11 +737,11 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>3.5e-3</scalar>
+           <scalar>4.2e-3</scalar>
            <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
          </value>
          <value s = "1.0">
-           <scalar>4.5e-3</scalar>
+           <scalar>5.4e-3</scalar>
            <expression>$Radius[subclavian_vein]=$RadiusAtRest[subclavian_vein]*sqrt((1.0-0.55*(1.0-($Pressure[subclavian_vein]/(1066.66+$Pressure[subclavian_vein])))))</expression>
          </value>
        </radius_array>

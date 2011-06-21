@@ -29,7 +29,7 @@
     <boundary_condition id="2" type="outflow pressure" name="venous">
       <parameters>
         <pressure unit="Pa">
-           <scalar>1333.0</scalar>
+           <scalar>0.0</scalar>
         </pressure>
       </parameters>  
       <entities>

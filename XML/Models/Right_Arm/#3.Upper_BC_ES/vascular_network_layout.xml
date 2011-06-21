@@ -2,70 +2,74 @@
 <NetworkGraphLayout id="1" version ="69"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
+    <case>
+        <patient_id>10001</patient_id>
+        <visit>V0 (pre-OP)</visit>
+    </case>
 <nodes_layout>
-<node_layout id="1" x="360" y="280">
+<node_layout id="1" x="520" y="300">
 </node_layout>
-<node_layout id="2" x="360" y="160">
+<node_layout id="2" x="520" y="180">
 </node_layout>
-<node_layout id="3" x="440" y="100">
+<node_layout id="3" x="600" y="140">
 </node_layout>
-<node_layout id="4" x="440" y="40">
+<node_layout id="4" x="600" y="80">
 </node_layout>
-<node_layout id="5" x="520" y="160">
+<node_layout id="5" x="680" y="180">
 </node_layout>
-<node_layout id="6" x="520" y="280">
+<node_layout id="6" x="680" y="280">
 </node_layout>
-<node_layout id="7" x="240" y="80">
+<node_layout id="7" x="380" y="120">
 </node_layout>
-<node_layout id="8" x="160" y="40">
+<node_layout id="8" x="420" y="80">
 </node_layout>
-<node_layout id="9" x="160" y="120">
+<node_layout id="9" x="320" y="140">
 </node_layout>
-<node_layout id="10" x="160" y="220">
+<node_layout id="10" x="320" y="240">
 </node_layout>
-<node_layout id="11" x="160" y="280">
+<node_layout id="11" x="320" y="340">
 </node_layout>
-<node_layout id="12" x="160" y="360">
+<node_layout id="12" x="320" y="400">
 </node_layout>
-<node_layout id="13" x="180" y="400">
+<node_layout id="13" x="360" y="460">
 </node_layout>
-<node_layout id="14" x="160" y="440">
+<node_layout id="14" x="320" y="520">
 </node_layout>
-<node_layout id="15" x="200" y="440">
+<node_layout id="15" x="384" y="497">
 </node_layout>
-<node_layout id="16" x="140" y="420">
+<node_layout id="16" x="280" y="480">
 </node_layout>
-<node_layout id="17" x="120" y="480">
+<node_layout id="17" x="260" y="520">
 </node_layout>
-<node_layout id="18" x="600" y="120">
+<node_layout id="18" x="740" y="160">
 </node_layout>
-<node_layout id="19" x="320" y="120">
+<node_layout id="19" x="460" y="140">
 </node_layout>
-<node_layout id="20" x="320" y="60">
+<node_layout id="20" x="460" y="60">
 </node_layout>
-<node_layout id="21" x="60" y="220">
+<node_layout id="21" x="240" y="240">
 </node_layout>
-<node_layout id="22" x="60" y="120">
+<node_layout id="22" x="240" y="140">
 </node_layout>
-<node_layout id="23" x="220" y="480">
+<node_layout id="23" x="400" y="520">
 </node_layout>
 </nodes_layout>
 <edges_layout>
 <edge_layout id="1" s="0.5" d="0">
 </edge_layout>
-<edge_layout id="2" s="0.528367" d="14.3839">
+<edge_layout id="2" s="0.428189" d="12.1558">
 </edge_layout>
 <edge_layout id="3" s="0.5" d="0">
 </edge_layout>
-<edge_layout id="4" s="0.493367" d="12.0017">
+<edge_layout id="4" s="0.463189" d="10.6521">
 </edge_layout>
 <edge_layout id="5" s="0.5" d="0">
 </edge_layout>
-<edge_layout id="6" s="0.601633" d="-6.63517">
+<edge_layout id="6" s="0.596248" d="-6.26201">
 </edge_layout>
 <edge_layout id="7" s="0.5" d="0">
 </edge_layout>
-<edge_layout id="8" s="0.541633" d="-8.57009">
+<edge_layout id="8" s="0.617716" d="-6.69805">
 </edge_layout>
 <edge_layout id="9" s="0.5" d="0">
 </edge_layout>
@@ -91,7 +95,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
 </edge_layout>
 <edge_layout id="20" s="0.5" d="0">
 </edge_layout>
-<edge_layout id="21" s="0.712965" d="23.0648">
+<edge_layout id="21" s="0.447612" d="33.5336">
 </edge_layout>
 <edge_layout id="22" s="0.5" d="0">
 </edge_layout>
