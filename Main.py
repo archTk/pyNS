@@ -33,6 +33,9 @@ odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
 opdir= 'Output/Pressures/' # (-p or --wpdir)
 images='Images/' # (-i or --imag)
+f_images = os.path.join(images, 'Flow/') #subfolder for flow images
+p_images = os.path.join(images, 'Pressure/') #subfolder for pressure images
+w_images = os.path.join(images, 'Wss/') #subfolder for wss images
 netPre = 'vascular_network_v3.2_preR.xml'  #Vascular Network Graph XML file PREOP (-n or --netPre)
 netPost = 'vascular_network_v3.2_postRRCEE.xml'  #Vascular Network Graph XML file POSTOP (-k or --netPost)
 mesh = 'vascular_mesh_v1.1.xml'  #Vascular Network Mesh XML file (-m or --mesh) 
@@ -47,8 +50,8 @@ netTube =  'vascular_network_v3.0_TUBE.xml'  #Circular Straight Tube Test Case, 
 boundTube = 'boundary_conditions_v2.0_TUBE.xml' #Circular Straight Tube Test Case, Boundary Conditions XML file
 testTape = 'XML/TEST/CircularTaperedTube/'  #Circular Tapered Tube Test Case, Working Directory
 netTape = 'vascular_network_v3.0_TAPE.xml'  #Circular Tapered Tube Test Case, Vascular Network Graph XML file
-boundTape = 'boundary_conditions_v2.0_TAPE.xml'  #Circular Tapered Tube Test Case, Boundary Conditions XML file
-         
+boundTape = 'boundary_conditions_v2.0_TAPE.xml'  #Circular Tapered Tube Test Case, Boundary Conditions XML file  
+
 try:                                
     opts, args = getopt.getopt(sys.argv[1:], "s:w:t:f:p:i:n:k:m:r:d:o:x:c:h:", ["simType=", "wdir=", "odir=", "wfdir=", "wpdir=", "imag=","netPre=","netPost=", "mesh=", "boundPre=","boundPost=", "out=", "xsd=", "netSchema=", "boundSchema="]) 
 except getopt.GetoptError: 
@@ -68,6 +71,9 @@ for opt, arg in opts:
         opdir = arg
     if opt in ("-i", "--imag"):
         images = arg
+        f_images = os.path.join(images, 'Flow/') 
+        p_images = os.path.join(images, 'Pressure/') 
+        w_images = os.path.join(images, 'Wss/') 
     if opt in ("-n", "--netPre"):
         netPre = arg
     if opt in ("-k", "--netPost"):
@@ -117,6 +123,9 @@ if not os.path.exists (xsd):
     os.mkdir(xsd)
 if not os.path.exists (images):
     os.mkdir(images)
+    os.mkdir(f_images)
+    os.mkdir(p_images)
+    os.mkdir(w_images)
 if not os.path.exists (odir):
     os.mkdir(odir)   
 if not os.path.exists (ofdir):
@@ -266,7 +275,7 @@ networkSolutions.SetNetworkMesh(networkMesh)
 networkSolutions.SetNetworkGraph(networkGraph)
 networkSolutions.SetSimulationContext(simulationContext)
 networkSolutions.SetSolutions(solver.Solutions)
-networkSolutions.SetImagesPath(images)
+networkSolutions.SetImagesPath({'im':images,'f':f_images,'p':p_images,'w':w_images})
 networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
     if element.Type == 'WavePropagation':
