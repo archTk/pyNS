@@ -32,7 +32,7 @@ try:
 except:
     import cmath
     
-    def Bessel(self, n,arg):
+    def Bessel(n,arg):
         z = complex(1.0,0.0)
         zproduct = complex(1.0,0.0)
         zarg = -0.25 * (arg * arg)

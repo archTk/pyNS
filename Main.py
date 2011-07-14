@@ -279,7 +279,7 @@ networkSolutions.SetImagesPath({'im':images,'f':f_images,'p':p_images,'w':w_imag
 networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
     if element.Type == 'WavePropagation':
-        networkSolutions.PlotWSS(element.Id)
+        networkSolutions.PlotWSS(element)
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
         #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
         #networkSolutions.PlotReynolds(element.Id)
