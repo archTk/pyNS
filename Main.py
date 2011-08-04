@@ -27,7 +27,7 @@ from Evaluator import Evaluator
 import sys, getopt, os
 
 '''Default Values'''
-simType = 'generic'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
+simType = 'tube'  #Simulation Type --> 'generic': fromGenericTemplate. 'pre':preOp. 'post':postOp. 'tube':circular straight tube. 'tape':circular tapered tube. (-s or --simType)
 wdir = 'XML/'   #Working Directory (-w or --wdir)
 odir = 'Output/'  #Output Directory (-t or --odir)
 ofdir= 'Output/Flow/' #Output Directory, Flow folder (-f or --wfdir)
@@ -280,6 +280,7 @@ networkSolutions.SetImagesPath({'im':images,'f':f_images,'p':p_images,'w':w_imag
 networkSolutions.WriteToXML(xmloutpath)
 for element in networkMesh.Elements:
     if element.Type == 'WavePropagation':
+        networkSolutions.SaveVelocityProfile(element)
         networkSolutions.PlotWSS(element)
         #networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
         #networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')

@@ -357,6 +357,8 @@ class InverseWomersley(object):
         This method plots velocity profile into png files and makes 
         an avi file from png set. Mencoder is required.
         '''
+        if daystr == None:
+            daystr = '-1'
         
         '''Create temporary image and videos directories'''
         if not os.path.exists ('tmp/'):

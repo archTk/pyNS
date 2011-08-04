@@ -944,7 +944,7 @@ class NetworkSolutions(object):
         inverseWomersley.GetVelFromQ(el)
         inverseWomersley.ShowVelocityProfile(el.Id)
         
-    def SaveVelocityProfile(self, el, daystr, cycle=None):
+    def SaveVelocityProfile(self, el, daystr=None, cycle=None):
         '''
         '''
         inverseWomersley = InverseWomersley()
