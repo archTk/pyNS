@@ -173,7 +173,8 @@ class InverseWomersley(object):
             
         self.fourierModes[0] *= 0.5   #mean Flow, as expected. It's defined into xml input file.
         
-        self.Steps = arange(0,self.tPeriod,self.dtPlot)
+        self.Steps = linspace(0,self.tPeriod,self.samples)
+        print "STEP:", len(self.Steps)
         self.VelRadius = {}
         self.VelRadiusSteps = {}
         self.VelocityPlot = {}
@@ -200,7 +201,7 @@ class InverseWomersley(object):
                     vFract = vNum/vDen
                     cV = self.fourierModes[k] * exp(cT) * vFract
                     self.VelRadius[y] += cV.real #valore di velocity riferito al raggio adimensionalizzato
-                    self.Velocity[y] = self.VelRadius[y]
+                    self.Velocity[y] = self.VelRadius[y].real
                     y+=0.01
                 k+=1
             
@@ -216,7 +217,9 @@ class InverseWomersley(object):
                         self.VelPlot.append(vel*(100.0/(self.radius**2*pi)))                   
             self.VelocityPlot[step] = self.VelPlot
             self.t += self.dtPlot
-    
+            
+        print len(self.VelocityPlot)
+        
     def GetTaoFromQ(self,el):
         '''
         Computing wall shear stress in terms of the flow rate,
@@ -244,7 +247,7 @@ class InverseWomersley(object):
             self.fourierModes.append(complex(An, Bn))
             n+=1
         
-        self.Steps = arange(0,self.tPeriod,self.dtPlot)
+        self.Steps = linspace(0,self.tPeriod,self.samples)
         self.WssSignal = []  
         self.Tauplot = []
        
@@ -313,8 +316,8 @@ class InverseWomersley(object):
             fourierModes.append(complex(An, Bn))
             n+=1
             
-        Steps = arange(0,self.tPeriod,self.dtPlot)
-        for step in Steps:
+        self.Steps = linspace(0,self.tPeriod,self.samples)
+        for step in self.Steps:
             tao0 = -fourierModes[0].real * 2.0
             tao1 = -fourierModes[0].real * 2.0
             k=1
@@ -357,8 +360,6 @@ class InverseWomersley(object):
         This method plots velocity profile into png files and makes 
         an avi file from png set. Mencoder is required.
         '''
-        if daystr == None:
-            daystr = '-1'
         
         '''Create temporary image and videos directories'''
         if not os.path.exists ('tmp/'):
@@ -389,6 +390,7 @@ class InverseWomersley(object):
         orderingStep = []
         for step, vel in self.VelocityPlot.iteritems():
             orderingStep.append(step)
+            lenStep = len(self.VelocityPlot)
             lenVel = len(vel)
         orderedStep = sorted(orderingStep)
         orderedVel = []
@@ -406,9 +408,9 @@ class InverseWomersley(object):
         x = linspace(-1.0,1.0,lenVel)   # Values to be plotted on the x-axis.
         ylim(ymax=maxY)
         ylim(ymin=minY)
-        i = 1
+        i = 0
         print 'Computing Images for velocity profile...'
-        while i<=lenVel:
+        while i<lenStep:
             plot(x,orderedVel[i],'r-',linewidth = 3)
             axis((x[1],x[-1],minY,maxY))
             xlabel('Fractional radius')
