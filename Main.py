@@ -235,6 +235,7 @@ boundaryConditions = BoundaryConditions()
 boundaryConditions.SetSimulationContext(simulationContext)
 boundaryConditions.SetNetworkMesh(networkMesh)
 boundaryConditions.ReadFromXML(xmlboundpath, xsdboundpath)
+boundaryConditions.SetSpecificCardiacOutput()
 
 '''Setting Evaluator'''
 evaluator.SetNetworkGraph(networkGraph)
