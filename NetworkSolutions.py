@@ -806,6 +806,7 @@ class NetworkSolutions(object):
         savefig(self.w_images + meshid +'_Pwss.png')
         close()
         
+        
     def PlotPWSSComparative(self, cycle = None):
         '''
         This method plots brachial, radial and ulnar WSS (POISEUILLE) signal.
@@ -933,6 +934,26 @@ class NetworkSolutions(object):
         rPeaks = inverseWomersley.GetWssPeaks(mesh, self.GetFlowSignal(mesh))
         return rPeaks
        
+    def ShowVelocityProfile(self, el, cycle=None):
+        '''
+        '''
+        inverseWomersley = InverseWomersley()
+        inverseWomersley.SetSimulationContext(self.SimulationContext)
+        inverseWomersley.SetNetworkMesh(self.NetworkMesh)
+        inverseWomersley.SetFlowSignal(el, self.GetFlowSignal(el))
+        inverseWomersley.GetVelFromQ(el)
+        inverseWomersley.ShowVelocityProfile(el.Id)
+        
+    def SaveVelocityProfile(self, el, daystr, cycle=None):
+        '''
+        '''
+        inverseWomersley = InverseWomersley()
+        inverseWomersley.SetSimulationContext(self.SimulationContext)
+        inverseWomersley.SetNetworkMesh(self.NetworkMesh)
+        inverseWomersley.SetFlowSignal(el, self.GetFlowSignal(el))
+        inverseWomersley.GetVelFromQ(el)
+        inverseWomersley.SaveVelocityProfile(el.Id, daystr)
+        
     def PlotWSS(self, el, cycle=None):
         '''
         This method plots mean WSS for a single mesh 
@@ -943,12 +964,12 @@ class NetworkSolutions(object):
         inverseWomersley.SetNetworkMesh(self.NetworkMesh)
         
         inverseWomersley.SetFlowSignal(el, self.GetFlowSignal(el))
-        inverseWomersley.GetParameters(el)
+        inverseWomersley.GetTaoFromQ(el)
         peak = inverseWomersley.PlotWss(el.Id, self.w_images)
         
         self.dayWssP[el.Id] = peak
         
-    def GetWSSSignal(self, meshid, cycle=None):
+    def GetWSSSignal(self, el, cycle=None):
         '''
         This method returns Wall Shear Stress signal for specific mesh
         If cycle is not specified, default cycle is the last one.
@@ -957,8 +978,8 @@ class NetworkSolutions(object):
         inverseWomersley.SetSimulationContext(self.SimulationContext)
         inverseWomersley.SetNetworkMesh(self.NetworkMesh)
         
-        inverseWomersley.SetFlowSignal(meshid, self.GetFlowSignal(meshid))
-        WssSignal = array(inverseWomersley.GetParameters(meshid))
+        inverseWomersley.SetFlowSignal(el, self.GetFlowSignal(el))
+        WssSignal = array(inverseWomersley.GetTaoFromQ(el))
     
         return WssSignal
     
