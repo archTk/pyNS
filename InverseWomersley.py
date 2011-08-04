@@ -174,7 +174,7 @@ class InverseWomersley(object):
         self.fourierModes[0] *= 0.5   #mean Flow, as expected. It's defined into xml input file.
         
         self.Steps = linspace(0,self.tPeriod,self.samples)
-        print "STEP:", len(self.Steps)
+        
         self.VelRadius = {}
         self.VelRadiusSteps = {}
         self.VelocityPlot = {}
@@ -182,7 +182,7 @@ class InverseWomersley(object):
             self.Velocity = {}
             y = -1 # raggio da -1 a 1, 200 punti.
             while y <=1.:
-                self.VelRadius[y] = 2*(1.0**2 - abs(y)**2)*self.fourierModes[0]
+                self.VelRadius[y] = 2*(1.0**2 - y**2)*self.fourierModes[0]
                 y+=0.01
                 
             k=1
@@ -218,7 +218,6 @@ class InverseWomersley(object):
             self.VelocityPlot[step] = self.VelPlot
             self.t += self.dtPlot
             
-        print len(self.VelocityPlot)
         
     def GetTaoFromQ(self,el):
         '''
