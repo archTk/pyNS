@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    Assembler.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 11:35:27 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 10:54:10 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 

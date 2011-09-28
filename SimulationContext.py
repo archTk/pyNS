@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    SimulationContext.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 11:41:12 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 15:11:24 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -19,7 +19,6 @@ try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
-import os
 import shutil
 
 class SimulationContext(object):
@@ -27,6 +26,7 @@ class SimulationContext(object):
     This class provides a dictionary for simulation parameters.
     This dictionary is created from XML BoundaryConditions File.
     This class provides the following methods:
+    SetEvaluator: a method for setting evaluator class.
     ReadFromXML: a method for reading XML BoundaryConditions File.
     UpdateXML: a method for updating Boundary Conditions XML File Parameters from ModelAdaptor.
     '''
@@ -330,7 +330,7 @@ class SimulationContext(object):
             self.Context['K_ax'] = 1.34
             self.Context['K_sub'] = 1.675
             self.Context['K_ver'] = 3.3
-        if self.Context['age'] > 40 and self.Context['age'] < 59: 
+        if self.Context['age'] >= 40 and self.Context['age'] < 59: 
             self.Context['K_ax'] = 1.43
             self.Context['K_sub'] = 1.788
             self.Context['K_ver'] = 3.3

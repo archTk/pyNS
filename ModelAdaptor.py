@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    ModelAdaptor.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 12:07:15 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 14:05:19 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -21,19 +21,21 @@ try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
-from datetime import date
 import shutil
 from math import pi
 
 class ModelAdaptor(object):
     '''
-    This Class adapts generic model according to
-    specific dataset.
+    This Class adapts generic model according to a specific dataset.
     This Class provides the following methods:
     SetNetworkGraph: a method for setting NetworkGraph input.
     SetSimulationContext : a method for setting simulation context.
-    SettingParameters: a method for adapting simulation parameters from specific values.
-    AdaptingModel: still under development.
+    ChoosingTemplate: a method for setting correct template according to parameters in .csv file.
+    SettingParameters: a method for reading parameters from a .csv file and settin them into simulation context.
+    AdaptingParameters: a method for evaluating expressions in boundary conditions file and for writing a new 
+    boundary conditions xml file with computed values.
+    AdaptingModel: a method for reading specific data from a csv file (measured radii) and evaluating the rest of the network rules.
+    Finally, it creates a new vascular network xml file with specific data and a .csv file with the patient-specific dataset.
     '''
     
     def __init__(self):
@@ -170,32 +172,39 @@ class ModelAdaptor(object):
                 name = el[0]
                 value1 = el[1]
                 value2 = el[2]
-                for edgeId, edge in self.NetworkGraph.Edges.iteritems():
+                for edge in self.NetworkGraph.Edges.itervalues():
                     if name == edge.Name: 
-                        edge.Radius = {}
-                        if value1 != value2:
-                            edge.Radius['array'] = {0.0:(float(value1)*1e-3),1.0:(float(value2)*1e-3)}
+                        if edge.Side != "venous":
+                            
+                            edge.Radius = {}
+                            if value1 != value2:
+                                edge.Radius['array'] = {0.0:(float(value1)),1.0:(float(value2))}
+                            else:
+                                edge.Radius['value'] = (float(value1))
                         else:
-                            edge.Radius['value'] = (float(value1)*1e-3)
+                           
+                            edge.ScalarRadius= {0.0:(float(value1)),1.0:(float(value2))}
                         
         
         expressionList = []                    
-        for edgeId, edge in self.NetworkGraph.Edges.iteritems():
-            if 'expression' in edge.Radius:
-                expressionList.append(edge.Radius['expression'])  
+        for edge in self.NetworkGraph.Edges.itervalues():
+            if edge.Side is not "venous":
+                if 'expression' in edge.Radius:
+                    expressionList.append(edge.Radius['expression'])  
             if 'expression' in edge.Length:
                 expressionList.append(edge.Length['expression'])
             if 'expression' in edge.YoungModulus:
                 expressionList.append(edge.YoungModulus['expression'])
             if edge.Compliance is not None:
                 if 'expression' in edge.Compliance:
-                    expressionList.append(edge.Compliance['expression'])  
-            if 'array' in edge.Radius:
-                for x in edge.Radius['array'].itervalues():
-                    if type(x) is str:
-                        if edge.ScalarRadius == {}:
-                            expressionList.append(x)
-                   
+                    expressionList.append(edge.Compliance['expression'])
+            if edge.Side is not "venous":
+                if 'array' in edge.Radius:
+                    for x in edge.Radius['array'].itervalues():
+                        if type(x) is str:
+                            if edge.ScalarRadius == {}:
+                                expressionList.append(x)
+                  
         while len(expressionList)>0:       
             for x in expressionList:
                 try: 
@@ -204,7 +213,6 @@ class ModelAdaptor(object):
                 except:
                     pass
           
-        
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
         xmlgraph = etree.ElementTree(root)
         
@@ -380,7 +388,6 @@ class ModelAdaptor(object):
                     ellipticGeometry = True
                 else:
                     ellipticGeometry = False
-        
         
         if ellipticGeometry == True:
             csv_writer.writerow(["Name","Side", "Length", "Radius s=0", "Radius s=1","xRadius s=0", "xRadius s=1","yRadius s=0", "yRadius s=1", "Compliance", "YoungModulus"])

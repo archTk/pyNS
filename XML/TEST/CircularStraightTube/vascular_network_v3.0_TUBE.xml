@@ -33,13 +33,13 @@
      </geometry>
      <properties>
        <radius unit="m" accuracy="10%" source="US">
-         <scalar>8.0e-3</scalar>
+         <scalar>1.5e-2</scalar>
        </radius>
        <wall_thickness unit="m" accuracy="10%" source="US">
-         <scalar>8.0e-4</scalar>
+         <scalar>1.5e-3</scalar>
        </wall_thickness>
        <young_modulus unit="Pa" accuracy="10%" source="US">
-         <scalar>4e5</scalar>
+         <scalar>2.67e6</scalar>
        </young_modulus>
      </properties>
    </edge>

@@ -23,13 +23,15 @@
         <entity id="interosseous"/>
         <entity id="basilic_vein"/>
         <entity id="subclavian_vein"/>
+        <entity id="palmar_arch"/>
+        <entity id="fingers"/>
         <entity id="end_segment"/>
       </entities>
     </boundary_condition>
     <boundary_condition id="2" type="outflow pressure" name="venous">
       <parameters>
         <pressure unit="Pa">
-           <scalar>1333.0</scalar>
+           <scalar>0.0</scalar>
         </pressure>
       </parameters>  
       <entities>

@@ -4,8 +4,8 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <case>
-        <patient_id>10001</patient_id>
-        <visit>V0 (pre-OP)</visit>
+        <patient_id></patient_id>
+        <visit></visit>
     </case>
 <nodes>
     <node type="inflow" id="1" name="heart"/>
@@ -22,7 +22,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <node type="downstream network" id="6" name="wk_aorta">
         <properties>
             <windkessel>
-                <expression>$WindkesselRel[wk_aorta] = ($mean_pressure[])/($cardiac_output[]-($brachial_flow[])-(0.07*$cardiac_output[])-(0.07*$cardiac_output[])-(0.005*$cardiac_output[])-($radial_flow[])-($ulnar_flow[])-(0.39*$ulnar_flow[]))*(133.3223684211*6.0e7)</expression>
+                <expression>$WindkesselRel[wk_aorta] = ($mean_pressure[])/(($cardiac_output[])-(2*$brachial_flow[]+0.15*$cardiac_output[]))*(133.3223684211*6.0e7)</expression>
             </windkessel>
         </properties>
     </node>
@@ -61,10 +61,11 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
             </venous_resistance>
         </properties>
     </node>
+    <node id="17"/>
     <node type="downstream network" id="18" name="wk_left_subclavian">
         <properties>
             <windkessel>
-                <expression>$WindkesselRel[wk_left_subclavian] = (($mean_pressure[])/($brachial_flow[]))*(133.3223684211*6.0e7)</expression>
+                <expression>$WindkesselRel[wk_left_subclavian] = (($mean_pressure[])/($brachial_flow[]+0.005*$cardiac_output[]))*(133.3223684211*6.0e7)</expression>
             </windkessel>
         </properties>
     </node>
@@ -80,10 +81,44 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <node id="22"/>
     <node id="23"/>
     <node type="outflow" id="24" name="venous"/>
-    <node type="downstream network" id="25" name="wk_ulnar">
+    <node id="25"/>
+    <node id="26"/>
+    <node id="27"/>
+    <node id="28"/>
+    <node id="29"/>
+    <node id="30"/>
+    <node type="downstream network" id="31" name="wk_thumb_finger">
         <properties>
             <windkessel>
-                <expression>$WindkesselRel[wk_ulnar] = (($mean_pressure[])/($ulnar_flow[]))*(133.3223684211*6.0e7)</expression>
+                <expression>$WindkesselRel[wk_thumb_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+            </windkessel>
+        </properties>
+    </node>
+    <node type="downstream network" id="32" name="wk_index_finger">
+        <properties>
+            <windkessel>
+                <expression>$WindkesselRel[wk_index_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+            </windkessel>
+        </properties>
+    </node>
+    <node type="downstream network" id="33" name="wk_middle_finger">
+        <properties>
+            <windkessel>
+                <expression>$WindkesselRel[wk_middle_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+            </windkessel>
+        </properties>
+    </node>
+    <node type="downstream network" id="34" name="wk_ring_finger">
+        <properties>
+            <windkessel>
+                <expression>$WindkesselRel[wk_ring_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+            </windkessel>
+        </properties>
+    </node>
+    <node type="downstream network" id="35" name="wk_little_finger">
+        <properties>
+            <windkessel>
+                <expression>$WindkesselRel[wk_little_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
             </windkessel>
         </properties>
     </node>
@@ -178,12 +213,35 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
                 </superedge>
             </superedges>
         </superedge>
+        <superedge id="23" name="hand">
+            <superedges>
+                <superedge id="24" name="palmar_arch">
+                    <edgesIds>
+                        <edgeIds edge_id="26"/>
+                        <edgeIds edge_id="27"/>
+                        <edgeIds edge_id="28"/>
+                        <edgeIds edge_id="29"/>
+                        <edgeIds edge_id="30"/>
+                        <edgeIds edge_id="31"/>
+                    </edgesIds>
+                </superedge>
+                <superedge id="25" name="fingers">
+                    <edgesIds>
+                        <edgeIds edge_id="32"/>
+                        <edgeIds edge_id="33"/>
+                        <edgeIds edge_id="34"/>
+                        <edgeIds edge_id="35"/>
+                        <edgeIds edge_id="36"/>
+                    </edgesIds>
+                </superedge>
+            </superedges>
+        </superedge>
     </superedges>
 <edges>
     <edge node2_id="2" node1_id="1" side="arterial" id="1" name="aorta_asc">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{aorta_asc} = ((2.0/3.0)*(0.9*$age[]+26.1))*1e-3</expression>
+                <expression>$Length{aorta_asc} = (0.072*$age[]+2.088)*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -206,7 +264,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="3" node1_id="2" side="arterial" id="2" name="aortich_arch_A_1">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{aortich_arch_A_1} = ((1.0/3.0)*(0.9*$age[]+26.1))*1e-3</expression>
+                <expression>$Length{aortich_arch_A_1} = (0.018*$age[]+0.522)*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -229,7 +287,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="4" node1_id="3" side="arterial" id="3" name="left_carotid">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{left_carotid} = (1.24*$height[])*1e-3</expression>
+                <expression>$Length{left_carotid} = (0.126*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -247,7 +305,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="5" node1_id="3" side="arterial" id="4" name="aortich_arch_A_2">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{aortich_arch_A_2} = ((1.0/9.0)*(0.9*$age[]+26.1))*1e-3</expression>
+                <expression>$Length{aortich_arch_A_2} = (0.0108*$age[]+0.3132)*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -270,7 +328,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="6" node1_id="5" side="arterial" id="5" name="aortich_Arch_B_and_thoracic_aorta">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{aortich_Arch_B_and_thoracic_aorta} = (-26.253+1.507*$height[])*1e-3</expression>
+                <expression>$Length{aortich_Arch_B_and_thoracic_aorta} = (-1.59138+0.09042*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -293,13 +351,13 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="7" node1_id="19" side="arterial" id="6" name="right_subclavian_A">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{right_subclavian_A} = (0.67725*$height[])*1e-3</expression>
+                <expression>$Length{right_subclavian_A} = (0.01935*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{right_subclavian_A,0.0} = 6.0*$bsa[]*0.5e-3</expression>
+                    <expression>$Radius{right_subclavian_A,0.0} = 5.13*$bsa[]*0.5e-3</expression>
                 </value>
                 <value s="1.0">
                     <expression>$Radius{right_subclavian_A,1.0} = $Radius{right_subclavian_A,0.0}*0.95</expression>
@@ -316,7 +374,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="8" node1_id="7" side="arterial" id="7" name="vertebral">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{vertebral} = (0.882*$height[])*1e-3</expression>
+                <expression>$Length{vertebral} = (0.0882*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -339,13 +397,13 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="9" node1_id="7" side="arterial" id="8" name="right_subclavian_B">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{right_subclavian_B} = (0.322*$height[])*1e-3</expression>
+                <expression>$Length{right_subclavian_B} = (0.0496*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{right_subclavian_B,0.0} =$Radius{right_subclavian_A,1.0}*0.95</expression>
+                    <expression>$Radius{right_subclavian_B,0.0} =($Radius{right_subclavian_A,1.0}**3-$Radius{vertebral,0.0}**3)**(1./3)</expression>
                 </value>
                 <value s="1.0">
                     <expression>$Radius{right_subclavian_B,1.0} =$Radius{axillarian,0.0}*1.0</expression>
@@ -362,13 +420,13 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="10" node1_id="9" side="arterial" id="9" name="axillarian">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{axillarian} = (0.645*$height[])*1e-3</expression>
+                <expression>$Length{axillarian} = (0.0608715*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{axillarian,0.0} =$Radius{axillarian,1.0}*$K_ax[]</expression>
+                    <expression>$Radius{axillarian,0.0} =$Radius{brachial_prox,0.0}*(1.51*$gender[]+1.42*(1.0-$gender[]))</expression>
                 </value>
                 <value s="1.0">
                     <expression>$Radius{axillarian,1.0} =$Radius{brachial_prox,0.0}*1.0</expression>
@@ -385,13 +443,13 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="11" node1_id="10" side="arterial" id="10" name="brachial_prox">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{brachial_prox} = (0.75*(1.537*$height[]))*1e-3</expression>
+                <expression>$Length{brachial_prox} = (0.08625*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{brachial_prox,0.0} =$Radius{brachial_prox,1.0}+(0.01775*1e-3)*$gender[]+(0.014*1e-3)*(1-$gender[])</expression>
+                    <expression>$Radius{brachial_prox,0.0} =$Radius{brachial_prox,1.0}*1.045</expression>
                 </value>
                 <value s="1.0">
                     <expression>$Radius{brachial_prox,1.0} =((0.0083*$age[]+4.3673)*$gender[]+(0.0184*$age[]+2.23746)*(1-$gender[]))*0.5e-3</expression>
@@ -404,14 +462,14 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
                 <expression>$Compliance{brachial_prox} = (-0.002*$age[]+0.2587)*1e-9</expression>
             </compliance>
             <leakage>
-                <expression>$QLeakage[brachial_prox] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-1.39*$ulnar_flow[]))*(133.32*6.0e7)</expression>
+                <expression>$QLeakage[brachial_prox] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
             </leakage>
         </properties>
     </edge>
     <edge node2_id="12" node1_id="11" side="arterial" id="11" name="brachial_dist">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{brachial_dist} = (0.25*(1.537*$height[]))*1e-3</expression>
+                <expression>$Length{brachial_dist} = (0.02875*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -420,7 +478,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
                     <expression>$Radius{brachial_dist,0.0} =((0.0083*$age[]+4.3673)*$gender[]+(0.0184*$age[]+2.3746)*(1-$gender[]))*0.5e-3</expression>
                 </value>
                 <value s="1.0">
-                    <expression>$Radius{brachial_dist,1.0} =$Radius{brachial_dist,0.0}-(0.01775*1e-3)*$gender[]-(0.014*1e-3)*(1-$gender[])</expression>
+                    <expression>$Radius{brachial_dist,1.0} =$Radius{brachial_dist,0.0}*0.985</expression>
                 </value>
             </radius_array>
             <wall_thickness>
@@ -430,23 +488,23 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
                 <expression>$Compliance{brachial_dist} = (-0.0005*$age[]+0.105)*1e-9</expression>
             </compliance>
             <leakage>
-                <expression>$QLeakage[brachial_dist] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-1.39*$ulnar_flow[]))*(133.32*6.0e7)</expression>
+                <expression>$QLeakage[brachial_dist] = (($mean_pressure[])/($brachial_flow[]-$radial_flow[]-$ulnar_flow[]))*(133.32*6.0e7)</expression>
             </leakage>
         </properties>
     </edge>
     <edge node2_id="16" node1_id="12" side="arterial" id="12" name="radial_prox">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{radial_prox} = (0.75*(1.46*$height[]))*1e-3</expression>
+                <expression>$Length{radial_prox} = (0.09855*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{radial_prox,0.0} = 1.03*$Radius{radial_prox,1.0}</expression>
+                    <expression>$Radius{radial_prox,0.0} = 1.25*$Radius{radial_prox,1.0}</expression>
                 </value>
                 <value s="1.0">
-                    <expression>$Radius{radial_prox,1.0} = 0.5*$Radius{brachial_dist,1.0}</expression>
+                    <expression>$Radius{radial_prox,1.0} = 0.52*$Radius{brachial_dist,1.0}</expression>
                 </value>
             </radius_array>
             <wall_thickness>
@@ -457,10 +515,33 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
             </young_modulus>
         </properties>
     </edge>
+    <edge node2_id="17" node1_id="16" side="arterial" id="13" name="radial_dist">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <expression>$Length{radial_dist} = (0.03285*$height[])*1e-2</expression>
+            </length>
+        </geometry>
+        <properties>
+            <radius_array accuracy="10%" unit="m" source="US">
+                <value s="0.0">
+                    <expression>$Radius{radial_dist,0.0} = $Radius{radial_prox,1.0}*1.0</expression>
+                </value>
+                <value s="1.0">
+                    <expression>$Radius{radial_dist,1.0} = 0.923*$Radius{radial_prox,1.0}</expression>
+                </value>
+            </radius_array>
+            <wall_thickness>
+                <expression>$WallThickness[radial_dist] = $Radius[radial_dist] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
     <edge node2_id="13" node1_id="12" side="arterial" id="14" name="ulnar_prox">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{ulnar_prox} = (0.438*$height[])*1e-3</expression>
+                <expression>$Length{ulnar_prox} = (0.02628*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -478,16 +559,16 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="15" node1_id="13" side="arterial" id="15" name="ulnar_dist_1">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{ulnar_dist_1} = (1.022*$height[])*0.5e-3</expression>
+                <expression>$Length{ulnar_dist_1} = (0.0526*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
-                    <expression>$Radius{ulnar_dist_1,0.0} = 1.06*$Radius{ulnar_dist_1,1.0}</expression>
+                    <expression>$Radius{ulnar_dist_1,0.0} = 0.45*$Radius{brachial_dist,1.0}</expression>
                 </value>
                 <value s="1.0">
-                    <expression>$Radius{ulnar_dist_1,1.0} = 0.63*$Radius{brachial_dist,1.0}</expression>
+                    <expression>$Radius{ulnar_dist_1,1.0} = 0.97*$Radius{ulnar_dist_1,0.0}</expression>
                 </value>
             </radius_array>
             <wall_thickness>
@@ -501,7 +582,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="25" node1_id="15" side="arterial" id="16" name="ulnar_dist_2">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{ulnar_dist_2} = (1.022*$height[])*0.5e-3</expression>
+                <expression>$Length{ulnar_dist_2} = (0.0526*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -510,7 +591,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
                     <expression>$Radius{ulnar_dist_2,0.0} = $Radius{ulnar_dist_1,1.0}*1.0</expression>
                 </value>
                 <value s="1.0">
-                    <expression>$Radius{ulnar_dist_2,1.0} = 0.94*$Radius{ulnar_dist_1,1.0}</expression>
+                    <expression>$Radius{ulnar_dist_2,1.0} = 0.97*$Radius{ulnar_dist_1,1.0}</expression>
                 </value>
             </radius_array>
             <wall_thickness>
@@ -524,12 +605,12 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="14" node1_id="13" side="arterial" id="17" name="interosseous">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{interosseous} = (1.022*$height[])*1e-3</expression>
+                <expression>$Length{interosseous} = (0.07884*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
             <radius accuracy="10%" unit="m" source="US">
-                <expression>$Radius{interosseous} = 0.8*$Radius{ulnar_dist_1,1.0}</expression>
+                <expression>$Radius{interosseous} = 0.35*$Radius{brachial_dist,1.0}</expression>
             </radius>
             <wall_thickness>
                 <expression>$WallThickness[interosseous] = $Radius[interosseous] * $lower_arm_ratio[]</expression>
@@ -542,7 +623,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="18" node1_id="5" side="arterial" id="18" name="left_subclavian_A">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{left_subclavian_A} = (0.67725*$height[])*1e-3</expression>
+                <expression>$Length{left_subclavian_A} = (0.0258*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -565,7 +646,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="19" node1_id="2" side="arterial" id="19" name="innominate">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{innominate} = (0.19*$height[])*1e-3</expression>
+                <expression>$Length{innominate} = (0.021*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -583,7 +664,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <edge node2_id="20" node1_id="19" side="arterial" id="20" name="right_carotid">
         <geometry>
             <length accuracy="10%" unit="m" source="US">
-                <expression>$Length{right_carotid} = (1.05*$height[])*1e-3</expression>
+                <expression>$Length{right_carotid} = (0.105*$height[])*1e-2</expression>
             </length>
         </geometry>
         <properties>
@@ -721,6 +802,204 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
             <nl_compliance>
                 <expression>$Compliance[subclavian_vein] =(($RadiusAtRest[subclavian_vein]**2*pi)*(4.4/((1066.6+$Pressure[subclavian_vein])**2)))</expression>
             </nl_compliance>
+        </properties>
+    </edge>
+    <edge node2_id="26" node1_id="17" side="arterial" id="26" name="palm_1">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>2.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_1] = $Radius[palm_1] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="27" node1_id="26" side="arterial" id="27" name="palm_2">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>1.5e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_2] = $Radius[palm_2] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="28" node1_id="27" side="arterial" id="28" name="palm_3">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>1.5e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_3] = $Radius[palm_3] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="28" node1_id="29" side="arterial" id="29" name="palm_4">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>1.5e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_4] = $Radius[palm_4] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="29" node1_id="30" side="arterial" id="30" name="palm_5">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>1.5e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_5] = $Radius[palm_5] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="30" node1_id="25" side="arterial" id="31" name="palm_6">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>2.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>8.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[palm_6] = $Radius[palm_6] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="31" node1_id="26" side="arterial" id="32" name="thumb_finger">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>3.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>7.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[thumb_finger] = $Radius[thumb_finger] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="32" node1_id="27" side="arterial" id="33" name="index_finger">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>3.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>7.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[index_finger] = $Radius[index_finger] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="33" node1_id="28" side="arterial" id="34" name="middle_finger">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>3.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>7.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[middle_finger] = $Radius[middle_finger] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="34" node1_id="29" side="arterial" id="35" name="ring_finger">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>3.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>7.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[ring_finger] = $Radius[ring_finger] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
+        </properties>
+    </edge>
+    <edge node2_id="35" node1_id="30" side="arterial" id="36" name="little_finger">
+        <geometry>
+            <length accuracy="10%" unit="m" source="US">
+                <scalar>3.0e-2</scalar>
+            </length>
+        </geometry>
+        <properties>
+            <radius accuracy="10%" unit="m" source="US">
+                <scalar>7.5e-4</scalar>
+            </radius>
+            <wall_thickness>
+                <expression>$WallThickness[little_finger] = $Radius[little_finger] * $lower_arm_ratio[]</expression>
+            </wall_thickness>
+            <young_modulus accuracy="10%" unit="Pa" source="US">
+                <scalar>2.68e+06</scalar>
+            </young_modulus>
         </properties>
     </edge>
 </edges>

@@ -1,18 +1,17 @@
 #!/usr/bin/env python
-import math
 
 ## Program:   PyNS
 ## Module:    MeshGenerator.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 15:55:27 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 11:35:29 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -30,7 +29,7 @@ class MeshGenerator(object):
     SetNetworkGraph: a method for setting NetworkGraph input.
     SetNetworkMesh: a method for setting NetworkMesh input.
     SetTolerance: a method for setting Radius Tolerance % value.
-    SetMaxLenggth: a method for setting maximum length for a single mesh.
+    SetMaxLength: a method for setting maximum length for a single mesh.
     ParsingEdgeProperties: a method for parsing properties for each edge of the NetworkGraph.
     GenerateMesh: a method for generating NetworkMesh from NetworkGraph. If MaxLength is specified,
     GenerateMesh uses MaxLengthMeshing method, otherwise ToleranceMeshing method is used.
@@ -114,7 +113,7 @@ class MeshGenerator(object):
         if edge.Radius.has_key('array') == True: 
             meshradius = {}
             s_list = []
-            for s, radius_v in edge.Radius['array'].iteritems():
+            for s in edge.Radius['array'].iterkeys():
                 s_list.append(s)
                 s_list.sort()
                 if meshradius.has_key(s):
@@ -126,7 +125,7 @@ class MeshGenerator(object):
         if edge.xRadius.has_key('array') == True:
             meshradius = {}
             s_list = []
-            for s, xradius_v in edge.xRadius['array'].iteritems():
+            for s in edge.xRadius['array'].iterkeys():
                 s_list.append(s)
                 s_list.sort()
                 if meshradius.has_key(s):
@@ -145,7 +144,7 @@ class MeshGenerator(object):
         if edge.yRadius.has_key('array') == True:
             meshradius = {}
             s_list = []
-            for s, yradius_v in edge.yRadius['array'].iteritems():
+            for s in edge.yRadius['array'].iterkeys():
                 s_list.append(s)
                 s_list.sort()
                 if meshradius.has_key(s):
@@ -171,7 +170,7 @@ class MeshGenerator(object):
         if edge.WallThickness.has_key('array') == True:
             meshwt = {}
             s_list = []
-            for s, wt_v in edge.WallThickness['array'].iteritems():
+            for s in edge.WallThickness['array'].iterkeys():
                 s_list.append(s)
                 s_list.sort()
                 if meshwt.has_key(s):
@@ -203,7 +202,6 @@ class MeshGenerator(object):
                 if type(rad) is not str:
                     edgeProperty['ScalarRadius'] = edgeProperty['radius']
         
-        
         return edgeProperty
 
     def GenerateMesh(self):
@@ -233,7 +231,6 @@ class MeshGenerator(object):
         self.NetworkMesh.GraphEdgeToMesh = {} #{edge:[meshId:[s0,s1]]}
         self.NetworkMesh.ElementIdsToElements = {} # {mesh.Id:mesh}
         self.NetworkMesh.GraphNodeToMesh = {} #{edge:[meshId:[s0,s1]]}
-        meshparam = {} #{(meshId,param):value}
         nLeak = 0
         meshNode1 = None
         meshNode2 = None
@@ -608,7 +605,6 @@ class MeshGenerator(object):
         self.NetworkMesh.GraphEdgeToMesh = {} #{edge:[meshId:[s0,s1]]}
         self.NetworkMesh.ElementIdsToElements = {} # {mesh.Id:mesh}
         self.NetworkMesh.GraphNodeToMesh = {} #{edge:[meshId:[s0,s1]]}
-        meshparam = {} #{(meshId,param):value}  
         nLeak = 0     
         meshNode1 = None
         meshNode2 = None        

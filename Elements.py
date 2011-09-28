@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    Elements.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 11:32:27 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 11:24:22 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -30,7 +30,9 @@ class Element(object):
     GetZeroOrderMatrix, GetFirstOrderMatrix, GetSecondOrderMatrix -> this methods calculate local zero, first or second order matrix.
     GetNumberOfNodes: a method for calculating and returning element's number of nodes.
     GetNumberOfDofs: a method for calculating and returning element's number of dofs (degrees of freedom).
-    GetId, GetSide, GetName and GetNodeIds simply print on screen relative information about an element.
+    SetParameterInHistory: a methodP for setting parameter History dictionary. Each value (for each parameters name) is associated to different timesteps
+    SetType: a method for setting element's type
+    NewElement: a method for creating a new element according to its type.
     '''
     def __init__(self):
         '''
@@ -101,6 +103,7 @@ class Element(object):
             ind2 = ind1.transpose()
             firstOrderMatrix[ind2, ind1] = firstOrderMatrix[ind2, ind1] + intermediateMatrix
         self.firstOrderMatrix = firstOrderMatrix
+        
         return firstOrderMatrix
             
     def GetSecondOrderMatrix (self):
@@ -176,22 +179,34 @@ class WavePropagationElement(Element):
     (1/2*C+Rleakage/2) + L + R + (1/2*C+Rleakage/2).
     C =  Capacitor, used to model the storage capacity of the vessel.
     L =  Inductance, used to represent the inertia dominated impedance in the central core.
-    R = Second Resistance, used to let the electrical model converging to a Poiseuille resistance for steady flow.
-    Rleakage = Only applied on axillarian and brachial artery and assessed from the difference between the mean
-    axillarian flow and the sum of the mean radial, ulnar and interosseous flows (ulnar flow before bifurcation).
+    R =  Resistance, used to represent the resistance to flow through the vessel.
+    LeakageR = Linear resistance, used to represent  the resistance to flow through small side-branches.
     This class provide the following methods:
-    SetWallThickness: a method for setting wall thickness from radius fixed ratio
+    SetWallThickness: a method for setting wall thickness from radius fixed ratio.
+    SetRadius: a method for setting radius.
     SetResistance: a method for setting non linear resistance.
     SetCompliance: a method for setting non linear compliance.
-    SetLeakage: a method for setting leakage elements number
+    SetLeakage: a method for setting leakage elements number.
+    SetLinearValues: a method for setting linear values computed after a pre-run steady non linear simulation.
     Womersley: a method for building functions from Womersley Model used for calculating R1 and L.
     InputParameters: a method for calculating C, R and L from input parameters.
     GetCircuitMatrix: a method for building local circuit matrix.
     GetExternalPressureLocalDofs: a method for setting Transmural pressure in the correct local dofs.
+    GetVenousPressureLocalDofs:
     GetPoiseuilleDofs: a method for getting Poiseuille's resistance local dofs.
     GetFlow: a method for calculating volumetric flow rate on the poiseuille resistance.
-    GetDofNodes: a method for mapping local dof numbers in his NodeIds.
+    GetWss: a method for calculating poiseuille wall shear stress on the poiseuille resistance.
+    GetPressure: a method for calculating pressure over the element.
+    GetArea: a method for calculation vessel's cross sectional area.
+    GetLength: a method for returning element's length.
+    GetRadius: a method for returning element's radius.
+    GetRadiusAtRest: a method for returning element's radius at rest.
+    GetRadius_a: a method for returning element's x axis radius.
+    GetRadius_b: a method for returning element's y axis radius.
+    GetWallThickness: a method for returning element's wall thickness.
+    GetYoungModulus: a method for returning element's young's modulus.
     GetLocalDof and GetNodeLocalDofs: two methods for mapping element's NodeIds in local dof (if possible).
+    GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     '''
 
     def __init__(self, id, nodeIds, elementParameters, side=None, name=None):
@@ -239,10 +254,7 @@ class WavePropagationElement(Element):
         self.YoungModulus = elementParameters["young_modulus"]
         self.dz = self.Length/1.0e5
         for name in elementParameters:
-            #TODO:
-            #Fix this:
             if name != 'wall_thickness' and name != 'leakage':
-            ###############
                 if type(elementParameters[name]) is str:
                     self.nonLinearParameter[name] = True
                 else:
@@ -264,7 +276,7 @@ class WavePropagationElement(Element):
 
     def SetWallThickness(self, wallthickness, info):
         '''
-        This method sets WallThickness
+        This method sets WallThickness.
         '''
         self.WallThickness = wallthickness
         if info['history'] != []:
@@ -273,7 +285,7 @@ class WavePropagationElement(Element):
         
     def SetRadius(self, radius, info=None, timeIndex=0):
         '''
-        This method sets Radius
+        This method sets Radius.
         '''
         self.Radius = radius
         if info['history'] != []:
@@ -282,7 +294,7 @@ class WavePropagationElement(Element):
     
     def SetResistance(self, resistance, info=None, timeIndex=0):
         '''
-        This method sets non linear resistance
+        This method sets non linear resistance.
         '''
         self.R = resistance
         if info['history'] != []:
@@ -291,7 +303,7 @@ class WavePropagationElement(Element):
     
     def SetCompliance(self, compliance, info=None, timeIndex=0):
         '''
-        This method sets non linear compliance
+        This method sets non linear compliance.
         '''
         self.C2 = compliance
         self.C = compliance
@@ -301,12 +313,13 @@ class WavePropagationElement(Element):
         
     def SetQLeakage(self, qleakage, info):
         '''
-        This method set Leakage Resistance
+        This method sets Leakage Resistance.
         '''
         self.LeakageR = qleakage*self.Leakages
         
     def SetLinearValues(self,parameters):
         '''
+        This method sets computed linear values after a pre-run non linear steady simulation.
         '''
         for el in parameters:
             if el == 'Compliance':
@@ -358,7 +371,7 @@ class WavePropagationElement(Element):
         thick-walled linear elastic tube.
         Veins can have an elliptical cross-sectional area and therefore, instead of radius
         a weighted average radius ( sqrt(ao*bo) ) is used. Because veins are much thinner than
-        arteries
+        arteries.
         If resistance and/or compliance are expressed with non-linear equations,
         non linear values will overwrite linear ones.
         All parameters are calculated integrating C, R and L over the segment length.
@@ -385,7 +398,6 @@ class WavePropagationElement(Element):
         except KeyError:
             print "Error, Please set Frequency[Hz] in Boundary Conditions XML File"
             raise
-        
        
         #Computing dz steps and finding curvilinear abscissas
         z = arange(0.0,self.Length,self.dz)
@@ -394,7 +406,6 @@ class WavePropagationElement(Element):
         
         #Element is not initialized. Computing linear and non-linear parameters.
         if self.Initialized == False:
-            
             #Radius
             if self.Radius is not None:
                 if type(self.Radius) is dict:    
@@ -403,7 +414,7 @@ class WavePropagationElement(Element):
                     r_z = r2+(r1*z)
                     self.Radius = r_z
                     self.RadiusAtRest = self.Radius
-                    
+               
             #xRadius and yRadius, for elliptical geometry
             if self.xRadius is not None:
                 xr1 = ((self.xRadius[s2] - self.xRadius[s1])/self.Length)
@@ -505,6 +516,7 @@ class WavePropagationElement(Element):
             self.Initialized = True   
             
         if self.Initialized == True:
+            
             #Radius
             for name, value in self.nonLinearParameter.iteritems():
                 if value == True and name == 'radiusExp':
@@ -520,7 +532,7 @@ class WavePropagationElement(Element):
                     Lalpha = float(L * self.Womersley(self.Radius)[1])
                     self.L = Lalpha
                     self.R = Ralpha 
-            
+                    
             #xRadius and yRadius for elliptical geometry
             for name, value in self.nonLinearParameter.iteritems():
                 if value == True and name == 'xradius':
@@ -543,7 +555,7 @@ class WavePropagationElement(Element):
                     R = float(mean(R))
                     Ralpha = float(R * self.Womersley(self.Radius)[0])
                     self.R = float(Ralpha)
-            
+                    
             #Compliance
             for name, value in self.nonLinearParameter.iteritems():
                 if value == True and name == 'compliance':
@@ -551,7 +563,7 @@ class WavePropagationElement(Element):
                     evaluator.Evaluate(self.Compliance)
                     self.C = self.C *self.dz
                     self.C = float(sum(self.C))
-        
+
         return self.C, self.R, Ralpha, Lalpha, self.LeakageR
         
     def GetCircuitMatrix(self):
@@ -820,6 +832,7 @@ class WindkesselElement(Element):
     This class provides the following methods:
     SetLastElement: a method for setting the last element connected to the current end segment.
     SetWindkesselRel: a method for setting the peripheral resistance of the current end segment.
+    SetLinearValues: a method for setting linear values computed after a pre-run steady non linear simulation.
     InputParameters: This methods calculates windkessel parameters for specific patient assuming general flow distributions.   
     GetCircuitMatrix: a method for building local circuit matrix.
     GetExternalPressureLocalDofs: a method for setting Transmural pressure in the correct local dofs.
@@ -863,6 +876,7 @@ class WindkesselElement(Element):
         
     def SetLinearValues(self,parameters):
         '''
+        This method is used for setting linear values computed after a pre-run steady non linear simulation.
         '''
         self.Initialized = False
         self.R1 = 0.0
@@ -934,12 +948,27 @@ class Anastomosis(Element):
     This class provides the following methods:
     SetResistance_0_1: a method for setting the first resistance between dof 0 and dof 1.
     SetResistance_0_2: a method for setting the second resistance between dof 0 and dof 2.
-    InputParameters: This method calculates R_0_1 and R_0_2 from element's parameters  
+    SetProximal: a method for setting connections, proximal artery.
+    SetDistal: a method for setting connections, distal artery.
+    SetVein: a method for setting connections, vein.
+    SetLinearValues: a method for setting linear values computed after a pre-run steady non linear simulation.
+    InputParameters: a method for calculating R_0_1 and R_0_2 from element's parameters.
+    GetFlowProximal: a method for computing volumetric flow rate calculated on the poiseuille resistance(mL/min) of the proximal artery.
+    GetFlowVein: a method for computing volumetric flow rate calculated on the poiseuille resistance(mL/min) of the vein.
+    GetFlowDistal: a method for computing volumetric flow rate calculated on the poiseuille resistance(mL/min) of the distal artery.
+    GetRadiusProximal: a method for returning proximal artery radius.
+    GetRadiusDistal: a method for returning distal artery radius.
+    GetRadiusVein: a method for returning vein radius.
+    GetAreaProximal: a method for computing proximal artery cross sectional area.
+    GetAreaDistal: a method for computing distal artery cross sectional area.
+    GetAreaVein: a method for computing vein cross sectional area.
+    GetFlowRatio: a method for computing the ratio between vein and proximal artery volumetric flow rates.
+    GetRadiusRatio: a method for computing the ratio between vein and proximal artery radii.
+    GetAreaRatio: a method for computing the ratio between vein and proximal artery cross sectional areas.
     GetCircuitMatrix: a method for building local circuit matrix.
     GetExternalPressureLocalDofs: a method for setting Transmural pressure in the correct local dofs.
     GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     GetLocalDof: a method for mapping element's NodeIds in local dof (if possible).
-    
     '''
     def __init__(self, id, nodeIds, elementParameters, side=None, name=None):
         '''
@@ -1012,6 +1041,7 @@ class Anastomosis(Element):
     
     def SetLinearValues(self,parameters):
         '''
+        This method sets linear values computed after a pre-run steady non linear simulation.
         '''
         self.R_0_1 = None
         self.R_0_2 = None
@@ -1023,7 +1053,6 @@ class Anastomosis(Element):
         This method calculates R_0_1 and R_0_2 from element's parameters:
         If resistance is expressed with non-linear equations,
         non linear value will overwrite the linear one.
-        
         '''
         Element.InputParameters(self)
         if type(self.Resistance_0_1) is  str:
@@ -1110,8 +1139,6 @@ class Anastomosis(Element):
         the cross-sectional Radius of the proximal artery (m)
         '''
         self.RadiusRatio = self.GetRadiusVein(info, timeIndex)/self.GetRadiusProximal(info, timeIndex)
-        #Radius ratio is forced to be equal to 1.0
-        #self.RadiusRatio = 1.0
         return self.RadiusRatio
         
     def GetAreaRatio(self, info, timeIndex=0):
@@ -1188,6 +1215,7 @@ class ResistanceElement(Element):
     This class provides the following methods:
     SetResistance: a method for setting resistance.
     InputParameters: Setting Resistance value.
+    GetPoiseuilleDofs: a method for getting poiseuille's resistance local dofs.
     GetCircuitMatrix: a method for building local circuit matrix.
     GetExternalPressureLocalDofs: a method for setting Transmural pressure in the correct local dofs.
     GetFlow : a method for calculating volumetric flow rate through the element

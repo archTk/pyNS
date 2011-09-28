@@ -3,25 +3,24 @@
 ## Program:   PyNS
 ## Module:    InverseWomersley.py
 ## Language:  Python
-## Date:      $Date: 2011/08/02 10:11:29 $
-## Version:   $Revision: 0.1.7 $
+## Date:      $Date: 2011/09/23 11:25:21 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 import matplotlib
-matplotlib.use('Agg')
-#matplotlib.use('WXAgg')
+matplotlib.use('Agg') #switch to matplotlib.use('WXAgg') if you want to show and not save velocity profile.
 import subprocess
 import os
 from math import pi, cos, sin
-from numpy.core.numeric import arange
+from numpy.core.numeric import arange, zeros
 from numpy.core.fromnumeric import mean
 from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, figure, ylim, show, axis, clf
 from numpy.lib.scimath import sqrt
@@ -64,7 +63,11 @@ class InverseWomersley(object):
     SetNetworkMesh : a method for setting NetworkMesh.
     SetNetworkSolution: a method for setting NetworkSolution.
     SetFlowSignal: a method for setting Flow Signal for specific mesh.
-    GetParameters: a method for computing flow and wss from pressure signal provided with Inverse Womersley Method.
+    GetVelFromQ : a method for computing velocity from flow volume using the Inverse Womersley Method.
+    GetTaoFromQ: a method for computing wall shear stress from flow volume using the Inverse Womersley Method.
+    GetWssPeaks: a method for computing wall shear stress peak values (on radius array) from flow volume using the Inverse Womersley Method.
+    SaveVelocityProfile: a method for showing velocity profile animation over the fractional radius using WX library (you have to switch the import statement in line 19)
+    ShowVelocityProfile: a method for saving velocity profile movie over the fractional radius using MenCoder library.
     PlotWss: a method for plotting Wss signal.
     PlotFlow: a method for plotting Flow signal.
     '''
@@ -358,9 +361,8 @@ class InverseWomersley(object):
         '''
         This method plots velocity profile into png files and makes 
         an avi file from png set. Mencoder is required.
-        '''
-        
-        '''Create temporary image and videos directories'''
+        '''  
+        #Create temporary image and videos directories'''
         if not os.path.exists ('tmp/'):
             os.mkdir('tmp/')
         if not os.path.exists ('videos/'):
@@ -413,8 +415,8 @@ class InverseWomersley(object):
             plot(x,orderedVel[i],'r-',linewidth = 3)
             axis((x[1],x[-1],minY,maxY))
             xlabel('Fractional radius')
-            ylabel('Velocity profile (cm/s)')
-            title (str(self.Name)+' radius(mm)= '+str(round(self.radius*1e3,1))+' Reynolds N.= '+str(round(self.Re,0))+' Womersley N.= '+str(round(self.Wom,2)))
+            ylabel('Velocity profile ($cm/s$)')
+            title (str(self.Name)+' radius($mm$)= '+str(round(self.radius*1e3,1))+' Reynolds N.= '+str(round(self.Re,0))+' Womersley N.= '+str(round(self.Wom,2)))
             filename = str('%04d' % i) + '.png'
             savefig('tmp/'+filename, dpi=100)
             clf()
@@ -474,8 +476,8 @@ class InverseWomersley(object):
         ylim(ymax=maxY)
         ylim(ymin=minY)
         xlabel('Fractional radius')
-        ylabel('Velocity profile (cm/s)')
-        title ('Mean radius(mm)= '+str(round(self.radius*1e3,0))+' Reynolds N.= '+str(round(self.Re,0))+' Womersley N.= '+str(round(self.Wom,2))) 
+        ylabel('Velocity profile ($cm/s$)')
+        title ('Mean radius($mm$)= '+str(round(self.radius*1e3,0))+' Reynolds N.= '+str(round(self.Re,0))+' Womersley N.= '+str(round(self.Wom,2))) 
         
         '''WX ANIMATION'''
         def update_line(idleevent):
@@ -500,12 +502,22 @@ class InverseWomersley(object):
         This method plots Wss signal and returns peak wss.
         '''
         tplot = arange(0,self.tPeriod,self.dtPlot)
-        plot(tplot, self.Tauplot,'r-',linewidth = 3, label = 'WSS')
-        xlabel('Time (s)')
-        ylabel('Shear Stress (dyne/cm^2)')
+        plot(tplot, self.Tauplot,'g-',linewidth = 3, label = 'WSS')
+        minY = 0
+        for w in self.Tauplot:
+            if w < minY:
+                minY = w
+        
+        if minY != 0:
+            plot(tplot, zeros(len(self.Tauplot)),':',linewidth = 1)
+            
+        ylim(ymin=minY)
+        
+        xlabel('Time ($s$)')
+        ylabel('Wall shear stress ($dyne/cm^2$)')
         title ('Wss'+' peak:'+str(round(max(self.Tauplot),1))+' mean:'+str(round(mean(self.Tauplot),1))+' min:'+str(round(min(self.Tauplot),1)))    
         legend()
         savefig(imagpath+str(meshid)+'_'+str(self.Name)+'_wss.png')
-        print "Wss, MeshId", meshid, self.Name, "=", str(round(max(self.Tauplot),1)), "dyne/cm2"
+        print "Wss, MeshId", meshid, self.Name, "=", str(round(max(self.Tauplot),1)), "$dyne/cm^2$"
         close()
         return (round(max(self.Tauplot),1))

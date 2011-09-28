@@ -25,7 +25,7 @@
    </superedge>
  </superedges>
  <edges>
-   <edge id="1" node1_id="1" node2_id="2" side="arterial" name="tape1">
+   <edge id="1" node1_id="1" node2_id="2" side="arterial" name="tape">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>0.414</scalar>
@@ -34,23 +34,23 @@
      <properties>
        <radius_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>0.0015</scalar>
+           <scalar>1.5e-2</scalar>
          </value>
          <value s = "1.0">
-           <scalar>6.0e-4</scalar>
+           <scalar>0.5e-2</scalar>
          </value>
        </radius_array>
        <wall_thickness_array unit="m" accuracy="10%" source="US">
          <value s = "0.0">
-           <scalar>1.5e-4</scalar>
+           <scalar>1.5e-3</scalar>
          </value>
          <value s = "1.0">
-           <scalar>6.0e-5</scalar>
+           <scalar>0.5e-3</scalar>
          </value>
        </wall_thickness_array>
-       <young_modulus unit="Pa" accuracy="10%" source="US">
-         <scalar>4e5</scalar>
-       </young_modulus>
+       <compliance>
+         <scalar>6e-9</scalar>
+       </compliance>
      </properties>
    </edge>
  </edges>

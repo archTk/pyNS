@@ -37,7 +37,7 @@
         <scalar>100.0</scalar>
       </mean_pressure>
       <cardiac_output unit="mL/min">
-        <scalar>5.686e3</scalar>
+        <scalar>5686.0</scalar>
       </cardiac_output>
       <period unit="s">1.0</period>
       <dynamic_viscosity unit="Pa*s">

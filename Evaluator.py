@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    Evaluator.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 12:19:13 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 11:34:31 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -27,11 +27,12 @@ class Evaluator(object):
     SetNetworkGraph: a method for setting NetworkGraph input.
     SetNetworkMesh : a method for setting NetworkMesh.
     SetInfo: a method for setting info dictionary ({'DofMap':self.DofMap}...)
+    SetAbscissa: a method for setting abscissa value.
     GetElement: a method for finding element from its edge and specified position (abscissa).
+    GetEdge: a method for returning corresponding edge or superedge.
     GetVariableComponents: a method for splitting expression into variables.
     Evaluate: the main method of the class, it evaluates expression and returns result.
     '''
-
     def __init__(self):
         '''
         Constructor
@@ -47,13 +48,6 @@ class Evaluator(object):
         self.Info = None
         self.ExpressionCache = {}
         self.rhsCache = {}
-        self.SecondaryEvaluator = {}
-    
-    def SetSecondaryEvaluator(self, evaluator, day):
-        '''
-        Setting Secondary Evaluator for previous simulation context
-        '''
-        self.SecondaryEvaluator[day] = evaluator
         
     def SetSimulationContext(self, context):
         '''
@@ -127,7 +121,6 @@ class Evaluator(object):
         '''
         This method split expression into variables.
         '''
-    
         parameter = self.parameterRe.findall(variable)[0][1:-1]
         try:
             element = self.elementRe.findall(variable)[0][1:-1]
@@ -256,4 +249,3 @@ class Evaluator(object):
         exec(lhsEvalDict['lhsEval'])
         exec(lhsExpr)  
         self.ExpressionCache[expression] = {'elEvals':elEvals, 'lhsEvalDict':lhsEvalDict, 'lhsExpr':lhsExpr}
-

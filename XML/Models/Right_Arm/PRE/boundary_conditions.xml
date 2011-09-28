@@ -21,6 +21,8 @@
         <entity id="radial"/>
         <entity id="ulnar"/>
         <entity id="interosseous"/>
+        <entity id="palmar_arch"/>
+        <entity id="fingers"/>
         <entity id="end_segment"/>
       </entities>
     </boundary_condition>

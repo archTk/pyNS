@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    Solver.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 10:18:27 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 15:11:24 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -48,10 +48,10 @@ class Solver(object):
         self.NumberOfIncrements = None                     
         self.IncrementNumber = 1                            # increment number
         self.EndIncrementTime = 0.0                         # end increment time
-        self.nltol = float(1e-3)                            # convergence criterium
+        self.nltol = float(1e-3)                            # nonLinear convergence criterium
+        self.convergence = float(1e-4)                      # steady convergence limit for steady pre runs    
         self.Flow = None
         self.PrescribedPressures = None
-        
         
     def SetNetworkMesh(self,networkMesh):
         '''
@@ -94,7 +94,13 @@ class Solver(object):
         Setting Non Linear Tolerance Value
         '''
         self.nltol = float(nltol)
-        
+       
+    def SetSteadyConvergenceLimit(self, convergence):
+        '''
+        Setting convergence limit for steady pre-run simulations
+        '''
+        self.convergence = convergence
+ 
 class SolverFirstTrapezoid(Solver):
     '''
     This class provide a method to solving the system with "First Order Trapezium Method"
@@ -130,12 +136,7 @@ class SolverFirstTrapezoid(Solver):
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
-        if self.steady == True:
-            self.TimeStep = 0.001
-            self.SquareTimeStep = self.TimeStep*self.TimeStep
-            self.TimeStepFreq = self.Period/self.TimeStep
-            self.Cycles = 0.05
-            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq) 
+        
         history = []
         assembler = Assembler()
         assembler.SetNetworkMesh(self.NetworkMesh)
@@ -210,7 +211,9 @@ class SolverFirstTrapezoid(Solver):
                 self.sumv = sumvbk + dot((self.TimeStep/2.0),(self.pt+self.p))
                 self.fi = dot(self.SecondOrderGlobalMatrix,(self.dp)) + dot(self.FirstOrderGlobalMatrix,(self.p)) + dot(self.ZeroOrderGlobalMatrix,(self.sumv))             
                 if not nonLinear :
+                    
                     break
+                
                 if self.pi == None:
                     self.pi = zeros((NumberOfGlobalDofs,1))
                     self.pi[:,:] = self.pt[:,:]
@@ -228,7 +231,10 @@ class SolverFirstTrapezoid(Solver):
                 self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
+                
+                #Dinamic nonlinear relaxing coefficient 
                 if counter == 100:
+                    print "relaxing..."
                     print nlerr, nltol, CoeffRelax
                     counter = 0
                     self.pi[:,:] = None
@@ -241,7 +247,8 @@ class SolverFirstTrapezoid(Solver):
                     #print "converge", self.IncrementNumber, "of", self.NumberOfIncrements
                     break
                 counter+=1
-                self.pi[:,:] = self.p[:,:]             
+                self.pi[:,:] = self.p[:,:]
+                                 
             self.ptt[:,:] = self.pt[:,:]
             self.pt[:,:] = self.p[:,:]
             self.dpt[:,:] = self.dp[:,:]
@@ -251,6 +258,14 @@ class SolverFirstTrapezoid(Solver):
             PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
             history.insert(0,self.IncrementNumber)
             history = history[:3]
+            
+            if self.steady == True:
+                self.MinimumIncrementNumber = 0.01* self.NumberOfIncrements
+                if norm(self.fi-self.fe,Inf)<self.convergence and self.IncrementNumber > self.MinimumIncrementNumber:
+                    self.IncrementNumber = self.NumberOfIncrements 
+                else:
+                    pass
+
             if self.IncrementNumber==ceil(0.05*self.NumberOfIncrements):
                 print "->5%"
             if self.IncrementNumber==ceil(0.25*self.NumberOfIncrements):
@@ -261,6 +276,7 @@ class SolverFirstTrapezoid(Solver):
                 print "->70%" 
             if self.IncrementNumber==ceil(0.90*self.NumberOfIncrements):
                 print "->90%"     
+            
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment 
         info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history,'allSolution':PressuresMatrix}      

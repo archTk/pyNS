@@ -21,22 +21,10 @@
         <entity id="radial"/>
         <entity id="ulnar"/>
         <entity id="interosseous"/>
-        <entity id="cephalic_vein"/>
-        <entity id="subclavian_vein"/>
         <entity id="end_segment"/>
       </entities>
     </boundary_condition>
-    <boundary_condition id="2" type="outflow pressure" name="venous">
-      <parameters>
-        <pressure unit="Pa">
-           <scalar>1333.0</scalar>
-        </pressure>
-      </parameters>  
-      <entities>
-        <entity id="subclavian_vein"/>
-      </entities>
-    </boundary_condition>
-    <boundary_condition id="3" type="inflow" name="heart">
+    <boundary_condition id="2" type="inflow" name="heart">
       <parameters>
         <A0>
           <scalar>9.4770816e-5</scalar>
@@ -49,7 +37,7 @@
       </parameters>  
       <entities>
         <entity id="aorta" node_id="1"/>
-      </entities>   
+      </entities>  
     </boundary_condition>
   </boundary_conditions>
   <specificdatasets>
@@ -61,9 +49,9 @@
         <scalar>5.686e3</scalar>
       </cardiac_output>
       <period unit="s">1.0</period>
-      <brachial_flow unit="mL/min">190</brachial_flow>
+      <brachial_flow unit="mL/min">100</brachial_flow>
       <radial_flow unit="mL/min">20</radial_flow>
-      <ulnar_flow unit="mL/min">28</ulnar_flow>
+      <ulnar_flow unit="mL/min">30</ulnar_flow>
       <dynamic_viscosity unit="Pa*s">
         <scalar>3.0e-3</scalar>
       </dynamic_viscosity>

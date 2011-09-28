@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    BoundaryConditions.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 11:08:27 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 10:54:10 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -33,13 +33,15 @@ class BoundaryConditions(object):
     This class provides the following methods:
     SetSimulationContext: a method for setting SimulationContext input.
     SetNetworkMesh: a method for setting NetworkMesh input.
+    SetSpecificCardiacOutput: Specific cardiac output stroke volume remodelling.
+    GetSteadyFlow: Computing cardiac function as steady flow.
     GetFlow: a method for calculating inlet flow from flow parameters.
     GetTimeFlow: a method for calculating inlet flow for a specific time value.
     GetPressure: a method for calculating transmural pressures for a specific time value.
     Timestep and period from SimulationContext are necessary.
     ReadFromXML: a method for reading Boundary Conditions XML File and
     setting boundary conditions' parameters. 
-    SPECIFIC PATIENT CARDIAC OUTPUT STROKE VOLUME REMODELING IS INCLUDED.
+    
     '''       
    
     def __init__(self):
@@ -77,12 +79,12 @@ class BoundaryConditions(object):
     
     def SetSpecificCardiacOutput(self):
         '''
-        '''                                   
-        #SPECIFIC PATIENT CARDIAC OUTPUT STROKE VOLUME REMODELING                               
+        Adapting cardiac inflow according to specific mean cardiac output value.
+        '''                                                            
         if self.signal is None:
             if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
                 print "Adapting Cardiac Inflow"
-                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)*0.95 #5% coronarie
+                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)#*0.95 #5% coronarie
                 shift = 9.18388663e-06
                 k =((A1+shift)/(self.A0_v+shift))
                 self.A0_v = A1
@@ -98,14 +100,12 @@ class BoundaryConditions(object):
             Flow = self.A0_v
         self.Flow = Flow
         return Flow
-        
       
     def GetFlow(self):
         '''
         Calculating inlet flow (coefficients of the FFT  x(t)=A0+sum(2*Ck*exp(j*k*2*pi*f*t)))
         Timestep and period from SimulationContext are necessary.
         '''
-        
         try:
             timestep = self.SimulationContext.Context['timestep']
         except KeyError:

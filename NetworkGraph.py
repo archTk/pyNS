@@ -5,15 +5,15 @@ import csv
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 12:11:25 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 14:25:13 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -23,7 +23,6 @@ except:
     from xml.etree import ElementTree as etree
 from numpy.core.numeric import array
 from numpy.core.fromnumeric import mean
-import sys
 
 class NetworkGraph(object):
     '''
@@ -35,6 +34,7 @@ class NetworkGraph(object):
     GetNodeEdges: a method for returning all edges connected to provided node.
     GetSuperEdge: a method for returning the corresponding superedge(s) from provided edge.
     ReadFromXML: a method for reading XML NetworkGraph file.
+    WriteCsv: a method for writing network graph properties (length, radius and compliance) in a .csv file.
     '''
    
     def __init__(self):
@@ -98,7 +98,7 @@ class NetworkGraph(object):
         This method returns all edges connected to provided node.
         '''
         nodeEdges = []
-        for edgeId, edge in self.Edges.iteritems():
+        for edge in self.Edges.itervalues():
             if node in edge.NodeIds:
                 nodeEdges.append(edge)
         return nodeEdges
@@ -108,7 +108,7 @@ class NetworkGraph(object):
         This method returns the corresponding superedge(s) from provided edge
         '''
         superEdge = []
-        for superedgeId, superedge in self.SuperEdges.iteritems():
+        for superedge in self.SuperEdges.itervalues():
             if superedge.Edges.has_key(edge):
                 superEdge.append(superedge)
         return superEdge
@@ -120,7 +120,6 @@ class NetworkGraph(object):
         XML file is validated first.
         '''
         self.xmlgraphpath = xmlgraphpath
-        error = None
         if xsdgraphpath:
             try:
                 schemagraphfile = open(xsdgraphpath)
@@ -135,14 +134,11 @@ class NetworkGraph(object):
                     xmlschema.assert_(docgraph)
                     print "Network Graph Xml File has been validated."
                 except AssertionError:   
-                    error = AssertionError
                     XMLValidationError(xmlschema)
             except:
                 WrongXSDPathError()
         else:
             print "Warning, Network Graph xml schema was not provided."
-        #if error:
-        #    sys.exit()
             
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
@@ -215,8 +211,6 @@ class NetworkGraph(object):
             except:
                 pass
             for geometry in edgeg.findall(".//geometry"):
-                geometry_dict = geometry.attrib                
-                #edge.SetTransformationId(geometry_dict['transformation_id'])  #Setting Edge Transformation Id
                 for data in geometry:
                     if data.tag == "length":                       
                         length_value = []                          
@@ -532,8 +526,7 @@ class NetworkGraph(object):
         csv_writer.writerow(["idpat", "gender", "age", "arm", "fistula type", "height", "weight", "bsa", "pressure", "cardiac output", "cardiac frequency", "brachial flow", "radial flow", "ulnar flow", "hematocrit", "plasma concentration","dynamic_viscosity", "blood_density","hypertension", "diabetes"])
         csv_writer.writerow(["", "", "" , "", "", "cm", "kg", "m2", "mmHg", "mL/min", "Hz", "mL/min", "mL/min", "mL/min", "%", "g/dL", "cP", "Kg/m3", "", ""])
         
-        
-                     
+      
 class Node(object):
     '''
     Node is a component of the vascular network.
@@ -665,12 +658,14 @@ class Edge(object):
     Edge is marked by n nodes, name, id, side.
     Edge has geometries and properties parameters.
     This class has the following methods:
-    SetId, SetName, SetNodes, SetSide, SetLength, SetCoordinates, SetTrasformationId,
-    SetRadius, SetDistensibility, SetWallThickness and SetYoungModulus for setting each edge.
+    SetId, SetName, SetNodes, SetSide, SetLength, SetCoordinates, SetTrasformationId, SetRadius, SetRadiusxAxis,
+    SetRadiusyAxis, SetDistensibility, SetWallThickness and SetYoungModulus for setting each edge's property.
+    SetQLeakage for setting leakage resistance expression.
     SetResistance for setting non linear resistance.
-    SetCompliance for setting non linear compliance.
+    SetCompliance and SetNlCompliance for setting linear and non linear compliance.
     SetStenosis for setting stenosis feature.
     SetKink for setting kink feature.
+    GetRadius, GetLength and GetYoungModulus for returning edge' radius, length or Young modulus respectively.
     '''
     
     def __init__(self):
@@ -847,7 +842,6 @@ class Edge(object):
         else:
             self.Compliance = compliance
             
-    
     def SetNlCompliance(self, compliance):
         '''
         This method sets non linear compliance.

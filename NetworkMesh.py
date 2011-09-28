@@ -3,15 +3,15 @@
 ## Program:   PyNS
 ## Module:    NetworkMesh.py
 ## Language:  Python
-## Date:      $Date: 2011/02/15 12:12:13 $
-## Version:   $Revision: 0.1.6 $
+## Date:      $Date: 2011/09/23 14:37:24 $
+## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
 
-##      This software is distributed WITHOUT ANY WARRANTY; without even 
-##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-##      PURPOSE.  See the above copyright notices for more information.
+##   This software is distributed WITHOUT ANY WARRANTY; without even 
+##   the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
@@ -28,9 +28,8 @@ class NetworkMesh(object):
     Each element is a circuit.
     NodesToElement is a dictionary: {nodeId:[Element]}. Each node (dictionary's key) is associated with its own element(s) (list).
     This class provide the following methods:
-    ReadFromXML appends each element to Element List after XML MESH FILE parsing.
     WriteToXML writes network mesh XML file according to its schema.
-    NodesToElement builds nodes'dictionary.
+    BuildNodesToElement builds nodes'dictionary.
     '''
    
     def __init__(self):
@@ -67,9 +66,6 @@ class NetworkMesh(object):
         This method writes network_mesh XML file.
         '''
         node_list = []
-        edge_list = []
-        entity_list = []
-        superedge_list = []
         root = etree.Element("NetworkMesh", id=self.Id, version="2.0")
         xmlmesh = etree.ElementTree(root)
         meshnodes = etree.SubElement(root, "meshnodes")
