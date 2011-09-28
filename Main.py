@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    Main.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:50:34 $
+## Date:      $Date: 2011/09/23 15:50:35 $
 ## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -45,9 +45,9 @@ parser.add_option("-n", "--net", action="store", dest='net', type='string', defa
 parser.add_option("-m", "--mesh", action="store", dest='mesh', type='string', default = 'vascular_mesh_v1.1.xml',
                   help="Vascular network xml mesh file name. By default is specified as 'vascular_mesh_v1.1.xml'.")
 parser.add_option("-l", "--xmlOut", action="store", dest="xmlout", type="string", default = 'vascular_output.xml',
-		          help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
+		  help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
 parser.add_option("-b", "--bound", action="store", dest='bound', type='string', default = 'boundary_conditions_arterial_right_arm.xml',
-		          help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
+		  help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
 parser.add_option("-c", "--netSchema", action="store", dest='netSchema', type='string', default = 'vascular_network_v3.2.xsd',
                   help="Vascular network xml schema xsd file. By default is defined as 'vascular_network_v3.2.xsd' and located in the XML schema files directory.")
 parser.add_option("-f", "--boundSchema", action="store", dest='boundSchema', type='string', default = 'boundary_conditions_v3.1.xsd',
