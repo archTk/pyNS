@@ -1,4 +1,4 @@
-COMPLETE LICENSE FOR PyNS
+COMPLETE LICENSE FOR pyNS
 -------------------------
 
 Copyright (c) 2009-2011, Simone Manini, Luca Antiga

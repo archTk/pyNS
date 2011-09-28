@@ -96,10 +96,8 @@ w_images = os.path.join(images, 'Wss/')
 o_images = os.path.join(images, 'Other/')
 mesh = options.mesh
 xmlout = options.xmlout
-netPre = options.netPre
-netPost = options.netPost
-boundPre = options.boundPre
-boundPost = options.boundPost
+net = options.net
+bound = options.bound
 netSchema = options.netSchema
 boundSchema = options.boundSchema
 testTube = 'XML/TEST/CircularStraightTube/'
@@ -129,13 +127,9 @@ velocityProfile = options.velocityProfile
 
 source = "".join(args)
 
-if simType == 'pre':
-    xmlnetpath = os.path.join(wdir, netPre)
-    xmlboundpath = os.path.join(wdir, boundPre)
-    preRun = False
-if simType == 'post':
-    xmlnetpath = os.path.join(wdir, netPost)
-    xmlboundpath = os.path.join(wdir, boundPost)
+if simType == 'specific':
+    xmlnetpath = os.path.join(wdir, net)
+    xmlboundpath = os.path.join(wdir, bound)
     preRun = True
 if simType == 'tube':
     xmlnetpath = os.path.join(testTube,netTube)
