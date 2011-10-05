@@ -93,6 +93,7 @@ class NetworkSolutions(object):
         self.images = None
         self.dayFlow = {} #{element.Id:Q}
         self.dayWssP = {} #{element.Id:taoPeak}
+        self.flowDirection = {'(+)':"from node1 to node2", '(-)':"from node2 to node1"} #Flow direction is assumed positive if flow goes from node1 to node2.
         
     def SetNetworkGraph(self,networkGraph):
         '''
@@ -169,11 +170,11 @@ class NetworkSolutions(object):
             if ent.Id is not None and ent.Id.find('rachial') != -1:
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])   
+                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])   
                     WSSPoiseuille = ((4.0*element.eta)/pi) * (Flow/mean(element.Radius)**3)
                     print "Name: ", element.Name, " PressureIN(mmHg): ", mean(PressureIN)/133.3223684211, " MeanFlow(mL/min): ", mean(Flow)*6.0e7,  " MeanWSS(Pa): ", mean(WSSPoiseuille)
-                    plot(self.t, Flow[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))]*6e7, colourvector[indexcolour],linewidth = 3, label = 'Flow '+element.Name)
+                    plot(self.t, Flow*6e7, colourvector[indexcolour],linewidth = 3, label = 'Flow '+element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Flow ($mL/min$)')
                     title ('Brachial Flow')    
@@ -187,8 +188,8 @@ class NetworkSolutions(object):
                 indexcolour = 0 
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211  
-                    plot(self.t, PressureIN[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))], colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211  
+                    plot(self.t, PressureIN, colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Pressure ($mmHG$)')
                     title ('Brachial Pressure')    
@@ -212,11 +213,11 @@ class NetworkSolutions(object):
             if ent.Id is not None and ent.Id.find('radial') != -1:
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])   
+                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])   
                     WSSPoiseuille = ((4.0*element.eta)/pi) * (Flow/mean(element.Radius)**3)
                     print "Name: ", element.Name, " PressureIN(mmHg): ", mean(PressureIN)/133.3223684211, " MeanFlow(mL/min): ", mean(Flow)*6.0e7,  " MeanWSS(Pa): ", mean(WSSPoiseuille)
-                    plot(self.t, Flow[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))]*6e7, colourvector[indexcolour],linewidth = 3, label = 'Flow '+element.Name)
+                    plot(self.t, Flow*6e7, colourvector[indexcolour],linewidth = 3, label = 'Flow '+element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Flow ($mL/min$)')
                     title ('Radial Flow')    
@@ -231,8 +232,8 @@ class NetworkSolutions(object):
                 
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211  
-                    plot(self.t, PressureIN[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))], colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211  
+                    plot(self.t, PressureIN, colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Pressure ($mmHG$)')
                     title ('Radial Pressure')    
@@ -256,11 +257,11 @@ class NetworkSolutions(object):
             if ent.Id is not None and ent.Id.find('cephalic') != -1:
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])   
+                    Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])   
                     WSSPoiseuille = ((4.0*element.eta)/pi) * (Flow/mean(element.Radius)**3)
                     print "Name: ", element.Name, " PressureIN(mmHg): ", mean(PressureIN)/133.3223684211, " MeanFlow(mL/min): ", mean(Flow)*6.0e7,  " MeanWSS(Pa): ", mean(WSSPoiseuille)
-                    plot(self.t, Flow[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))]*6e7, colourvector[indexcolour],linewidth = 3, label = element.Name)
+                    plot(self.t, Flow*6e7, colourvector[indexcolour],linewidth = 3, label = element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Flow ($mL/min$)')
                     title ('Cephalic Flow')    
@@ -275,8 +276,8 @@ class NetworkSolutions(object):
                 
                 for element in el:
                     dofs = element.GetPoiseuilleDofs()
-                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211  
-                    plot(self.t, PressureIN[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))], colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
+                    PressureIN = (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211  
+                    plot(self.t, PressureIN, colourvector[indexcolour],linewidth = 3, label = 'Pressure '+element.Name)
                     xlabel('Time ($s$)')
                     ylabel('Pressure ($mmHG$)')
                     title ('Cephalic Pressure')    
@@ -304,67 +305,80 @@ class NetworkSolutions(object):
         savefig(self.images+'inflow.png')
         close()
 
-    def PlotFlow(self, meshid, cycle = None):
+    def PlotFlow(self, meshid):
         '''
-        This method plots mean flow for a single mesh
-        If cycle is not specified, default cycle is the last one
-        '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-                     
+        This method plots mean flow for a single mesh.
+        Flow volume is considered as absolute value.
+        Direction of the flow is assumed + if goes from node1 to node2. Instead
+        flowDirection is assumed to be -.
+        '''         
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])*6e7, "mL/min"
+                        
+                p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                
+                if mean(p1)>=mean(p2):
+                    flowDirection = self.flowDirection['(+)']
+                    Flow = (p1-p2)/element.R
+                else:
+                    flowDirection = self.flowDirection['(-)']
+                    Flow = (p2-p1)/element.R
+               
+                print "Flow, MeshId ", element.Id, ' ', element.Name, " = " , mean(Flow)*6e7, "mL/min ", flowDirection
             
-        self.dayFlow[meshid] = (round(mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7),1))
+        self.dayFlow[meshid] = (round(mean(Flow*6e7),1))
         
-        plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
-        
+        plot(self.t, Flow*6e7, 'r-',linewidth = 3, label = 'Flow Output')   #red line
         minY = 0
-        for q in Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7:
+        for q in Flow*6e7:
             if q < minY:
                 minY = q
-           
-        
+                   
         if minY != 0:
-            plot(self.t, zeros(len(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])),':',linewidth = 1)
-            
+            plot(self.t, zeros(len(Flow)),':',linewidth = 1)
         ylim(ymin=minY)
         xlabel('Time ($s$)')
         ylabel('Volumetric flow rate ($mL/min$)')
-        title ('Flow'+' peak:'+str(round(max(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7),1))+' mean:'+str(round(mean(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7),1))+' min:'+str(round(min(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7),1)))    
+        if flowDirection == self.flowDirection['(+)']:
+            title ('Flow (+)'+' peak:'+str(round(max(Flow*6e7),1))+' mean:'+str(round(mean(Flow*6e7),1))+' min:'+str(round(min(Flow*6e7),1)))    
+        if flowDirection == self.flowDirection['(-)']:
+            title ('Flow (-)'+' peak:'+str(round(max(Flow*6e7),1))+' mean:'+str(round(mean(Flow*6e7),1))+' min:'+str(round(min(Flow*6e7),1)))    
         legend()
         savefig(self.f_images + meshid + '_' + name +'_flow.png')
         close()
     
-    def PlotVelocity(self, meshid, cycle = None):
+    def PlotVelocity(self, meshid):
         '''
         This method plots mean flow for a single mesh
-        If cycle is not specified, default cycle is the last one
-        '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-                     
+        '''           
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
-                Radius = mean(element.GetRadius(info))
+                
+                p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                
+                if mean(p1)>=mean(p2):
+                    flowDirection = self.flowDirection['(+)']
+                    Flow = (p1-p2)/element.R
+                else:
+                    flowDirection = self.flowDirection['(-)']
+                    Flow = (p2-p1)/element.R
+                
+                Radius = mean(element.Radius)
                 print element.Name, Radius
                 Velocity = Flow/(pi*Radius**2)
-      
-        plot(self.t, Velocity, 'r-',linewidth = 3, label = 'Velocity')   #red line
+                
+        if flowDirection == self.flowDirection['(+)']:
+            plot(self.t, Velocity, 'r-',linewidth = 3, label = 'Velocity (+)')   #red line
+        if flowDirection == self.flowDirection['(-)']:
+            plot(self.t, Velocity, 'r-',linewidth = 3, label = 'Velocity (-)')   #red line
         xlabel('Time ($s$)')
         ylabel('Velocity ($m^3/s$)')
         title ('Velocity')    
@@ -372,16 +386,11 @@ class NetworkSolutions(object):
         savefig(self.images + meshid + '_' + name +'_vel.png')
         close()
        
-    def PlotFlowComparative(self, cycle = None):
+    def PlotFlowComparative(self):
         '''
         This method plots brachial, radial and ulnar mean flow.
         If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         FlowBrachial = 0
         FlowRadial = 0
         FlowUlnar = 0
@@ -392,35 +401,50 @@ class NetworkSolutions(object):
         for element in self.NetworkMesh.Elements:
             if element.Type is not 'Windkessel' and element.Name.find('brachial') != -1:
                 dofs = element.GetPoiseuilleDofs()
-                FlowBrachial += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):
+                    FlowBrachial += (p1-p2)/element.R
+                else:
+                    FlowBrachial += (p2-p1)/element.R
                 i += 1               
         
             if element.Type is not 'Windkessel' and element.Name.find('radial') != -1:   
                 dofs = element.GetPoiseuilleDofs()
-                FlowRadial += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):
+                    FlowRadial += (p1-p2)/element.R
+                else:
+                    FlowRadial += (p2-p1)/element.R
                 j += 1
                 
             if element.Type is not 'Windkessel' and element.Name.find('ulnar') != -1: 
                 dofs = element.GetPoiseuilleDofs()
-                FlowUlnar += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):
+                    FlowUlnar += (p1-p2)/element.R
+                else:
+                    FlowUlnar += (p2-p1)/element.R
                 k += 1
 
         if i != 0:
-            FlowBrachial = (FlowBrachial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7)/i
+            FlowBrachial = (FlowBrachial*6e7)/i
             print "Brachial Flow = ", mean(FlowBrachial), "mL/min"
             plot(self.t, FlowBrachial, 'r-', linewidth = 3, label = 'brachial')   #red line
         if i == 0:
             FlowBrachial = 0
             print "There isn't any element named brachial, check your network xml file"  
         if j != 0:
-            FlowRadial = (FlowRadial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7)/j 
+            FlowRadial = (FlowRadial*6e7)/j 
             print "Radial Flow = ", mean(FlowRadial), "mL/min"
             plot(self.t, FlowRadial, 'b-', linewidth = 3, label = 'radial')   #blue line
         if j == 0:
             FlowRadial = 0
             print "There isn't any element named brachial, check your network xml file"  
         if k != 0:
-            FlowUlnar = (FlowUlnar[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7)/k
+            FlowUlnar = (FlowUlnar*6e7)/k
             print "Ulnar Flow = " , mean(FlowUlnar), "mL/min"
             plot(self.t, FlowUlnar, 'g-', linewidth = 3, label = 'ulnar')   #green line
         if k == 0:
@@ -434,14 +458,10 @@ class NetworkSolutions(object):
         savefig(self.images+'brach_rad_uln_flow.png')
         close()
     
-    def PlotFlows(self, meshIds, cycle = None):
+    def PlotFlows(self, meshIds):
         '''
         This method plots different flow volume signals in the same figure.
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -452,20 +472,28 @@ class NetworkSolutions(object):
                 if element.Id == meshid:
                     
                     dofs = element.GetPoiseuilleDofs()
-                    Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                    plot(self.t, Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7, colourvector[indexcolour],linewidth = 3, label = element.Name)   #red line
+                    p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                    p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                    
+                    if mean(p1)>=mean(p2):
+                        flowDirection = self.flowDirection['(+)']                
+                        Flow = (p1-p2)/element.R
+                    else:
+                        flowDirection = self.flowDirection['(-)']
+                        Flow = (p2-p1)/element.R
+                    
+                    if flowDirection == self.flowDirection['(+)']:                
+                        plot(self.t, Flow*6e7, colourvector[indexcolour],linewidth = 3, label = element.Name)   
+                    if flowDirection == self.flowDirection['(-)']:
+                        plot(self.t, Flow*6e7, '--', colourvector[indexcolour],linewidth = 3, label = element.Name)   
                     
                     minY = 0
-                    for q in Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7:
+                    for q in Flow*6e7:
                         if q < minY:
                             minY = q
-                       
-                    
                     if minY != 0:
-                        plot(self.t, zeros(len(Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])),':',linewidth = 1)
-                        
+                        plot(self.t, zeros(len(Flow)),':',linewidth = 1)
                     ylim(ymin=minY)
-                    
                     
                     xlabel('Time ($s$)')
                     ylabel('Volumetric flow rate ($mL/min$)')
@@ -480,52 +508,53 @@ class NetworkSolutions(object):
         close()
         indexcolour = 0
     
-    def GetMeanFlow(self, el, cycle = None):
+    def GetMeanFlow(self, el):
         '''
         This method returns flow signal for specific mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         dofs = el.GetPoiseuilleDofs()
-        Flow = (self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),:])/el.R
-        Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+        p1 = self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+        p2 = self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+        
+        if mean(p1)>=mean(p2):                
+            Flow = (p1-p2)/el.R
+        else:
+            Flow = (p2-p1)/el.R
+        
         return mean(Flow) #m3/s
     
-    def GetFlowSignal(self, el, cycle = None):
+    def GetFlowSignal(self, el):
         '''
         This method returns flow signal for specific mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         dofs = el.GetPoiseuilleDofs()
-        Flow = (self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),:])/el.R
-        Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+        p1 = self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+        p2 = self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+        
+        if mean(p1)>=mean(p2):               
+            Flow = (p1-p2)/el.R
+        else:
+            Flow = (p2-p1)/el.R
         return Flow
     
-    def WriteFlowTot(self, txtpath, cycle = None):
+    def WriteFlowTot(self, txtpath):
         '''
         This method writes in a txt file total flow over the network
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
         i = 0
         Flow = 0
         for element in self.NetworkMesh.Elements:
-            dofs = element.GetPoiseuilleDofs() 
-            Flow += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+            dofs = element.GetPoiseuilleDofs()
+            p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+            p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
             
+            if mean(p1)>=mean(p2):                        
+                Flow += (p1-p2)/element.R
+            else:
+                Flow += (p2-p1)/element.R            
             i+=1
-        Flow = (Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7)/i       
+            
+        Flow = Flow*6e7 
         text_file = open(txtpath, "w")
         text_file.write("Flow Output (mL/min)\n")
         for word in Flow:     
@@ -533,22 +562,22 @@ class NetworkSolutions(object):
             text_file.write("\n")
         text_file.close()          
          
-    def WriteFlowOutput(self, meshid, txtpath, cycle = None):
+    def WriteFlowOutput(self, meshid, txtpath):
         '''
         This method writes flow output values in a .txt file.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7     
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):                        
+                    Flow = (p1-p2)/element.R
+                else:
+                    Flow = (p2-p1)/element.R
+                Flow = Flow*6e7     
+                
         text_file = open(txtpath, "w")
         text_file.write("Flow Output (mL/min)\n")
         for word in Flow:     
@@ -556,23 +585,21 @@ class NetworkSolutions(object):
             text_file.write("\n")
         text_file.close()         
     
-    def WriteReynolds(self, meshid, txtpath, cycle = None):
+    def WriteReynolds(self, meshid, txtpath):
         '''
         This method writes reynolds number output values in a .txt file.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
-                Radius = element.GetRadius(info)
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):                        
+                    Flow = (p1-p2)/element.R
+                else:
+                    Flow = (p2-p1)/element.R
+                Radius = element.Radius
                 Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
                     
         text_file = open(txtpath, "w")
@@ -582,24 +609,23 @@ class NetworkSolutions(object):
             text_file.write("\n")
         text_file.close() 
     
-    def PlotReynolds(self, meshid, cycle = None):
+    def PlotReynolds(self, meshid):
         '''
         This method plots reynolds number for a single mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-                     
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R 
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))] 
-                Radius = element.GetRadius(info)
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):                        
+                    Flow = (p1-p2)/element.R
+                else:
+                    Flow = (p2-p1)/element.R
+
+                Radius = element.Radius
                 Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*mean(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
       
         plot(self.t, Reynolds, 'r-',linewidth = 3, label = 'Reynolds Number')   #red line
@@ -612,49 +638,42 @@ class NetworkSolutions(object):
         
     # PRESSURE METHODS
     
-    def PlotPressure(self, meshid, cycle = None):
+    def PlotPressure(self, meshid):
         '''
         This method plots pressures for a single mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 name = self.NetworkGraph.Edges[self.NetworkMesh.MeshToGraph[meshid]].Name
-                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])
-                Pressure2 = (self.Solutions[(self.DofMap.DofMap[meshid, 2]),:])
-        print name, round(mean(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32),1),"--",round(mean(Pressure2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32),1)        
-        plot(self.t, Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
+                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),self.CardiacFreq*(self.Cycles-1):])
+                Pressure2 = (self.Solutions[(self.DofMap.DofMap[meshid, 2]),self.CardiacFreq*(self.Cycles-1):])
+                
+                
+        print name, round(mean(Pressure/133.32),1),"--",round(mean(Pressure2/133.32),1)        
+        plot(self.t, Pressure/133.32, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
         
         minY = 0
-        for p in Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32:
+        for p in Pressure/133.32:
             if p < minY:
                 minY = p
         
         if minY != 0:
-            plot(self.t, zeros(len(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])),':',linewidth = 1)
+            plot(self.t, zeros(len(Pressure)),':',linewidth = 1)
         
         ylim(ymin=minY)
         xlabel('Time ($s$)')
         ylabel('Pressure ($mmHg$)')
-        title ('Pressure'+' peak:'+str(round(max(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32),1))+' mean:'+str(round(mean(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32),1))+' min:'+str(round(min(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32),1)))    
+        title ('Pressure'+' peak:'+str(round(max(Pressure/133.32),1))+' mean:'+str(round(mean(Pressure/133.32),1))+' min:'+str(round(min(Pressure/133.32),1)))    
         legend()
         savefig(self.p_images + meshid + '_' + name +'_pressure.png')
         close()
     
-    def PlotPressures(self, meshIds, cycle = None):
+    def PlotPressures(self, meshIds):
         '''
         This method plots different pressure signals in the same figure.
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -662,16 +681,16 @@ class NetworkSolutions(object):
             meshid = str(meshid)
             for element in self.NetworkMesh.Elements:
                 if element.Id == meshid:
-                    Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])
-                    plot(self.t, Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32, colourvector[indexcolour],linewidth = 3, label = element.Name)   
+                    Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),self.CardiacFreq*(self.Cycles-1):])
+                    plot(self.t, Pressure/133.32, colourvector[indexcolour],linewidth = 3, label = element.Name)   
                     
                     minY = 0
-                    for p in Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/133.32:
+                    for p in Pressure/133.32:
                         if p < minY:
                             minY = p
                     
                     if minY != 0:
-                        plot(self.t, zeros(len(Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])),':',linewidth = 1)
+                        plot(self.t, zeros(len(Pressure)),':',linewidth = 1)
                     
                     ylim(ymin=minY)
                     
@@ -689,30 +708,25 @@ class NetworkSolutions(object):
         indexcolour = 0
     
     
-    def PlotPressureTwo(self, meshid, meshid2, cycle = None):
+    def PlotPressureTwo(self, meshid, meshid2):
         '''
         This method plots pressures for a couple of meshes
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
-                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])/133.3223684211
+                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
                 print element.Name
         
         meshid2 = str(meshid2)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid2:
-                Pressure2 = (self.Solutions[(self.DofMap.DofMap[meshid2, 0]),:])/133.3223684211
+                Pressure2 = (self.Solutions[(self.DofMap.DofMap[meshid2, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
                 print element.Name
         
-        plot(self.t, Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))], 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
-        plot(self.t, Pressure2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))], 'r-', linewidth = 3, label = 'Pressure Signal')   #red line
+        plot(self.t, Pressure, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
+        plot(self.t, Pressure2, 'r-', linewidth = 3, label = 'Pressure Signal')   #red line
         xlabel('Time ($s$)')
         ylabel('Pressure ($mmHg$)') 
         title ('Pressure')    
@@ -720,16 +734,11 @@ class NetworkSolutions(object):
         savefig(self.images + meshid + meshid2 +'_pressure.png')
         close()
         
-    def PlotPressureComparative(self, cycle = None):
+    def PlotPressureComparative(self):
         '''
         This method plots brachial, radial and ulnar pressure signal.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
+    
         PressureBrachial = 0
         PressureRadial = 0
         PressureUlnar = 0
@@ -738,31 +747,31 @@ class NetworkSolutions(object):
         k = 0
         for element in self.NetworkMesh.Elements:
             if element.Type is not 'Windkessel' and element.Name.find('brachial') != -1:
-                PressureBrachial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
+                PressureBrachial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
                 i += 1               
         
             if element.Type is not 'Windkessel' and element.Name.find('radial') != -1:
-                PressureRadial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
+                PressureRadial += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
                 j += 1
                 
             if element.Type is not 'Windkessel' and element.Name.find('ulnar') != -1:
-                PressureUlnar += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])/133.3223684211
+                PressureUlnar += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
                 k += 1
         
         if i != 0:
-            PressureBrachial = PressureBrachial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/i
+            PressureBrachial = PressureBrachial/i
             plot(self.t, PressureBrachial, 'r-', linewidth = 3, label = 'brachial')   #red line
         if i == 0:
             PressureBrachial = 0
             print "There isn't any element named brachial, check your network xml file"  
         if j != 0:
-            PressureRadial = PressureRadial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/j
+            PressureRadial = PressureRadial/j
             plot(self.t, PressureRadial, 'b-', linewidth = 3, label = 'radial')   #blue line
         if j == 0:
             PressureRadial = 0
             print "There isn't any element named radial, check your network xml file"
         if k != 0:
-            PressureUlnar = PressureUlnar[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/k
+            PressureUlnar = PressureUlnar/k
             plot(self.t, PressureUlnar, 'g-', linewidth = 3, label = 'ulnar')   #green line
         if k == 0:
             PressureUlnar = 0
@@ -775,46 +784,32 @@ class NetworkSolutions(object):
         savefig(self.images+'brach_rad_uln_pressure.png')
         close()
         
-    def GetPressureSignal(self, meshid, cycle = None):
+    def GetPressureSignal(self, meshid):
         '''
         This method returns pressures signal for specific mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dof = element.GetNodeLocalDofs()
-                PressureIN = (self.Solutions[(self.DofMap.DofMap[meshid, dof[0]]),:])
-                PressureIN = PressureIN[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
-                PressureOUT = (self.Solutions[(self.DofMap.DofMap[meshid, dof[1]]),:])
-                PressureOUT = PressureOUT[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
-        
+                PressureIN = (self.Solutions[(self.DofMap.DofMap[meshid, dof[0]]),self.CardiacFreq*(self.Cycles-1):])
+                PressureOUT = (self.Solutions[(self.DofMap.DofMap[meshid, dof[1]]),self.CardiacFreq*(self.Cycles-1):])
+
         return PressureIN,PressureOUT
     
-    def PlotPressureDrop(self, meshid, cycle = None):
+    def PlotPressureDrop(self, meshid):
         '''
         This method returns pressure drop for specific mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 length = element.Length
                 dof = element.GetNodeLocalDofs()
-                PressureIN = (self.Solutions[(self.DofMap.DofMap[meshid, dof[0]]),:])
-                PressureIN = PressureIN[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
-                PressureOUT = (self.Solutions[(self.DofMap.DofMap[meshid, dof[1]]),:])
-                PressureOUT = PressureOUT[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+                PressureIN = (self.Solutions[(self.DofMap.DofMap[meshid, dof[0]]),self.CardiacFreq*(self.Cycles-1):])
+                PressureOUT = (self.Solutions[(self.DofMap.DofMap[meshid, dof[1]]),self.CardiacFreq*(self.Cycles-1):])
         
         plot(self.t, (PressureIN-PressureOUT), 'b-', linewidth = 3, label = 'p1-p2')   #blue line
         plot(self.t, (PressureIN-PressureOUT)/length, 'r-', linewidth = 3, label = '(p1-p2)/L')   #blue line
@@ -827,21 +822,15 @@ class NetworkSolutions(object):
         
         return (PressureIN-PressureOUT)/length
             
-    def WritePressureInput(self, meshid,  txtpath, cycle = None):
+    def WritePressureInput(self, meshid, txtpath):
         '''
         This method writes pressure output values in a .txt file.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
+        
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
-                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),:])
-                Pressure = Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 0]),self.CardiacFreq*(self.Cycles-1):])
                 meanP = mean(Pressure)
 
         text_file = open(txtpath, "w")
@@ -853,21 +842,15 @@ class NetworkSolutions(object):
         text_file.write(str(meanP))
         text_file.close()
     
-    def WritePressureOutput(self, meshid,  txtpath, cycle = None):
+    def WritePressureOutput(self, meshid,  txtpath):
         '''
         This method writes pressure output values in a .txt file.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
-                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 2]),:])
-                Pressure = Pressure[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+                Pressure = (self.Solutions[(self.DofMap.DofMap[meshid, 2]),self.CardiacFreq*(self.Cycles-1):])
                 meanP = mean(Pressure)
                 
         text_file = open(txtpath, "w")
@@ -881,25 +864,26 @@ class NetworkSolutions(object):
         
     # Wall Shear Stress methods    
     
-    def PlotPWSS(self, meshid, cycle = None):
+    def PlotPWSS(self, meshid):
         '''
         This method plots mean WSS (POISEUILLE) for a single mesh 
-        If cycle is not specified, default cycle is the last one 
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
-                Wss = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
-                print element.Name, "Wss(mean) = ", mean(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa\n", "Wss(peak) = ", max(Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]), "Pa"
+                p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                if mean(p1)>=mean(p2):                        
+                    Flow = (p1-p2)/element.R
+                else:
+                    Flow = (p2-p1)/element.R
                 
-        plot(self.t, Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))], 'r-',linewidth = 3, label = 'wss')   #red line
+                Wss = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
+                print element.Name, "Wss(mean) = ", mean(Wss), "Pa\n", "Wss(peak) = ", max(Wss), "Pa"
+                
+        plot(self.t, Wss, 'r-',linewidth = 3, label = 'wss')   #red line
         xlabel('Time ($s$)')
         ylabel('Wss ($Pa$)')
         title ('Wall Shear Stress')    
@@ -907,14 +891,11 @@ class NetworkSolutions(object):
         savefig(self.w_images + meshid +'_Pwss.png')
         close()
     
-    def PlotPWSSs(self, meshIds, cycle = None):
+    def PlotPWSSs(self, meshIds):
         '''
         This method plots different poiseuille's wss signals in the same figure.
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
+       
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -923,9 +904,15 @@ class NetworkSolutions(object):
             for element in self.NetworkMesh.Elements:
                 if element.Id == meshid:
                     dofs = element.GetPoiseuilleDofs()
-                    Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
+                    p1 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                    p2 = self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                    if mean(p1)>=mean(p2):                        
+                        Flow = (p1-p2)/element.R
+                    else:
+                        Flow = (p2-p1)/element.R
+
                     Wss = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
-                    plot(self.t, Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))], colourvector[indexcolour],linewidth = 3, label = element.Name)   
+                    plot(self.t, Wss, colourvector[indexcolour],linewidth = 3, label = element.Name)   
                     xlabel('Time ($s$)')
                     ylabel('Wss ($Pa$)')
                     title ('Wall shear stress')   
@@ -940,15 +927,10 @@ class NetworkSolutions(object):
         indexcolour = 0
     
         
-    def PlotPWSSComparative(self, cycle = None):
+    def PlotPWSSComparative(self):
         '''
         This method plots brachial, radial and ulnar WSS (POISEUILLE) signal.
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
 
         FlowBrachial = 0
         FlowRadial = 0
@@ -962,24 +944,24 @@ class NetworkSolutions(object):
         for element in self.NetworkMesh.Elements:
             if element.Type is not 'Windkessel' and element.Name.find('rachial') != -1:
                 dofs = element.GetPoiseuilleDofs()
-                FlowBrachial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
+                FlowBrachial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                 WSSBrachial += ((4.0*element.eta)/pi) * (FlowBrachial/(mean(element.Radius))**3)
                 i += 1               
         
             if element.Type is not 'Windkessel' and element.Name.find('adial') != -1:
                 dofs = element.GetPoiseuilleDofs()
-                FlowRadial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
+                FlowRadial = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                 WSSRadial += ((4.0*element.eta)/pi) * (FlowRadial/(mean(element.Radius))**3)
                 j += 1
                 
             if element.Type is not 'Windkessel' and element.Name.find('lnar') != -1:
                 dofs = element.GetPoiseuilleDofs()
-                FlowUlnar = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R2
+                FlowUlnar = (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                 WSSUlnar += ((4.0*element.eta)/pi) * (FlowUlnar/(mean(element.Radius))**3)
                 k += 1
         
         if i != 0:
-            WSSBrachial = WSSBrachial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/i
+            WSSBrachial = WSSBrachial/i
             print "Brachial"
             print "Wss(mean) = ", mean(WSSBrachial), " Pa", " Wss(peak) = ", max(WSSBrachial), " Pa"
             plot(self.t, WSSBrachial, 'r-', linewidth = 3, label = 'brachial')   #red line
@@ -987,7 +969,7 @@ class NetworkSolutions(object):
             WSSBrachial = 0
             print "There isn't any element named brachial, check your network xml file"  
         if j != 0:
-            WSSRadial = WSSRadial[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/j
+            WSSRadial = WSSRadial/j
             print "Radial"
             print "Wss(mean) = ", mean(WSSRadial), " Pa", " Wss(peak) = ", max(WSSRadial), " Pa"
             plot(self.t, WSSRadial, 'b-', linewidth = 3, label = 'radial')   #blue line
@@ -995,7 +977,7 @@ class NetworkSolutions(object):
             WSSRadial = 0
             print "There isn't any element named radial, check your network xml file"
         if k != 0:
-            WSSUlnar = WSSUlnar[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/k
+            WSSUlnar = WSSUlnar/k
             print "Ulnar"
             print "Wss(mean) = ", mean(WSSUlnar), " Pa", " Wss(peak) = ", max(WSSUlnar), " Pa"
             plot(self.t, WSSUlnar, 'g-', linewidth = 3, label = 'ulnar')   #green line
@@ -1010,43 +992,29 @@ class NetworkSolutions(object):
         savefig(self.images+'brach_rad_uln_wss.png')    
         close()
         
-    def GetPWSSSignal(self, meshid, cycle = None):
+    def GetPWSSSignal(self, meshid):
         '''
         This method returns Wall Shear Stress signal (POISEUILLE) for specific mesh
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R2
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                 WSS = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
                 
         return WSS
         
     
-    def WritePWSSOutput(self, meshid, txtpath, cycle = None):
+    def WritePWSSOutput(self, meshid, txtpath):
         '''
         This method writes Wall Shear Stress output values (POISEUILLE) in a .txt file
-        If cycle is not specified, default cycle is the last one.
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
                 dofs = element.GetPoiseuilleDofs()
-                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),:])/element.R
-                Flow = Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]
+                Flow = (self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                 WSS = ((4.0*element.eta)/pi) * (Flow/(mean(element.Radius))**3)
         
         text_file = open(txtpath, "w")
@@ -1076,10 +1044,9 @@ class NetworkSolutions(object):
         text_file.close() 
         
     
-    def GetWssPeak(self, mesh, cycle=None):
+    def GetWssPeak(self, mesh):
         '''
         This method returns Wall Shear Stress peak value for specific mesh
-        If cycle is not specified, default cycle is the last one.
         '''
         inverseWomersley = InverseWomersley()
         inverseWomersley.SetSimulationContext(self.SimulationContext)
@@ -1087,7 +1054,7 @@ class NetworkSolutions(object):
         rPeaks = inverseWomersley.GetWssPeaks(mesh, self.GetFlowSignal(mesh))
         return rPeaks
        
-    def ShowVelocityProfile(self, el, cycle=None):
+    def ShowVelocityProfile(self, el):
         '''
         This method show velocity profile signal (over fractional radius) using WX python library.
         '''
@@ -1098,7 +1065,7 @@ class NetworkSolutions(object):
         inverseWomersley.GetVelFromQ(el)
         inverseWomersley.ShowVelocityProfile(el.Id)
         
-    def SaveVelocityProfile(self, el, daystr, cycle=None):
+    def SaveVelocityProfile(self, el, daystr):
         '''
         This method save velocity profile signal (over fractional radius) in a .avi file using menCoder library.
         '''
@@ -1109,7 +1076,7 @@ class NetworkSolutions(object):
         inverseWomersley.GetVelFromQ(el)
         inverseWomersley.SaveVelocityProfile(el.Id, daystr)
         
-    def PlotWSS(self, el, cycle=None):
+    def PlotWSS(self, el):
         '''
         This method plots mean WSS for a single mesh 
         If cycle is not specified, default cycle is the last one 
@@ -1124,7 +1091,7 @@ class NetworkSolutions(object):
         
         self.dayWssP[el.Id] = peak
         
-    def PlotManyWSS(self, els, cycle=None):
+    def PlotManyWSS(self, els):
         '''
         This method plots different womersley wss signals ino the same figure.
         ''' 
@@ -1167,10 +1134,9 @@ class NetworkSolutions(object):
         indexcolour = 0
         
         
-    def GetWSSSignal(self, el, cycle=None):
+    def GetWSSSignal(self, el):
         '''
         This method returns Wall Shear Stress signal for specific mesh
-        If cycle is not specified, default cycle is the last one.
         '''
         inverseWomersley = InverseWomersley()
         inverseWomersley.SetSimulationContext(self.SimulationContext)
@@ -1279,8 +1245,7 @@ class NetworkSolutions(object):
             if el.NodeIds[1] == meshNodeEnd:
                 meshEnd = el
         #finding peak pressure and corresponding time.
-        PeakStartAll = (self.Solutions[(self.DofMap.DofMap[meshStart.Id, 0]),:])
-        PeakStartAll = PeakStartAll[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))]
+        PeakStartAll = (self.Solutions[(self.DofMap.DofMap[meshStart.Id, 0]),self.CardiacFreq*(self.Cycles-1):])
         PeakStart = max(PeakStartAll)   
         step1 = 0
         for p1 in PeakStartAll:
@@ -1288,8 +1253,7 @@ class NetworkSolutions(object):
                 t1 = self.t[step1]
                 break
             step1+=1        
-        PeakEndAll = (self.Solutions[(self.DofMap.DofMap[meshEnd.Id, 1]),:])
-        PeakEndAll = PeakEndAll[(self.CardiacFreq*(self.Cycles-1)):(self.CardiacFreq*(self.Cycles))]
+        PeakEndAll = (self.Solutions[(self.DofMap.DofMap[meshEnd.Id, 1]),self.CardiacFreq*(self.Cycles-1):])
         PeakEnd = max(PeakEndAll)      
         step2 = 0
         for p2 in PeakEndAll:
@@ -1304,15 +1268,10 @@ class NetworkSolutions(object):
      
     # ENTITY METHOD
     
-    def GetSolution(self, entity, cycle = None):
+    def GetSolution(self, entity):
         '''
         This method gets and plots flow, pressure and WSS for specific entity.
-        If cycle is not specified, default cycle is the last one.
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
         Flow = 0
         WSS = 0
         WSSW = 0
@@ -1325,14 +1284,14 @@ class NetworkSolutions(object):
                 for element in el:
                     num_el+=1
                     dofs = element.GetPoiseuilleDofs()
-                    Flow += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),:])/element.R
+                    Flow += (self.Solutions[(self.DofMap.DofMap[element.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[element.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/element.R
                     WSS += ((4.0*element.eta)/pi) * (Flow/pow(mean(element.Radius), 3))
-                    WSSW += self.GetWSSSignal(element.Id)
-                    PressureIN += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),:])   
-                    PressureOUT += (self.Solutions[(self.DofMap.DofMap[element.Id, 2]),:])
+                    WSSW += self.GetWSSSignal(element)
+                    PressureIN += (self.Solutions[(self.DofMap.DofMap[element.Id, 0]),self.CardiacFreq*(self.Cycles-1):])   
+                    PressureOUT += (self.Solutions[(self.DofMap.DofMap[element.Id, 2]),self.CardiacFreq*(self.Cycles-1):])
                 
-        PressureIN = ((PressureIN[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])/num_el)/133.3223684211
-        PressureOUT = ((PressureOUT[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])/num_el)/133.3223684211           
+        PressureIN = ((PressureIN)/num_el)/133.3223684211
+        PressureOUT = ((PressureOUT)/num_el)/133.3223684211           
         print entity, " PressureIN = ", mean(PressureIN), "mmHg"
         print entity, " PressureOUT = ", mean(PressureOUT), "mmHg"          
         plot(self.t, PressureIN, 'b-', linewidth = 3, label = 'Pressure IN')   #blue line            
@@ -1344,7 +1303,7 @@ class NetworkSolutions(object):
         savefig(self.images+entity+'_pressure.png')
         close() 
                    
-        Flow = (Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7)/num_el
+        Flow = (Flow*6e7)/num_el
         print entity, " Flow = ", mean(Flow), "mL/min"
         plot(self.t, Flow, 'r-', linewidth = 3, label = entity)   #red line
         xlabel('Time ($s$)')
@@ -1354,7 +1313,7 @@ class NetworkSolutions(object):
         savefig(self.images+entity+'_flow.png')
         close()
         
-        WSS = WSS[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]/num_el
+        WSS = WSS/num_el
         WSSW = WSSW/num_el
         print entity, "Wss(mean) = ", mean(WSS), " Pa", " Wss(peak) = ", max(WSSW)
         plot(self.t, WSS, 'g-', linewidth = 3, label = entity)   #green line
@@ -1367,16 +1326,10 @@ class NetworkSolutions(object):
     
     # SOLUTIONS IN XML NETWORK GRAPH FORMAT
     
-    def WriteToXML(self, xmlsolutionspath, cycle = None):
+    def WriteToXML(self, xmlsolutionspath):
         '''
         This method writes solutions in XML MeshSolutions File
-        If cycle is not specified, default cycle is the last one
         '''
-        if cycle is not None:
-            Cycle = cycle
-        else:
-            Cycle = self.Cycles
-
         root = etree.Element("Solutions", id=self.NetworkGraph.Id, version="2.0")
         xmlsolutions = etree.ElementTree(root)
         
@@ -1412,7 +1365,6 @@ class NetworkSolutions(object):
                             etree.SubElement(conn, "proximal_vein", edge_id=str(nodeG.Properties['vein']))
                     else:
                         etree.SubElement(nodes, "node", id = str(id))
-            
             
         #SUPEREDGES
         superedges_list = []
@@ -1452,34 +1404,35 @@ class NetworkSolutions(object):
                     i = 0                 
                     for el in self.NetworkMesh.Elements:
                         if el.NodeIds[0] == self.NetworkMesh.s_mesh[(0.0,e)]:
-                            P1 = (self.Solutions[(self.DofMap.DofMap[el.Id, 0]),:])/133.3223684211
-                            P1Mean = mean(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
-                            P1Max = max(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
-                            P1Min = min(P1[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])         
+                            P1 = (self.Solutions[(self.DofMap.DofMap[el.Id, 0]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
+                            P1Mean = mean(P1)
+                            P1Max = max(P1)
+                            P1Min = min(P1)         
                             break
                     for el in self.NetworkMesh.Elements:
                         if el.NodeIds[1] == self.NetworkMesh.s_mesh[(1.0,e)]:
-                            P2 = (self.Solutions[(self.DofMap.DofMap[el.Id, 2]),:])/133.3223684211
-                            P2Mean = mean(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])
-                            P2Max = max(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])     
-                            P2Min = min(P2[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))])           
+                            P2 = (self.Solutions[(self.DofMap.DofMap[el.Id, 2]),self.CardiacFreq*(self.Cycles-1):])/133.3223684211
+                            P2Mean = mean(P2)
+                            P2Max = max(P2)     
+                            P2Min = min(P2)           
                             break                
                     for meshId, edgeId in self.NetworkMesh.MeshToGraph.iteritems():
                         if edgeId == e.Id:
                             for el in self.NetworkMesh.Elements:
                                 if str(el.Id) == str(meshId):
                                     dofs = el.GetPoiseuilleDofs()
-                                    Flow += (self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),:] - self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),:])/el.R
+                                    Flow += (self.Solutions[(self.DofMap.DofMap[el.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] - self.Solutions[(self.DofMap.DofMap[el.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])/el.R
                                     Wss = ((4.0*el.eta)/pi) * (Flow/mean(el.Radius)**3)
+                                    WssMax = max(self.GetWssPeak(el))
                                     i += 1
                                          
-                    Flow = (Flow[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]*6e7) / i
-                    Wss = (Wss[(self.CardiacFreq*(Cycle-1)):(self.CardiacFreq*(Cycle))]) / i
+                    Flow = (Flow*6e7) / i
+                    Wss = (Wss) / i
                     FlowMean = mean(Flow)
                     FlowMax = max(Flow)
                     FlowMin = min(Flow)
                     WssMean = mean(Wss)*10
-                    WssMax = max(Wss)*10
+                    WssMax = WssMax*10
                     WssMin = min(Wss)*10
                     
                     solution = etree.SubElement(edge, "solution")

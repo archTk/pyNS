@@ -47,6 +47,7 @@ class ModelAdaptor(object):
         self.arm = None
         self.ftype = None
         self.Idpat = None
+        self.Visit = None
     
     def SetNetworkGraph(self,networkGraph):
         '''
@@ -78,6 +79,8 @@ class ModelAdaptor(object):
             value = el[1]
             if name == 'idpat':
                 self.Idpat = str(value)
+            if name == 'visit':
+                self.Visit = str(value)
             if name == 'arm':
                 self.arm = int(value)
             if name == 'ftype':
@@ -95,7 +98,7 @@ class ModelAdaptor(object):
             name = el[0]
             value = el[1]
             
-            if name == 'dob' or name == 'dos':
+            if name == 'dob' or name == 'dos' or name == 'visit':
                 self.SimulationContext.Context[name] = str(value)
             else:
                 self.SimulationContext.Context[name] = float(value)
@@ -143,10 +146,12 @@ class ModelAdaptor(object):
             self.SimulationContext.Context['diab'] =  self.SimulationContext.Defaults['diab']
       
         expressionList = []
-        for name in self.SimulationContext.Context:
-            if type(self.SimulationContext.Context[name]) is str:
-                expressionList.append(self.SimulationContext.Context[name])
-        while len(expressionList)>2:       
+        for name in self.SimulationContext.Context:     
+            if name != 'dob' and name != 'dos' and name != 'visit':
+                if type(self.SimulationContext.Context[name]) is str:
+                    expressionList.append(self.SimulationContext.Context[name])
+ 
+        while len(expressionList)>0:       
             for x in expressionList:
                 try:
                     self.Evaluator.Evaluate(x)
@@ -175,15 +180,17 @@ class ModelAdaptor(object):
                 for edge in self.NetworkGraph.Edges.itervalues():
                     if name == edge.Name: 
                         if edge.Side != "venous":
-                            
-                            edge.Radius = {}
                             if value1 != value2:
-                                edge.Radius['array'] = {0.0:(float(value1)),1.0:(float(value2))}
+                                if value1:
+                                    edge.Radius['array'][0.0] = (float(value1))
+                                if value2:
+                                    edge.Radius['array'][1.0] = (float(value2))
                             else:
-                                edge.Radius['value'] = (float(value1))
+                                if value1 and value2:
+                                    
+                                    edge.Radius['value'] = (float(value1))
                         else:
-                           
-                            edge.ScalarRadius= {0.0:(float(value1)),1.0:(float(value2))}
+                            edge.ScalarRadius= {0.0:(float(value2)),1.0:(float(value1))}
                         
         
         expressionList = []                    
@@ -219,9 +226,9 @@ class ModelAdaptor(object):
         #CASE
         case = etree.SubElement(root, "case")
         patId = etree.SubElement(case, "patient_id")
-        patId.text = self.NetworkGraph.PatientId
+        patId.text = self.Idpat
         visit = etree.SubElement(case, "visit")
-        visit.text = self.NetworkGraph.Visit
+        visit.text = self.Visit
         
         #NODES
         nodes_list = []

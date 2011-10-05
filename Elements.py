@@ -31,7 +31,7 @@ class Element(object):
     GetNumberOfNodes: a method for calculating and returning element's number of nodes.
     GetNumberOfDofs: a method for calculating and returning element's number of dofs (degrees of freedom).
     SetParameterInHistory: a methodP for setting parameter History dictionary. Each value (for each parameters name) is associated to different timesteps
-    SetType: a method for setting element's type
+    RegisterElementType: a method for registering element's class according to its type.
     NewElement: a method for creating a new element according to its type.
     '''
     def __init__(self):
@@ -153,22 +153,20 @@ class Element(object):
             self.ParameterInfo[parameterName].insert(0,parameterValue)
         if len(self.ParameterInfo[parameterName]) > self.MaxHistorySize:
             self.ParameterInfo[parameterName] = self.ParameterInfo[parameterName][0:self.MaxHistorySize]
-            
-    def SetType(self, type):
-        '''
-        This method sets the element type.
-        '''
-        self.Type = type
-        
-    def NewElement(self, id, nodeIds, elementParameters, side=None, name=None):
-        '''
-        This method creates a new element according to its mesh type.
-        '''
-        if self.Type == None or self.Type == "WavePropagation":
-            element = WavePropagationElement(id, nodeIds, elementParameters, side, name)
-        if self.Type == "Resistance":
-            element = ResistanceElement(id, nodeIds, elementParameters, side, name)
-        return element
+                  
+elementFactory = dict()
+
+def RegisterElementType(elementType,elementClass):
+    '''
+    Registering the element's class according to its type
+    '''
+    elementFactory[elementType] = elementClass
+
+def NewElement(elementType, id, nodeIds, elementParameters, side=None, name=None):
+    '''
+    This method creates a new element according to its mesh type.
+    '''
+    return elementFactory[elementType](id,nodeIds,elementParameters,side,name)
     
 class WavePropagationElement(Element):
     '''
@@ -815,6 +813,9 @@ class WavePropagationElement(Element):
         DofNodes = [DofNodeId1,DofNodeId2]
         return DofNodes
 
+RegisterElementType(None,WavePropagationElement)
+RegisterElementType("WavePropagation",WavePropagationElement)
+
 class WindkesselElement(Element):
     '''
     Windkessel Element is an element used for downstream network.
@@ -936,6 +937,9 @@ class WindkesselElement(Element):
             
         dofNodes = [dofNodeId1,dofNodeId2]
         return dofNodes
+
+RegisterElementType("Windkessel",WindkesselElement)
+
 
 class Anastomosis(Element):
     '''
@@ -1203,6 +1207,9 @@ class Anastomosis(Element):
                 DofNodeId3 = self.NodeIds[2]
         DofNodes = [DofNodeId1, DofNodeId2, DofNodeId3]
         return DofNodes
+    
+RegisterElementType("Anastomosis",Anastomosis)
+
 
 class ResistanceElement(Element):
     '''
@@ -1338,6 +1345,9 @@ class ResistanceElement(Element):
                 DofNodeId2 = self.NodeIds[1]
         DofNodes = [DofNodeId1,DofNodeId2]
         return DofNodes
+    
+RegisterElementType("Resistance",ResistanceElement)
+
      
 class Error(Exception):
     '''

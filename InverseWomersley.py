@@ -501,7 +501,9 @@ class InverseWomersley(object):
         '''
         This method plots Wss signal and returns peak wss.
         '''
-        tplot = arange(0,self.tPeriod,self.dtPlot)
+       
+        tplot = linspace(0, self.tPeriod, len(self.Tauplot))
+        
         plot(tplot, self.Tauplot,'g-',linewidth = 3, label = 'WSS')
         minY = 0
         for w in self.Tauplot:

@@ -126,13 +126,13 @@ class SolverFirstTrapezoid(Solver):
             raise
         try:
             self.Period = self.SimulationContext.Context['period']
-            self.TimeStepFreq = self.Period/self.TimeStep
+            self.TimeStepFreq = int(self.Period/self.TimeStep)
         except KeyError:
             print "Error, Please set period in Simulation Context XML File"
             raise
         try:
             self.Cycles = self.SimulationContext.Context['cycles']
-            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq) 
+            self.NumberOfIncrements = (self.Cycles*self.TimeStepFreq)
         except KeyError:
             print "Error, Please set cycles number in Simulation Context XML File"
             raise
@@ -151,7 +151,7 @@ class SolverFirstTrapezoid(Solver):
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs                                             
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
-        PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements+1))                                  
+        PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements))                                  
         self.p = zeros((NumberOfGlobalDofs,1))
         self.pt = zeros((NumberOfGlobalDofs,1))
         self.ptt = zeros((NumberOfGlobalDofs,1))
@@ -211,7 +211,6 @@ class SolverFirstTrapezoid(Solver):
                 self.sumv = sumvbk + dot((self.TimeStep/2.0),(self.pt+self.p))
                 self.fi = dot(self.SecondOrderGlobalMatrix,(self.dp)) + dot(self.FirstOrderGlobalMatrix,(self.p)) + dot(self.ZeroOrderGlobalMatrix,(self.sumv))             
                 if not nonLinear :
-                    
                     break
                 
                 if self.pi == None:
@@ -232,7 +231,7 @@ class SolverFirstTrapezoid(Solver):
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
                 
-                #Dinamic nonlinear relaxing coefficient 
+                #Dynamic nonlinear relaxing coefficient 
                 if counter == 100:
                     print "relaxing..."
                     print nlerr, nltol, CoeffRelax
@@ -255,7 +254,7 @@ class SolverFirstTrapezoid(Solver):
             self.ddpt[:,:] = self.ddp[:,:]
             self.fet[:,:] = self.fe[:,:]
             self.fit[:,:] = self.fi[:,:]                
-            PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0]  
+            PressuresMatrix[:,(self.IncrementNumber-1)] = self.p[:,0]  
             history.insert(0,self.IncrementNumber)
             history = history[:3]
             
@@ -338,7 +337,7 @@ class SolverNewmark(Solver):
                                               
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
-        PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements+1))
+        PressuresMatrix = zeros((NumberOfGlobalDofs, self.NumberOfIncrements))
                                   
         self.p = zeros((NumberOfGlobalDofs,1))
         self.pt = zeros((NumberOfGlobalDofs,1))
@@ -440,7 +439,7 @@ class SolverNewmark(Solver):
             self.dfet[:,:] = self.dfe[:,:]
             self.fit[:,:] = self.fi[:,:]
             self.dfit[:,:] = self.dfi[:,:]           
-            PressuresMatrix[:,(self.IncrementNumber)] = self.p[:,0] 
+            PressuresMatrix[:,(self.IncrementNumber-1)] = self.p[:,0] 
             history.insert(0,self.IncrementNumber)
             history = history[:3]                                 
             self.IncrementNumber = self.IncrementNumber+1

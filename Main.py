@@ -3,7 +3,7 @@
 ## Program:   PyNS
 ## Module:    Main.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:50:35 $
+## Date:      $Date: 2011/09/23 15:50:34 $
 ## Version:   $Revision: 0.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
@@ -31,7 +31,7 @@ import os
 parser = OptionParser()
 
 parser.add_option("-s", "--simType", action="store",dest='simType', type="string", default="generic",
-	              help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation.")
+				  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation.")
 parser.add_option("-w", "--workingDir", action="store", dest='wdir', type='string',default='XML/',
                   help = "Working directory path for xml input files. By default is located in 'XML/' pyNS subfolder.")
 parser.add_option("-o", "--outputDir", action="store", dest='odir', type='string', default='Output/',
@@ -45,21 +45,21 @@ parser.add_option("-n", "--net", action="store", dest='net', type='string', defa
 parser.add_option("-m", "--mesh", action="store", dest='mesh', type='string', default = 'vascular_mesh_v1.1.xml',
                   help="Vascular network xml mesh file name. By default is specified as 'vascular_mesh_v1.1.xml'.")
 parser.add_option("-l", "--xmlOut", action="store", dest="xmlout", type="string", default = 'vascular_output.xml',
-		  help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
+		          help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
 parser.add_option("-b", "--bound", action="store", dest='bound', type='string', default = 'boundary_conditions_arterial_right_arm.xml',
-		  help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
+		          help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
 parser.add_option("-c", "--netSchema", action="store", dest='netSchema', type='string', default = 'vascular_network_v3.2.xsd',
                   help="Vascular network xml schema xsd file. By default is defined as 'vascular_network_v3.2.xsd' and located in the XML schema files directory.")
 parser.add_option("-f", "--boundSchema", action="store", dest='boundSchema', type='string', default = 'boundary_conditions_v3.1.xsd',
                   help="Boundary conditions xml schema xsd file. By default is defined as 'boundary_conditions_v3.1.xsd' and located in the XML schema files directory.")
 parser.add_option("-g", "--template", action="store", dest='template', type='string', default = 'arm',
-                  help="Specify a template network by choosing bewteen currently implemented models: 'arm'.")
+                  help="Specify a template network by choosing bewteen currently implemented models: 'arm', 'willis'")
 parser.add_option("-k", "--parameters", action="store", dest='parameters', type='string', default = 'XML/parameters.csv',
                   help="Additional .csv file for patient-specific parameters. This allows the generation of a patient-specific network from a generic template. By default is located in 'XML/' pyNS subfolder.")
 parser.add_option("-d", "--diameters", action="store", dest='diameters', type='string', default = None,
                   help="Additional .csv file for patient-specific measured diameters. This enhance the patient-specific network generated from a generic template. By default does not exist.")
-parser.add_option("-a", "--adaptation", action="store", dest='adaptation', type='int', default = 0,
-                  help="Turn on adaptation algorithm by setting the number of simulated days. By default simulation is performed for preoperative(-1day) and immediate post(0day).")
+parser.add_option("-a", "--adaptation", action="store", dest='adaptation', type='int', default = -1,
+                  help="Turn on adaptation algorithm by setting the number of simulated days. By default simulation is performed for preoperative(-1day)")
 parser.add_option("--plotPressure", action="store_true", dest='plotPressure', default = False,
                   help="Plot pressure solution for each element of the network. By default this feature is inactive.")
 parser.add_option("--plotFlow", action="store_true", dest='plotFlow', default = False,
@@ -123,7 +123,11 @@ writeWss = options.writeWss
 writeReynolds = options.writeReynolds
 velocityProfile = options.velocityProfile
 
-##########################################
+if template == 'willis':
+    simType = 'specific'
+    wdir = 'XML/Models/WillisCircle'
+    net = 'vascular_network_willis.xml'
+    bound = 'boundary_conditions_willis.xml'
 
 source = "".join(args)
 

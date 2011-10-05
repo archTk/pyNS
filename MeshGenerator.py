@@ -407,11 +407,7 @@ class MeshGenerator(object):
                     # MESHING AN EDGE ACCORDING TO ITS MESH TYPE #
                     ##############################################
                     
-                    if edgeId in self.MeshType:
-                        Elements.Element.SetType(self.MeshType[edgeId])
-                    newElement = Elements.Element()
-                    newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)          
-                             
+                    newElement = Elements.NewElement(self.MeshType.get(edgeId,None), str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, edge.Name)                                       
                                  
                     self.NetworkMesh.Elements.append(newElement)                
                     #Dicts###
@@ -491,10 +487,8 @@ class MeshGenerator(object):
                             nLeak+=2                      
                         name = edge.Name + "_" + str(nameId)                                        
                         #############                        
-                        if edgeId in self.MeshType:
-                            Elements.Element.SetType(self.MeshType[edgeId])
-                        newElement = Elements.Element()
-                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                         
+                        newElement= Elements.NewElement(self.MeshType.get(edgeId,None),str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
                                                  
                         self.NetworkMesh.Elements.append(newElement)
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement                                           
@@ -798,10 +792,8 @@ class MeshGenerator(object):
                             nodes_list.append(meshNode2)
                             nodes_list_last = len(nodes_list)                       
                         name = edge.Name + "_" + str(nameId)  
-                        if edgeId in self.MeshType:
-                            Elements.Element.SetType(self.MeshType[edgeId])
-                        newElement = Elements.Element()
-                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                        
+                        newElement = Elements.NewElement(self.MeshType.get(edgeId,None),str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
                         
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                        
@@ -867,10 +859,7 @@ class MeshGenerator(object):
                             nodes_list_last = len(nodes_list)                       
                         name = edge.Name + "_" + str(nameId) 
                                
-                        if edgeId in self.MeshType:
-                            Elements.Element.SetType(self.MeshType[edgeId])
-                        newElement = Elements.Element()
-                        newElement= newElement.NewElement(str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
+                        newElement= newElement.NewElement(self.MeshType.get(edgeId,None), str(meshId), [meshNode1,meshNode2], elementParameters, edge.Side, name) 
                         
                         self.NetworkMesh.ElementIdsToElements[newElement.Id] = newElement 
                         self.NetworkMesh.Elements.append(newElement)                      
