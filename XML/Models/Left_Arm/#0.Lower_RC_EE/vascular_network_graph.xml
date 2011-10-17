@@ -4,9 +4,9 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <case>
-        <patient_id/>
-        <visit/>
-    </case>
+    <patient_id>00000</patient_id>
+    <visit>V0 (pre-OP)</visit>
+  </case>
 <nodes>
     <node type="inflow" id="1" name="heart"/>
     <node id="2"/>
@@ -830,7 +830,7 @@ xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
             <radius_array accuracy="10%" unit="m" source="US">
                 <value s="0.0">
                     <scalar>1.44e-3</scalar>
-                    <expression>$Radius[cephalic_lower]=0.8*($RadiusAtRest[cephalic_lower]*$RadiusProximal[anastomosis])/($RadiusAtRest[cephalic_lower])</expression>
+                    <expression>$Radius[cephalic_lower]=$RadiusAtRest[cephalic_lower]*sqrt((1.0-0.55*(1.0-($Pressure[cephalic_lower]/(1066.66+$Pressure[cephalic_lower])))))</expression>
                 </value>
                 <value s="1.0">
                     <scalar>1.8e-3</scalar>

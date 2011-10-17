@@ -3,8 +3,8 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
     <case>
-        <patient_id></patient_id>
-        <visit></visit>
+        <patient_id>00000</patient_id>
+    	<visit>V0 (pre-OP)</visit>
     </case>
 <nodes_layout>
 <node_layout id="1" x="640" y="280">

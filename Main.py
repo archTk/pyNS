@@ -123,6 +123,13 @@ writeWss = options.writeWss
 writeReynolds = options.writeReynolds
 velocityProfile = options.velocityProfile
 
+#############################
+#plotPressure = True
+plotFlow = True
+#plotWss = True
+days = 10
+
+
 if template == 'willis':
     simType = 'specific'
     wdir = 'XML/Models/WillisCircle'
@@ -295,6 +302,7 @@ for day in daysList:
 
     '''Adaptation Model'''
     adaptation.SetBoundaryConditions(boundaryConditions)
+    adaptation.SetSimulationContext(simulationContext)
     preRun = adaptation.Adapt(day)
     print "Day %d" %day
 
