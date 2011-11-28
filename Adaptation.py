@@ -114,14 +114,41 @@ class Adaptation(object):
             
             #No adaptation in case of upper arm anastomosis and diabetic patient
             if self.simulationContext.Context['diab'] == 1 and self.simulationContext.Context['ftype'] > 2:
-                print "Diabetic patient, no adaptation"
+                print "Diabetic patient, no arterial adaptation"
                 for ent, elList in self.solutions[day-1].NetworkMesh.Entities.iteritems():  
                     if ent.Id == 'axillarian' or ent.Id == 'brachial' or ent.Id == 'radial' or ent.Id == 'ulnar' or ent.Id == 'cephalic_vein' or ent.Id == 'cubiti_vein' or ent.Id == 'basilic_vein' or ent.Id == 'subclavian_vein':  
                         for el in elList:
                             kd1_n = el.Radius[0]
                             kd2_n = el.Radius[len(el.Radius)-1]     
                             el.dayRadius[day]=[kd1_n,kd2_n] 
-                
+                    if ent.Id == 'cephalic_vein' or ent.Id == 'cubiti_vein' or ent.Id == 'basilic_vein' or ent.Id == 'subclavian_vein': 
+                        for el in elList:
+                            taoRef = self.refValues[el.Name]
+                            taoPeaks = self.solutions[day-1].GetWssPeak(el)
+                            tao0 = taoPeaks[0]
+                            tao1 = taoPeaks[1]
+                            tao = linspace(tao0,tao1,len(el.Radius))
+                            deltaTao = tao-taoRef
+                            k = (1.0+(deltaTao*self.Coeff))
+                            
+                            if el == proximalVein:
+                                #linear adaptation on anastomosis from 0.8*dA to 1.0*dA
+                                k2 = 45./44.
+                                if day > 10:
+                                    k2 = 1.
+                                x = linspace(0,len(el.Radius),len(el.Radius))
+                                taoProxV = (tao0-tao1)*((x/len(el.Radius))**2-(2.0*(x/len(el.Radius))))+tao0   #y = (k1-k2)(x^2-2x)+k1 (quadratic decreasing wss)
+                                tao = taoProxV    
+                                deltaTaoProxV = taoProxV-taoRef
+                                k = (1.0+(deltaTaoProxV*self.Coeff))
+                                kProxV = (k-k2)*((x/len(el.Radius))**2)+k2     #y = (k2-k1)x^2+k1 (quadratic increasing radius)                                                                                
+                                k=kProxV
+                            if min(tao) > taoRef:
+                                el.Radius*=k   
+                            kd1_n = el.Radius[0]
+                            kd2_n = el.Radius[len(el.Radius)-1]     
+                            el.dayRadius[day]=[kd1_n,kd2_n] 
+                            
             if self.simulationContext.Context['diab'] == 0 and self.simulationContext.Context['ftype'] < 3:
 
                 for ent, elList in self.solutions[day-1].NetworkMesh.Entities.iteritems():  
