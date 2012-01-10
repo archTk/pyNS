@@ -24,6 +24,9 @@ from numpy.linalg import norm
 from numpy.core.numeric import Inf, dot
 from numpy.ma.core import ceil
 
+from scipy.sparse.linalg import spsolve
+from scipy.sparse import csr_matrix
+
 class Solver(object):
     '''
     This is a general Solver Class. It doesn't provide any solver methods.
@@ -192,7 +195,7 @@ class SolverFirstTrapezoid(Solver):
             while True:
                 #Build the algebric equation system for the increment       
                 SystemMatrix = (2.0/self.TimeStep)*self.SecondOrderGlobalMatrix + self.FirstOrderGlobalMatrix + (self.TimeStep/2.0)*self.ZeroOrderGlobalMatrix    #system matrix
-                RightVector = self.fe + (2.0/self.TimeStep)*dot(self.SecondOrderGlobalMatrix,(self.pt)) + dot(self.SecondOrderGlobalMatrix,(self.dpt)) - dot(self.ZeroOrderGlobalMatrix,(self.sumv))-(self.TimeStep/2.0)*dot(self.ZeroOrderGlobalMatrix,(self.pt)) # right hand side vector                
+                RightVector = (2.0/self.TimeStep)*dot(self.SecondOrderGlobalMatrix,(self.pt)) + dot(self.SecondOrderGlobalMatrix,(self.dpt)) - dot(self.ZeroOrderGlobalMatrix,(self.sumv))-(self.TimeStep/2.0)*dot(self.ZeroOrderGlobalMatrix,(self.pt)) # right hand side vector                
                 #The reduced (partioned) system of equations is generated.    
                 RightVector[:,:] = RightVector[:,:] - dot(SystemMatrix[:,self.PrescribedPressures[:,0]],self.PrescribedPressures[:,1:])
                 SystemMatrix = SystemMatrix[:,s_[self.UnknownPressures[:,0]]]
@@ -201,8 +204,13 @@ class SolverFirstTrapezoid(Solver):
                 RightVector = RightVector[s_[self.UnknownPressures[:,0]],:]
                 #Unknown nodal point values are solved from this system.
                 #  Prescribed nodal values are inserted in the solution vector.
-                Solution = solve(SystemMatrix,RightVector) # solutions, unknown pressures
+                
+                Solution = spsolve(csr_matrix(SystemMatrix),RightVector)
+                #Solution = solve(SystemMatrix,RightVector) # solutions, unknown pressures
+                Solution.shape=(len(Solution),1)
+                
                 self.p[self.UnknownPressures,0] = Solution[:,:]
+                
                 self.p[self.PrescribedPressures[:,0],0] = self.PrescribedPressures[:,1]
                 #Calculating derivatives.
                 #Calculating internal nodal flow values.

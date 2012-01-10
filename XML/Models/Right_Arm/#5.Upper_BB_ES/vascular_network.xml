@@ -4,9 +4,9 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:noNamespaceSchemaLocation="vascular_network_v2.3.xsd">  
  <case>
-   <patient_id></patient_id>
-   <visit></visit>
- </case>  
+    <patient_id>00000</patient_id>
+    <visit>V0 (pre-OP)</visit>
+  </case>
  <nodes>
    <node id="1" type="inflow" name="heart"/>
    <node id="2"/>

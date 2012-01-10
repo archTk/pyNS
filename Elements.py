@@ -162,11 +162,11 @@ def RegisterElementType(elementType,elementClass):
     '''
     elementFactory[elementType] = elementClass
 
-def NewElement(elementType, id, nodeIds, elementParameters, side=None, name=None):
+def NewElement(elementType, elId, nodeIds, elementParameters, side=None, name=None):
     '''
     This method creates a new element according to its mesh type.
     '''
-    return elementFactory[elementType](id,nodeIds,elementParameters,side,name)
+    return elementFactory[elementType](elId,nodeIds,elementParameters,side,name)
     
 class WavePropagationElement(Element):
     '''
@@ -207,7 +207,7 @@ class WavePropagationElement(Element):
     GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     '''
 
-    def __init__(self, id, nodeIds, elementParameters, side=None, name=None):
+    def __init__(self, elId, nodeIds, elementParameters, side=None, name=None):
         '''
         Constructor
         '''
@@ -215,7 +215,7 @@ class WavePropagationElement(Element):
         
         self.Type = "WavePropagation"
         self.Side = side
-        self.Id = id
+        self.Id = elId
         self.Name = name
         self.NodeIds = []
         self.NodeIds[:] = nodeIds[:]  
@@ -241,8 +241,8 @@ class WavePropagationElement(Element):
         try:
             self.RadiusAtRest = elementParameters["radiusAtRest"]
             self.RadiusExp = self.Radius
-            self.nonLinearParameter['radiusExp'] = True
-            self.Radius = self.RadiusAtRest
+            self.nonLinearParameter['radiusExp'] = True      
+            self.Radius = self.RadiusAtRest         
         except KeyError:
             self.RadiusAtRest = None
             self.RadiusExp = None
@@ -520,7 +520,10 @@ class WavePropagationElement(Element):
                 if value == True and name == 'radiusExp':
                     evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.RadiusExp[s1])
-                    
+                    #===========================================================
+                    # print self.Name
+                    # print self.Radius
+                    #===========================================================
                     #Resistance and Inductance are radius dependents
                     R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
                     R = float(sum(R))
@@ -653,7 +656,7 @@ class WavePropagationElement(Element):
     
     def GetPressure (self, info, timeIndex=0):
         '''
-        This method returns pressure on the specified element.
+        This method returns pressure on the specified element's first node.
         If cycle is not specified, default cycle is the last one.
         '''
         # t=0, no pressure.
@@ -699,7 +702,7 @@ class WavePropagationElement(Element):
         if self.Pressure <= 0.0:
             self.Pressure = 1e-12
         return self.Pressure
-    
+
     def GetArea(self,info, timeIndex=0):
         '''
         This method returns vessel's Cross-Sectional Area
@@ -840,14 +843,14 @@ class WindkesselElement(Element):
     GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     GetLocalDof: a method for mapping element's NodeIds in local dof (if possible).
     '''
-    def __init__(self, id, NodeIds, name, side=None):
+    def __init__(self, elId, NodeIds, name, side=None):
         '''
         Constructor
         '''
         Element.__init__(self)
         self.Type = "Windkessel"
         self.Side = side
-        self.Id = "E%s" % (id)
+        self.Id = "E%s" % (elId)
         self.Name = name
         self.NodeIds = []
         self.NodeIds[:] = NodeIds[:]
@@ -974,14 +977,14 @@ class Anastomosis(Element):
     GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     GetLocalDof: a method for mapping element's NodeIds in local dof (if possible).
     '''
-    def __init__(self, id, nodeIds, elementParameters, side=None, name=None):
+    def __init__(self, elId, nodeIds, elementParameters, side=None, name=None):
         '''
         Constructor
         '''
         Element.__init__(self)
         self.Type = "Anastomosis"
         self.Side = side
-        self.Id = id
+        self.Id = elId
         self.Name = name
         self.NodeIds = []
         self.NodeIds[:] = nodeIds[:]
@@ -1229,14 +1232,14 @@ class ResistanceElement(Element):
     GetDofNodes: a method for mapping local dof numbers in his NodeIds.
     GetLocalDof: a method for mapping element's NodeIds in local dof (if possible).
     '''
-    def __init__(self, id, nodeIds, elementParameters, side=None, name=None):
+    def __init__(self, elId, nodeIds, elementParameters, side=None, name=None):
         '''
         Constructor
         '''
         Element.__init__(self)
         self.Type = "Resistance"
         self.Side = side
-        self.Id = id
+        self.Id = elId
         self.Name = name
         self.NodeIds = []
         self.NodeIds[:] = nodeIds[:]

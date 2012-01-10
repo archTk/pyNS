@@ -53,7 +53,7 @@ parser.add_option("-c", "--netSchema", action="store", dest='netSchema', type='s
 parser.add_option("-f", "--boundSchema", action="store", dest='boundSchema', type='string', default = 'boundary_conditions_v3.1.xsd',
                   help="Boundary conditions xml schema xsd file. By default is defined as 'boundary_conditions_v3.1.xsd' and located in the XML schema files directory.")
 parser.add_option("-g", "--template", action="store", dest='template', type='string', default = 'arm',
-                  help="Specify a template network by choosing bewteen currently implemented models: 'arm', 'willis'")
+                  help="Specify a template network by choosing between currently implemented models: 'arm', 'willis'")
 parser.add_option("-k", "--parameters", action="store", dest='parameters', type='string', default = 'XML/parameters.csv',
                   help="Additional .csv file for patient-specific parameters. This allows the generation of a patient-specific network from a generic template. By default is located in 'XML/' pyNS subfolder.")
 parser.add_option("-d", "--diameters", action="store", dest='diameters', type='string', default = None,
@@ -122,6 +122,17 @@ writeFlow = options.writeFlow
 writeWss = options.writeWss
 writeReynolds = options.writeReynolds
 velocityProfile = options.velocityProfile
+
+#===============================================================================
+# Dev variables 
+#===============================================================================
+
+days = 0
+
+#===============================================================================
+# End of dev variables
+#===============================================================================
+
 
 if template == 'willis':
     simType = 'specific'
@@ -295,6 +306,7 @@ for day in daysList:
 
     '''Adaptation Model'''
     adaptation.SetBoundaryConditions(boundaryConditions)
+    adaptation.SetSimulationContext(simulationContext)
     preRun = adaptation.Adapt(day)
     print "Day %d" %day
 
@@ -309,11 +321,12 @@ for day in daysList:
     if preRun is True:
         solver.SetSteadyFlow()
         print "Steady Pre-Run, setting non-linear parameters"
-        solver.Solve() 
+        solver.Solve()
         parameters = ["Radius","Compliance"]
         networkMesh.WriteToXML(xmlmeshpath)
         for el in networkMesh.Elements:
             el.SetLinearValues(parameters)
+        networkMesh.checkLinearConsistence()
        
     '''Run'''
     evaluator.ExpressionCache = {}
@@ -358,6 +371,10 @@ for day in daysList:
     networkSolutions.SetNetworkGraph(networkGraph)
     networkSolutions.SetSimulationContext(simulationContext)
     networkSolutions.SetSolutions(solver.Solutions)
+    
+    #TODO 
+    #Devo salvare l'oggetto netSol con pickle. In pratica mi porto dietro graph, mesh, context e solution. Dofmap viene generata. Passo anche il DAY. (adaptation.SetSolutions)
+    
     networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})
     networkSolutions.WriteToXML(xmloutpath)
     adaptation.SetSolutions(day, networkSolutions)

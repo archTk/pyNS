@@ -15,7 +15,7 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-
+from numpy.core.numeric import arange
 try:
     from lxml import etree
 except:
@@ -180,6 +180,36 @@ class NetworkMesh(object):
         indent(root)                
         xmlmesh.write (xmlmeshpath, encoding='iso-8859-1')       
 
+
+    def checkLinearConsistence(self):
+        '''
+        This method checks and fixes the correct proportion between the meshes of each edge.
+        '''
+        for edge in self.GraphEdgeToMesh.iterkeys():
+            if edge.Side =='venous':
+                meshes = self.GraphEdgeToMesh[edge]      
+                startingMesh = meshes[0]
+                startingRadius = self.ElementIdsToElements[str(startingMesh.keys()[0])].Radius[0]
+                endingMesh = meshes[len(meshes)-1]
+                endingRadius = self.ElementIdsToElements[str(endingMesh.keys()[0])].Radius[len(self.ElementIdsToElements[str(endingMesh.keys()[0])].Radius)-1]
+                elLen = edge.Length['value']/len(meshes)
+                self.dz = elLen/1.0e5
+                z = arange(0.0,elLen,self.dz)
+                dr = (endingRadius-startingRadius)/(len(meshes))
+                for mesh in meshes:
+                    if mesh == startingMesh:
+                        r1 = startingRadius
+                        r2 = r1+dr      
+                    elif mesh == endingMesh:     
+                        r1 = r2
+                        r2 = endingRadius
+                    else: 
+                        r1 = r2
+                        r2+=dr
+                    r_z = r1+((dr/elLen)*z)
+                    self.ElementIdsToElements[str(mesh.keys()[0])].Radius = r_z
+         
+         
 class Entity(object):
     '''
     Each entities is a group of elements, 

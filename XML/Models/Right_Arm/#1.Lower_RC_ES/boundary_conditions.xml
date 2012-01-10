@@ -64,8 +64,8 @@
         <expression>$age[]=(((datetime.strptime("$dos[]","%d/%m/%Y"))-(datetime.strptime("$dob[]","%d/%m/%Y"))).days)/365</expression>
       </age>
       <gender></gender>
-      <arm></arm>
-      <ftype></ftype>
+      <arm>right</arm>
+      <ftype>Radio-Cephalic EndToSide</ftype>
       <height unit="cm"></height>
       <weight unit="kg"></weight>
       <bsa unit="m2">

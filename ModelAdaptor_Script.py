@@ -64,7 +64,7 @@ xmlboundpathGeneric = os.path.join(wdir, xmlBoundGeneric)
         
 xsdnetpath = os.path.join(xdir, xsdNet)
 xsdboundpath = os.path.join(xdir, xsdBound)
-
+print wdir
 simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
 
 '''Creating NetworkGraph Object From its XML'''
