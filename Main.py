@@ -123,17 +123,6 @@ writeWss = options.writeWss
 writeReynolds = options.writeReynolds
 velocityProfile = options.velocityProfile
 
-#===============================================================================
-# Dev variables 
-#===============================================================================
-
-days = 0
-
-#===============================================================================
-# End of dev variables
-#===============================================================================
-
-
 if template == 'willis':
     simType = 'specific'
     wdir = 'XML/Models/WillisCircle'

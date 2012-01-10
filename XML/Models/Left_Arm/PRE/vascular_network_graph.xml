@@ -3,10 +3,10 @@
 <NetworkGraph id="1" version="3.0"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="vascular_network_v3.2.xsd">
-    <case>
-        <patient_id>00000</patient_id>
-        <visit>V0 (pre-OP)</visit>
-    </case>
+<case>
+	<patient_id>00000</patient_id>
+	<visit>V0 (pre-OP)</visit>
+</case>
 <nodes>
     <node type="inflow" id="1" name="heart"/>
     <node id="2"/>
