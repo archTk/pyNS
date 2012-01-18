@@ -304,7 +304,7 @@ for day in daysList:
     solver.SetBoundaryConditions(boundaryConditions)
     solver.SetSimulationContext(simulationContext)
     solver.SetEvaluator(evaluator)
-
+    
     '''Pre-run'''
     if preRun is True:
         solver.SetSteadyFlow()
@@ -315,7 +315,7 @@ for day in daysList:
         for el in networkMesh.Elements:
             el.SetLinearValues(parameters)
         networkMesh.checkLinearConsistence()
-       
+    
     '''Run'''
     evaluator.ExpressionCache = {}
     solver = SolverFirstTrapezoid()
