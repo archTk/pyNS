@@ -192,7 +192,7 @@ class SolverFirstTrapezoid(Solver):
             while True:
                 #Build the algebric equation system for the increment       
                 SystemMatrix = (2.0/self.TimeStep)*self.SecondOrderGlobalMatrix + self.FirstOrderGlobalMatrix + (self.TimeStep/2.0)*self.ZeroOrderGlobalMatrix    #system matrix
-                RightVector = (2.0/self.TimeStep)*dot(self.SecondOrderGlobalMatrix,(self.pt)) + dot(self.SecondOrderGlobalMatrix,(self.dpt)) - dot(self.ZeroOrderGlobalMatrix,(self.sumv))-(self.TimeStep/2.0)*dot(self.ZeroOrderGlobalMatrix,(self.pt)) # right hand side vector                
+                RightVector = self.fe + (2.0/self.TimeStep)*dot(self.SecondOrderGlobalMatrix,(self.pt)) + dot(self.SecondOrderGlobalMatrix,(self.dpt)) - dot(self.ZeroOrderGlobalMatrix,(self.sumv))-(self.TimeStep/2.0)*dot(self.ZeroOrderGlobalMatrix,(self.pt)) # right hand side vector                
                 #The reduced (partioned) system of equations is generated.    
                 RightVector[:,:] = RightVector[:,:] - dot(SystemMatrix[:,self.PrescribedPressures[:,0]],self.PrescribedPressures[:,1:])
                 SystemMatrix = SystemMatrix[:,s_[self.UnknownPressures[:,0]]]
