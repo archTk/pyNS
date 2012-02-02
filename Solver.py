@@ -52,6 +52,9 @@ class Solver(object):
         self.convergence = float(1e-4)                      # steady convergence limit for steady pre runs    
         self.Flow = None
         self.PrescribedPressures = None
+        self.LinearZeroOrderGlobalMatrix = None
+        self.LinearFirstOrderGlobalMatrix = None
+        self.LinearSecondOrderGlobalMatrix = None
         
     def SetNetworkMesh(self,networkMesh):
         '''
@@ -117,7 +120,7 @@ class SolverFirstTrapezoid(Solver):
         This method builds System Matrix and gets Solution
         '''
         if self.SimulationContext.Id != self.NetworkMesh.Id:
-            raise XMLIdError()        
+            raise self.SimulationContext.XMLIdError()        
         try:
             self.TimeStep = self.SimulationContext.Context['timestep']
             self.SquareTimeStep = self.TimeStep*self.TimeStep
@@ -142,12 +145,17 @@ class SolverFirstTrapezoid(Solver):
         assembler.SetNetworkMesh(self.NetworkMesh)
         assembler.SetBoundaryConditions(self.BoundaryConditions)
         info = {'dofmap':assembler.DofMap,'solution':None,'incrementNumber':self.IncrementNumber,'history':history}
-        self.Evaluator.SetInfo(info) 
-        assembler.Assemble(self.SimulationContext, self.Evaluator)
-        self.PrescribedPressures = assembler.PrescribedPressures
+        self.Evaluator.SetInfo(info)
+        
+        self.PrescribedPressures = assembler.AssembleBoundaryConditions(self.SimulationContext)
+        
+        self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix = \
+        assembler.AssembleInit(self.SimulationContext, self.Evaluator)
+        
         self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
         self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
-        self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix   
+        self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix  
+
         NumberOfGlobalDofs = assembler.GetNumberOfGlobalDofs()          # number of dofs                                             
         self.UnknownPressures = arange(0,NumberOfGlobalDofs).reshape(NumberOfGlobalDofs,1)          # unknown pressures        
         self.UnknownPressures = delete(self.UnknownPressures, s_[self.PrescribedPressures[:,0]], axis=0)
@@ -225,8 +233,8 @@ class SolverFirstTrapezoid(Solver):
               
                 info = {'dofmap':assembler.DofMap,'solution':[self.p, self.pt, self.ptt],'incrementNumber':self.IncrementNumber,'history':history}
                 self.Evaluator.SetInfo(info)
-                assembler.Assemble(self.SimulationContext, self.Evaluator)
-                self.PrescribedPressures = assembler.PrescribedPressures
+
+                assembler.Assemble(self.SimulationContext, self.Evaluator, self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix)
                 self.ZeroOrderGlobalMatrix = assembler.ZeroOrderGlobalMatrix
                 self.FirstOrderGlobalMatrix = assembler.FirstOrderGlobalMatrix
                 self.SecondOrderGlobalMatrix = assembler.SecondOrderGlobalMatrix        
