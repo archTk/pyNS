@@ -361,9 +361,6 @@ for day in daysList:
     networkSolutions.SetSimulationContext(simulationContext)
     networkSolutions.SetSolutions(solver.Solutions)
     
-    #TODO 
-    #Devo salvare l'oggetto netSol con pickle. In pratica mi porto dietro graph, mesh, context e solution. Dofmap viene generata. Passo anche il DAY. (adaptation.SetSolutions)
-    
     networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})
     networkSolutions.WriteToXML(xmloutpath)
     adaptation.SetSolutions(day, networkSolutions)

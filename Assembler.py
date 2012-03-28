@@ -151,7 +151,12 @@ class Assembler(object):
         if nonLinear == True:        
             self.ZeroOrderGlobalMatrix,self.FirstOrderGlobalMatrix,self.SecondOrderGlobalMatrix = \
             self.Assemble(simulationContext, evaluator, self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix)
-                
+        
+        else:
+            self.ZeroOrderGlobalMatrix[:,:] = self.LinearZeroOrderGlobalMatrix[:,:]
+            self.FirstOrderGlobalMatrix[:,:] = self.LinearFirstOrderGlobalMatrix[:,:]
+            self.SecondOrderGlobalMatrix[:,:] = self.LinearSecondOrderGlobalMatrix[:,:]
+        
         return self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix
         
         
