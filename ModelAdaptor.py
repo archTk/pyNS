@@ -160,7 +160,7 @@ class ModelAdaptor(object):
                     pass
         self.SimulationContext.UpdateXML(genericXml, specificXml)
     
-    def AdaptingModel(self, genericXml, specificXml,csvfilepath=None):
+    def AdaptingModel(self, genericXml, specificXml, csvfilepath=None):
         '''
         This method reads specific data from a csv file
         (measured radii) and evaluates the rest of the network rules.

@@ -359,8 +359,6 @@ for day in daysList:
     networkSolutions.SetNetworkGraph(networkGraph)
     networkSolutions.SetSimulationContext(simulationContext)
     networkSolutions.SetSolutions(solver.Solutions)
-  
-    
     networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})
     networkSolutions.WriteToXML(xmloutpath)
     adaptation.SetSolutions(day, networkSolutions)

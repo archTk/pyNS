@@ -66,82 +66,108 @@ class Assembler(object):
         This method returns number of global degrees of freedom
         '''
         return self.DofMap.NumberOfGlobalDofs
+    
+    
+    def AssembleBoundaryConditions(self, simulationContext):
+        '''
+        This method assembles arrays of prescribed pressures
+        '''
+        self.DofMap = DofMap()
+        self.DofMap.SetNetworkMesh(self.NetworkMesh)
+        self.DofMap.Build()
+         
+        
+        # Searching for prescribed pressure output
+        numberOfElements = 0
+        for element in self.NetworkMesh.Elements:  
+            for dof in element.GetExternalPressureLocalDofs():
+                    numberOfElements+=1
+        if self.BoundaryConditions.OutP is not None:
+            numberOfElements+=1
+            
+        # Setting Transmural Pressures for windkessel elements and wave propagation elements
+        
+        PrescribedPressures = zeros((numberOfElements,2))
+        done = 0
+        i = 0
+        for element in self.NetworkMesh.Elements:
+            for dof in element.GetExternalPressureLocalDofs():    
+                if self.BoundaryConditions.OutP is not None:
+                    if element.Id == self.BoundaryConditions.elementOut.Id:
+                        if done == 0:
+                            value1 = self.DofMap.DofMap[(self.BoundaryConditions.elementOut.Id,self.BoundaryConditions.elementOut.GetLocalDof(int(self.BoundaryConditions.NodeOut)))]
+                            value2 = self.BoundaryConditions.OutP
+                            PrescribedPressures[i,0] = value1
+                            PrescribedPressures[i,1] = value2
+                            done = 1
+                            i+=1
+                value1 = self.DofMap.DofMap[(element.Id,dof)]
+                value2 = self.BoundaryConditions.PressureValues[element.Id]
+                PrescribedPressures[i,0] = value1
+                PrescribedPressures[i,1] = value2     
+                i+=1
+        
+        self.BoundaryConditions.SetSimulationContext(simulationContext)
+        self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
+        self.PrescribedPressures = PrescribedPressures.astype(Int32)
+        
+        return self.PrescribedPressures
 
-    def Assemble(self, simulationContext, evaluator):
+    def AssembleInit(self, simulationContext, evaluator):
         '''
         This method calculates:
         Pressures GlobalDofs and Input Flow Vector from BoundaryConditions (Prescribed Pressures matrix, each row ---> Dof, Value).
         Zero, First and Second Order Global Matrix from Local Matrix of each element.
         '''
-        if self.Initialized == False:
-        
-            self.DofMap = DofMap()
-            self.DofMap.SetNetworkMesh(self.NetworkMesh)
-            self.DofMap.Build()  
-     
-            # Boundary Condition: Prescribed Pressures.
-            i = 0
-            numberOfElements = 0
-            
-            # Searching for prescribed pressure output
-            for element in self.NetworkMesh.Elements:  
-                for dof in element.GetExternalPressureLocalDofs():
-                        numberOfElements+=1
-            if self.BoundaryConditions.OutP is not None:
-                numberOfElements+=1
-            
-            # Setting Transmural Pressures for windkessel elements and wave propagation elements
-            PrescribedPressures = zeros((numberOfElements,2))
-            done = 0
-            for element in self.NetworkMesh.Elements:
-                for dof in element.GetExternalPressureLocalDofs():    
-                    if self.BoundaryConditions.OutP is not None:
-                        if element.Id == self.BoundaryConditions.elementOut.Id:
-                            if done == 0:   
-                                PrescribedPressures[i,0] = self.DofMap.DofMap[(self.BoundaryConditions.elementOut.Id,self.BoundaryConditions.elementOut.GetLocalDof(int(self.BoundaryConditions.NodeOut)))]
-                                PrescribedPressures[i,1] = self.BoundaryConditions.OutP
-                                done = 1
-                                i+=1
-                    PrescribedPressures[i,0] = self.DofMap.DofMap[(element.Id,dof)]
-                    PrescribedPressures[i,1] = self.BoundaryConditions.PressureValues[element.Id]          
-                    i+=1    
-            self.PrescribedPressures = PrescribedPressures.astype(Int32)
-            
-
-            #Boundary Condition: Inlet Flow.
-            self.BoundaryConditions.SetSimulationContext(simulationContext)
-            self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
-               
-            #Assembling global matrices from local matrices.
-            self.LinearZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            self.LinearFirstOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            self.LinearSecondOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            self.ZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            self.FirstOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            self.SecondOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
-            
-            #Building Global Linear Matrices      
-            for element in self.DofMap.NetworkMesh.Elements:
-                if element.Initialized == False and element.nonLinear == False:              
-                    element.Initialize(simulationContext)
-                    element.InputParameters(evaluator)
-                    zeroOrderMatrix = element.GetZeroOrderMatrix()
-                    firstOrderMatrix = element.GetFirstOrderMatrix()
-                    secondOrderMatrix = element.GetSecondOrderMatrix()
-                    for rowLocalDof in element.dof:
-                        rowGlobalDof = self.DofMap.GetDof(element.Id,rowLocalDof)
-                        for columnLocalDof in element.dof:
-                            columnGlobalDof = self.DofMap.GetDof(element.Id,columnLocalDof)
-                            self.LinearZeroOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += zeroOrderMatrix[rowLocalDof,columnLocalDof]   
-                            self.LinearFirstOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += firstOrderMatrix[rowLocalDof,columnLocalDof]
-                            self.LinearSecondOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += secondOrderMatrix[rowLocalDof,columnLocalDof]
-                    
-            self.Initialized = True
          
+        #Assembling global matrices from local matrices.
+        self.LinearZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        self.LinearFirstOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        self.LinearSecondOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        self.ZeroOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        self.FirstOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        self.SecondOrderGlobalMatrix = zeros((self.DofMap.NumberOfGlobalDofs, self.DofMap.NumberOfGlobalDofs))
+        
+        nonLinear = False
+        #Building Global Linear Matrices      
+        for element in self.DofMap.NetworkMesh.Elements:
+            if element.Initialized == False:             
+                element.Initialize(simulationContext)
+            if element.nonLinear == False: 
+                element.InputParameters(evaluator)
+                zeroOrderMatrix = element.GetZeroOrderMatrix()
+                firstOrderMatrix = element.GetFirstOrderMatrix()
+                secondOrderMatrix = element.GetSecondOrderMatrix()
+                for rowLocalDof in element.dof:
+                    rowGlobalDof = self.DofMap.GetDof(element.Id,rowLocalDof)
+                    for columnLocalDof in element.dof:
+                        columnGlobalDof = self.DofMap.GetDof(element.Id,columnLocalDof)
+                        self.LinearZeroOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += zeroOrderMatrix[rowLocalDof,columnLocalDof]   
+                        self.LinearFirstOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += firstOrderMatrix[rowLocalDof,columnLocalDof]
+                        self.LinearSecondOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += secondOrderMatrix[rowLocalDof,columnLocalDof]
+            else:
+                nonLinear = True
+            
+        if nonLinear == True:        
+            self.ZeroOrderGlobalMatrix,self.FirstOrderGlobalMatrix,self.SecondOrderGlobalMatrix = \
+            self.Assemble(simulationContext, evaluator, self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix)
+        
+        else:
+            self.ZeroOrderGlobalMatrix[:,:] = self.LinearZeroOrderGlobalMatrix[:,:]
+            self.FirstOrderGlobalMatrix[:,:] = self.LinearFirstOrderGlobalMatrix[:,:]
+            self.SecondOrderGlobalMatrix[:,:] = self.LinearSecondOrderGlobalMatrix[:,:]
+        
+        return self.LinearZeroOrderGlobalMatrix, self.LinearFirstOrderGlobalMatrix, self.LinearSecondOrderGlobalMatrix
+        
+        
+    def Assemble(self, simulationContext, evaluator, linearZeroOrder, linearFirstOrder, linearSecondOrder):  
+        '''
+        '''
+        
         #Building non linear matrices
-        self.ZeroOrderGlobalMatrix[:,:] = self.LinearZeroOrderGlobalMatrix[:,:]  
-        self.FirstOrderGlobalMatrix[:,:] = self.LinearFirstOrderGlobalMatrix[:,:]
-        self.SecondOrderGlobalMatrix[:,:] = self.LinearSecondOrderGlobalMatrix[:,:]  
+        self.ZeroOrderGlobalMatrix[:,:] = linearZeroOrder[:,:]  
+        self.FirstOrderGlobalMatrix[:,:] = linearFirstOrder[:,:]
+        self.SecondOrderGlobalMatrix[:,:] = linearSecondOrder[:,:]  
               
         for element in self.DofMap.NetworkMesh.Elements:
             if element.nonLinear == True:
@@ -156,4 +182,5 @@ class Assembler(object):
                         columnGlobalDof = self.DofMap.GetDof(element.Id,columnLocalDof)
                         self.ZeroOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += zeroOrderMatrix[rowLocalDof,columnLocalDof]   
                         self.FirstOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += firstOrderMatrix[rowLocalDof,columnLocalDof]
-                        self.SecondOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += secondOrderMatrix[rowLocalDof,columnLocalDof]     
+                        self.SecondOrderGlobalMatrix[rowGlobalDof,columnGlobalDof] += secondOrderMatrix[rowLocalDof,columnLocalDof]
+        return self.ZeroOrderGlobalMatrix, self.FirstOrderGlobalMatrix, self.SecondOrderGlobalMatrix     
