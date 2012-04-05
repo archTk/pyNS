@@ -33,7 +33,7 @@ Diabetes 0 No, 1 Yes
 Hypertension 0 No, 1 Yes
 Height has to be in cm
 Weight has to be in Kg
-Systolic and diastolic pressures (says and diap) have to be in mmHg
+Systolic and diastolic pressures (sys and diap) have to be in mmHg
 Cardiac output is not mandatory but has to be in mL/min
 Period is the cardiac period, measured in seconds
 Brachial, radial and ulnar flows have to be in mL/min
