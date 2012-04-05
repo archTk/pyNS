@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    InverseWomersley.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 11:25:21 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,14 +15,11 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-import matplotlib
-matplotlib.use('Agg') #switch to matplotlib.use('WXAgg') if you want to show and not save velocity profile.
 import subprocess
 import os
 from math import pi, cos, sin
 from numpy.core.numeric import arange, zeros
 from numpy.core.fromnumeric import mean
-from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, figure, ylim, show, axis, clf
 from numpy.lib.scimath import sqrt
 from numpy.ma.core import exp
 from numpy.lib.function_base import linspace
@@ -31,6 +28,7 @@ import sys
 '''
 Defining Bessel Function. If scipy package is not installed,
 pyNS will use this function instead of scipy.special.jn
+VERY SLOW NOT RECOMMENDED
 '''
 try:
     from scipy.special import jn
@@ -362,6 +360,9 @@ class InverseWomersley(object):
         This method plots velocity profile into png files and makes 
         an avi file from png set. Mencoder is required.
         '''  
+        import matplotlib
+        matplotlib.use('Agg') 
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, savefig, ylim, axis, clf
         #Create temporary image and videos directories'''
         if not os.path.exists ('tmp/'):
             os.mkdir('tmp/')
@@ -443,6 +444,9 @@ class InverseWomersley(object):
         This method plots an animated representation of the velocity profile
         evolving in time using wx python library.
         '''
+        import matplotlib
+        matplotlib.use('WXAgg') 
+        from matplotlib.pyplot import xlabel, ylabel, title, close, figure, ylim, show
         try:
             from wx import GetApp,EVT_CLOSE, EVT_IDLE
         except:
@@ -501,9 +505,11 @@ class InverseWomersley(object):
         '''
         This method plots Wss signal and returns peak wss.
         '''
-       
-        tplot = linspace(0, self.tPeriod, len(self.Tauplot))
+        import matplotlib
+        matplotlib.use('Agg') #switch to matplotlib.use('WXAgg') if you want to show and not save velocity profile.
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
         
+        tplot = linspace(0, self.tPeriod, len(self.Tauplot))
         plot(tplot, self.Tauplot,'g-',linewidth = 3, label = 'WSS')
         minY = 0
         for w in self.Tauplot:

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    MeshGenerator_Script.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 11:35:11 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -14,6 +14,11 @@
 ##   PURPOSE.  See the above copyright notices for more information.
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
+
+'''
+THIS SCRIPT IS USED BY ARCH NETWORK EDITOR (GUI)
+IF YOU ARE USING PYNS WITHOUT THE GUI YOU CAN DELETE THIS FILE
+'''
 
 from NetworkGraph import NetworkGraph
 from NetworkMesh import NetworkMesh

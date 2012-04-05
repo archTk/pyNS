@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Adaptation.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:53:34 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -94,10 +94,10 @@ class Adaptation(object):
         '''
         if day>0:
              
-            if day == 1:      
+            if day == 1:    
                 for el in self.solutions[day-1].NetworkMesh.Elements:
                     if el.Type == 'WavePropagation':
-                        kd1= el.Radius[0]
+                        kd1 = el.Radius[0]
                         kd2 = el.Radius[len(el.Radius)-1]
                         el.dayRadius[day-1]=[kd1,kd2]
                         
@@ -149,7 +149,7 @@ class Adaptation(object):
                             kd2_n = el.Radius[len(el.Radius)-1]     
                             el.dayRadius[day]=[kd1_n,kd2_n] 
                             
-            if self.simulationContext.Context['diab'] == 0 and self.simulationContext.Context['ftype'] < 3:
+            else:
 
                 for ent, elList in self.solutions[day-1].NetworkMesh.Entities.iteritems():  
                     if ent.Id == 'axillarian' or ent.Id == 'brachial' or ent.Id == 'radial' or ent.Id == 'ulnar' or ent.Id == 'cephalic_vein' or ent.Id == 'cubiti_vein' or ent.Id == 'basilic_vein' or ent.Id == 'subclavian_vein':  

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Solver.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:11:24 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -281,7 +281,9 @@ class SolverFirstTrapezoid(Solver):
             if self.IncrementNumber==ceil(0.70*self.NumberOfIncrements):
                 print "->70%" 
             if self.IncrementNumber==ceil(0.90*self.NumberOfIncrements):
-                print "->90%"     
+                print "->90%"  
+            if self.IncrementNumber==ceil(0.99*self.NumberOfIncrements):
+                print "->99%"   
             
             self.IncrementNumber = self.IncrementNumber+1
             self.EndIncrementTime = self.EndIncrementTime + self.TimeStep    # increment 

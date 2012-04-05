@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkSolutions.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 14:41:14 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -22,16 +22,14 @@ from numpy.core.numeric import array, zeros
 from math import pi
 from numpy.lib.function_base import linspace
 from numpy.core.numeric import arange
-from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
-   
+from numpy.ma.core import ceil
+from json import dump 
+import csv
 try:
     from lxml import etree
 except:
     from xml.etree import ElementTree as etree
 
-from numpy.ma.core import ceil
-
-import csv
 
 class NetworkSolutions(object):
     '''
@@ -41,33 +39,37 @@ class NetworkSolutions(object):
     SetNetworkMesh: a method for setting NetworkMesh input
     SetSolutions: a method for setting Solutions input
     SetSimulationContext: a method for setting SimulationContext input.
+    #Json  Methods:
+    WriteJsonInfo: a method for creating the json which includes simulation information (elements and adaptation steps if adaptation is active).
+    WriteJson: a method for creating a json for a specified mesh which includes all information needed for postprocessing.
+    WriteJsonAdapt: a method for creating a json for a specified mesh which includes information about vascular adaptation.
     #General Methods:
-    PlotBrachial: a method for plotting Brachial flows, pressure and wss (for each segment) in the same figure.
-    PlotRadial: a method for plotting Radial flows, pressure and wss (for each segment) in the same figure.
-    PlotCephalic: a method for plotting Cephalic flows, pressure and wss (for each segment) in the same figure.
+    PlotBrachial: a method for plotting Brachial flows, pressure and wss (for each segment) in the same figure. (Requires matplotlib package)
+    PlotRadial: a method for plotting Radial flows, pressure and wss (for each segment) in the same figure. (Requires matplotlib package)
+    PlotCephalic: a method for plotting Cephalic flows, pressure and wss (for each segment) in the same figure. (Requires matplotlib package)
     WriteToXML: a method for writing solutions in XML Solutions File.
     GetSolution: a method for plotting flow, pressure and WSS for specific entity.
     #Flow Methods:
     GetInflow: a method for plotting input flow function.
-    PlotFlow: a method for plotting mean flow for a single mesh.
-    PlotFlowComparative: a method for plotting brachial, radial and ulnar mean flow.
+    PlotFlow: a method for plotting mean flow for a single mesh. (Requires matplotlib package)
+    PlotFlowComparative: a method for plotting brachial, radial and ulnar mean flow. (Requires matplotlib package)
     GetFlowSignal: a method for returning flow signal for specific mesh.
     WriteFlowOutput: a method for writing flow output values for a specific mesh in a .txt file.
-    PlotReynolds: a method for plotting reynolds number for a single mesh.
+    PlotReynolds: a method for plotting reynolds number for a single mesh. (Requires matplotlib package)
     WriteReynoldsOutput: a method for writing reynolds number output values for a specific mesh in a .txt file.
     #Pressure Methods:
-    PlotPressure: a method for plotting mean pressure for a single mesh.
-    PlotPressureTwo: a method for plotting pressures for a couple of meshes.
-    PlotPressureComparative: a method for plotting brachial, radial and ulnar mean pressure.
+    PlotPressure: a method for plotting mean pressure for a single mesh. (Requires matplotlib package)
+    PlotPressureTwo: a method for plotting pressures for a couple of meshes. (Requires matplotlib package)
+    PlotPressureComparative: a method for plotting brachial, radial and ulnar mean pressure. (Requires matplotlib package)
     GetPressureSignal: a method for returning pressure signal for specific mesh.
-    PlotPressureDrop : a method for plotting pressure drop for specific mesh.
+    PlotPressureDrop : a method for plotting pressure drop for specific mesh. (Requires matplotlib package)
     WritePressureInput: a method for writing pressure input values for a specific mesh in a .txt file.
     WritePressureOutput: a method for writing pressure output values for a specific mesh in a .txt file.
     #Wall Shear Stress Methods:
-    PlotPWSS: a method for plotting mean WSS(Poiseuille) for a single mesh.
-    PlotPWSSComparative: a method for plotting brachial, radial and ulnar mean WSS (Poiseuille).
+    PlotPWSS: a method for plotting mean WSS(Poiseuille) for a single mesh. (Requires matplotlib package)
+    PlotPWSSComparative: a method for plotting brachial, radial and ulnar mean WSS (Poiseuille). (Requires matplotlib package)
     GetPWSSSignal: a method for returning WSS signal(Poiseuille) for specific mesh.
-    PlotWSS: a method for plotting mean WSS for a single mesh.
+    PlotWSS: a method for plotting mean WSS for a single mesh. (Requires matplotlib package)
     GetWSSSignal: a method for returning WSS signal for specific mesh.
     WriteWSSOutput: a method for writing WSS output values for a specific mesh in a .txt file.
     #Other Methods:
@@ -93,6 +95,8 @@ class NetworkSolutions(object):
         self.images = None
         self.dayFlow = {} #{element.Id:Q}
         self.dayWssP = {} #{element.Id:taoPeak}
+        self.dayPressure = {} #{element.Id:pressure}
+        self.dayDiameter = {} #{element.Id:diameter}
         self.flowDirection = {'(+)':"from node1 to node2", '(-)':"from node2 to node1"} #Flow direction is assumed positive if flow goes from node1 to node2.
         
     def SetNetworkGraph(self,networkGraph):
@@ -156,6 +160,169 @@ class NetworkSolutions(object):
                 self.p_images = path
             if name == 'w':
                 self.w_images = path
+                     
+    # JSON METHODS
+    
+    def WriteJsonInfo(self, days, elements):
+        '''
+        '''
+        info = {}
+        info['time'] = []
+        info['elements'] = []
+        
+        if days > 0:
+            info['adaptation']=True
+        else:
+            info['adaptation']=False
+        for d in range(-1,days+1):
+            if d >0:
+                info['time'].append(d*10)
+            else:
+                info['time'].append(d)
+        info['time'].sort()
+        
+        for el in elements:
+            if el.Type == 'WavePropagation':
+                info['elements'].append(el.Name)
+                info['elements'].sort()
+        path = 'Results/json/info.json'
+        f = open(path,'w')
+        dump(info, f)
+        f.close()
+    
+    def WriteJson(self, meshid, time):
+        '''
+        This method writes a json file for each mesh.
+        '''
+        meshInfo = {}
+        meshid = str(meshid)
+        for element in self.NetworkMesh.Elements:
+            if element.Id == meshid:
+                dofs = element.GetPoiseuilleDofs()     
+                p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                Flow = (p1-p2)/element.R
+                Radius = element.Radius
+                Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
+                Wss = self.GetWSSSignal(element)
+                tWss = linspace(0, self.Period, len(Wss))
+                elName = element.Name
+                meshInfo['meshId']=str(meshid)
+                meshInfo['name']=str(elName)
+                meshInfo['length']=str(round(element.Length*1e2,2))+' cm'
+                meshInfo['diameter_min']=str(round((min(element.Radius)*2e3),2))+' mm'
+                meshInfo['diameter_max']=str(round((max(element.Radius)*2e3),2))+' mm'
+                meshInfo['mean_pressure']=str(round(mean(p1/133.32),2))+' mmHg'
+                meshInfo['min_pressure'] = str(0)
+                min_p = round(min(p1/133.32),2)
+                if min_p < 0:
+                    meshInfo['min_pressure'] = str(min_p) 
+                meshInfo['mean_flow']=str(round(mean(Flow*6e7),2))+' mL/min'
+                meshInfo['min_flow'] = str(0)
+                min_q = round(min(Flow*6e7),2)
+                if min_q < 0:
+                    meshInfo['min_flow'] = str(min_q)
+                meshInfo['mean_wss']=str(round(mean(Wss*10),2))+' dynes/cm<sup>2</sup>'
+                meshInfo['min_wss'] = str(0)
+                min_wss = round(min(Wss*10),2)
+                if min_wss < 0:
+                    meshInfo['min_wss'] = str(min_wss)
+                meshInfo['mean_re']=str(round(mean(Reynolds),1))
+                meshInfo['min_re'] = str(0)
+                min_re = round(min(Reynolds),1)
+                if min_re < 0:
+                    meshInfo['min_re'] = str(min_re)
+                meshInfo['items'] = []
+                timeValues = {}
+                timeValues['flow'] = []
+                timeValues['pressure'] = []
+                timeValues['wss'] = []
+                timeValues['re'] = []
+                
+                self.dayFlow[element.Name] = (round(mean(Flow*6e7),1))
+                self.dayPressure[element.Name] = (round(mean(p1/133.32),1))
+                self.dayWssP[element.Name] = (round(max(Wss*10),2))
+                
+                try:
+                    self.dayDiameter[element.Name] = element.dayRadius[time][0]*2e3
+                except:
+                    self.dayDiameter[element.Name] = element.Radius[0]*2e3
+                             
+        i=0
+        for q in Flow:
+            timeValues['flow'].append([self.t[i],q*6e7])
+            i+=1
+        i=0
+        for p in p1:
+            timeValues['pressure'].append([self.t[i],p/133.32])
+            i+=1
+        i=0
+        for w in Wss:
+            timeValues['wss'].append([tWss[i],w*10])
+            i+=1
+        i=0
+        for re in Reynolds:
+            timeValues['re'].append([self.t[i],re])
+            i+=1
+        
+        meshInfo['items'].append(timeValues)
+        if time > 0: 
+            path = 'Results/json/'+str(time*10)+'_'+str(elName)+'.json'
+        else:
+            path = 'Results/json/'+str(time)+'_'+str(elName)+'.json'
+        f = open(path,'w')
+        dump(meshInfo, f)
+        f.close()
+        
+        
+    def WriteJsonAdapt(self, adaptation):
+        '''
+        '''
+            
+        meshInfo = {}
+        
+        for element in self.NetworkMesh.Elements:
+            if element.Type == 'WavePropagation':
+                elName = element.Name
+                meshInfo['meshId']=str(element.Id)
+                meshInfo['name']=str(elName)
+                meshInfo['items'] = []
+                timeValues = {}
+                timeValues['flow'] = []
+                timeValues['pressure'] = []
+                timeValues['wssP'] = []
+                timeValues['diameter'] = []
+                
+                for day,sol in adaptation.solutions.iteritems():
+                    if day == -1:
+                        try:
+                            timeValues['flow'].append([day,sol.dayFlow[element.Name]])
+                            timeValues['pressure'].append([day,sol.dayPressure[element.Name]])
+                            timeValues['wssP'].append([day,sol.dayWssP[element.Name]])
+                            try:
+                                timeValues['diameter'].append([-1,element.dayRadius[0][0]*2e3])
+                            except:
+                                timeValues['diameter'].append([-1,element.Radius[0]*2e3])  
+                        except KeyError:
+                            pass
+                    if day != -1:
+                        timeValues['flow'].append([day*10,sol.dayFlow[element.Name]])
+                        timeValues['pressure'].append([day*10,sol.dayPressure[element.Name]])
+                        timeValues['wssP'].append([day*10,sol.dayWssP[element.Name]])
+                        try:
+                            timeValues['diameter'].append([day*10,element.dayRadius[day][0]*2e3])
+                        except:
+                            timeValues['diameter'].append([day*10,element.Radius[0]*2e3])
+                   
+                timeValues['flow'].sort()
+                timeValues['pressure'].sort()
+                timeValues['wssP'].sort()
+                timeValues['diameter'].sort()
+                meshInfo['items'].append(timeValues)
+                path = 'Results/json/adapt_'+str(elName)+'.json'
+                f = open(path,'w')
+                dump(meshInfo, f)
+                f.close()
         
     # GENERAL METHODS
     
@@ -163,7 +330,8 @@ class NetworkSolutions(object):
         '''
         This method plots Brachial flows, pressure
         and wss (for each segment) in the same figure.
-        '''       
+        '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -207,6 +375,7 @@ class NetworkSolutions(object):
         This method plots Radial flows, pressure
         and wss (for each segment) in the same figure.
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -251,6 +420,7 @@ class NetworkSolutions(object):
         This method plots Cephalic flows, pressure
         and wss (for each segment) in the same figure.
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -296,6 +466,7 @@ class NetworkSolutions(object):
         '''
         This method plots inflow function
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         t = linspace(0.0,self.Period+self.TimeStep,self.CardiacFreq).reshape((1,ceil(self.Period/self.TimeStep+1.0)))        
         plot(t[0,:], flow[0,:]*6e7, 'r-',linewidth = 3, label = 'Inlet Flow')   #red line
         xlabel('Time ($s$)')
@@ -304,14 +475,304 @@ class NetworkSolutions(object):
         legend()
         savefig(self.images+'inflow.png')
         close()
+    
+    def PlotDaysBrachial(self, wdir, adaptation):
+        '''
+        '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        Flow = {-1:self.SimulationContext.Context['brachial_flow']}
+        Diameter = {}
+        t = [-1]
+        x = 0
+        yFlows=[]
+        yDiams=[]
+        
+        
+        for el in self.NetworkMesh.Elements:
+            if el.Name ==  'brachial_prox_1':
+                for day,sol in adaptation.solutions.iteritems():
+                    if day != -1:
+                        Flow.update({day:sol.dayFlow[el.Id]})
+                        t.append(x)
+                        x+=1
+                        try:
+                            Diameter.update({day:el.dayRadius[day][0]*2e3})
+                        except:
+                            Diameter.update({day:el.Radius[0]*2e3})
+                            
+        Diameter[-1]=Diameter[0]           
+        tPlot = []
+        for day in sorted(t):
+            yFlows.append(Flow[day])
+            yDiams.append(Diameter[day])
+            tPlot.append(day*10)
+            
+       
+        plot(tPlot,yDiams,marker='o', linestyle='-',linewidth = 2)
+        minY = 0
+        ylim(ymin=minY)
+        xlabel('Time ($days$)')
+        ylabel('Diameter ($mm$)')
+        brachDiam = wdir+'/Brachial_days_diam.png'
+        savefig(wdir+'/Brachial_days_diam.png')
+        close()
+        
+        plot(tPlot,yFlows,marker='o', linestyle='-',linewidth = 2)
+        ylim(ymin=minY)
+        xlabel('Time ($days$)')
+        ylabel('Flow ($mL/min$)')
+        brachFlow = wdir+'/Brachial_days_flow.png'
+        savefig(wdir+'/Brachial_days_flow.png')
+        close()
+        meanBrachFlow = Flow[4]
+        
+        return brachDiam, brachFlow, meanBrachFlow
+    
+    
+    def GetDistalPressure(self, adaptation):
+        '''
+        This method returns distal pressure in the index finger (mmHg)
+        '''
+        for element in self.NetworkMesh.Elements:
+            if element.Name == 'index_finger':
+                for day,sol in adaptation.solutions.iteritems():
+                    if day == 4:
+                        meshid = element.Id
+                        dofs = element.GetPoiseuilleDofs()
+                        distalPressure = mean(self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):])
+               
+        return round(distalPressure/133.32,2)
+        
+    def PlotDistalPressure(self, wdir, distalPressures):
+        '''
+        '''
+        from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        pressure = []
+        ind = arange(4)
+        pos = arange(4)
+        width = 0.5
+        for va, p in distalPressures.iteritems():
+            for x in ind:
+                if va == x:
+                    pressure.append(p)
+                    
+        fig = figure()
+        ax = fig.add_subplot(111)
+        rects = ax.bar(0.2+ind, pressure, width, color='c')
+        ax.set_title('Distal pressure prediction in different AVFs')
+        ax.set_ylabel('Index finger pressure at 40 days ($mmHg$)')
+        ax.set_xticks(0.45+pos)
+        ax.set_xticklabels( ('RCEE', 'RCES', 'BCES', 'BBES') )
+        plot([0,4], [60,60],'--', color='k', linewidth=2 )
+        maxY = max(pressure)
+        maxY+=0.02*maxY
+        ylim(ymax=maxY)
 
+        pressureImage = wdir+'/distalPressure.png'
+        savefig(wdir+'/distalPressure.png')
+        close()
+        
+        return pressureImage
+    
+    
+    def Compare(self, wdir, compare):
+        '''
+        '''
+        from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        flow = []
+        std = []
+        ind = arange(4)
+        pos = arange(4)
+        width = 0.5
+        for va, q in compare.iteritems():
+            for x in ind:
+                if va == x:
+                    flow.append(q)
+                    std.append(q*0.2)
+        
+        fig = figure()
+        ax = fig.add_subplot(111)
+        rects = ax.bar(0.2+ind, flow, width, color='c', yerr = std, ecolor='r')
+        ax.set_title('Comparing flow volume in different AVFs')
+        ax.set_ylabel('Brachial artery flow volume at 40 days ($mL/min$)')
+        ax.set_xticks(0.45+pos)
+        ax.set_xticklabels( ('RCEE', 'RCES', 'BCES', 'BBES') )
+        plot([0,2], [400,400],'--', color='k', linewidth=2 )
+        maxY = max(flow)+max(std)
+        maxY+=0.02*maxY
+        ylim(ymax=maxY)
+
+        compareImage = wdir+'/compare.png'
+        savefig(wdir+'/compare.png')
+        close()
+        
+        return compareImage
+        
+    
+    def Plots(self, wdir, day, name):
+        '''
+        '''    
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        timeImages = []     
+        for element in self.NetworkMesh.Elements:
+            if element.Name == name:
+                meshid = element.Id
+                el = element
+                dofs = element.GetPoiseuilleDofs()
+                        
+                p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
+                p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
+                
+                if mean(p1)>=mean(p2):
+                    flowDirection = self.flowDirection['(+)']
+                    Flow = (p1-p2)/element.R
+                else:
+                    flowDirection = self.flowDirection['(-)']
+                    Flow = (p2-p1)/element.R
+               
+        self.dayFlow[meshid] = (round(mean(Flow*6e7),1))
+        
+        plot(self.t, Flow*6e7, 'r-',linewidth = 3, label = 'Volumetric flow rate')   #red line
+        minY = 0
+        for q in Flow*6e7:
+            if q < minY:
+                minY = q       
+        if minY != 0:
+            plot(self.t, zeros(len(Flow)),':',linewidth = 1)
+        ylim(ymin=minY)
+        xlabel('Time ($s$)')
+        ylabel('Volumetric flow rate ($mL/min$)')
+        if flowDirection == self.flowDirection['(+)']:
+            title ('Flow (+)'+' peak:'+str(round(max(Flow*6e7),1))+' mean:'+str(round(mean(Flow*6e7),1))+' min:'+str(round(min(Flow*6e7),1)))    
+        if flowDirection == self.flowDirection['(-)']:
+            title ('Flow (-)'+' peak:'+str(round(max(Flow*6e7),1))+' mean:'+str(round(mean(Flow*6e7),1))+' min:'+str(round(min(Flow*6e7),1)))    
+        legend()
+            
+        if name.__contains__('brachial'):
+            timeImages.append(wdir+'/%s_brachflow.png' % day)
+            savefig(wdir+'/%s_brachflow.png' % day)
+            close()
+            
+        if name.__contains__('radial'):
+            timeImages.append(wdir+'/%s_radflow.png' % day)
+            savefig(wdir+'/%s_radflow.png' % day)
+            close()
+            
+        
+        plot(self.t, p1/133.32, 'b-', linewidth = 3, label = 'Pressure Signal')   #blue line
+        minY = 0
+        for p in p1/133.32:
+            if p < minY:
+                minY = p
+        if minY != 0:
+            plot(self.t, zeros(len(p1)),':',linewidth = 1)
+        ylim(ymin=minY)
+        xlabel('Time ($s$)')
+        ylabel('Pressure ($mmHg$)')
+        title ('Pressure'+' peak:'+str(round(max(p1/133.32),1))+' mean:'+str(round(mean(p1/133.32),1))+' min:'+str(round(min(p1/133.32),1)))    
+        legend()
+        
+        if name.__contains__('brachial'):
+            timeImages.append(wdir+'/%s_brachpressure.png' % day)
+            savefig(wdir+'/%s_brachpressure.png' % day)
+            close()
+            
+        if name.__contains__('radial'):
+            timeImages.append(wdir+'/%s_radpressure.png' % day)
+            savefig(wdir+'/%s_radpressure.png' % day)
+            close()
+            
+        
+        
+        inverseWomersley = InverseWomersley()
+        inverseWomersley.SetSimulationContext(self.SimulationContext)
+        inverseWomersley.SetNetworkMesh(self.NetworkMesh)
+        inverseWomersley.SetFlowSignal(self.GetFlowSignal(el))
+        inverseWomersley.GetTaoFromQ(el)
+        tplot = linspace(0, inverseWomersley.tPeriod, len(inverseWomersley.Tauplot))
+        plot(tplot, inverseWomersley.Tauplot,'g-',linewidth = 3, label = 'WSS')
+        minY = 0
+        for w in inverseWomersley.Tauplot:
+            if w < minY:
+                minY = w
+        if minY != 0:
+            plot(tplot, zeros(len(inverseWomersley.Tauplot)),':',linewidth = 1)     
+        ylim(ymin=minY)
+        xlabel('Time ($s$)')
+        ylabel('Wall shear stress ($dyne/cm^2$)')
+        title ('Wss'+' peak:'+str(round(max(inverseWomersley.Tauplot),1))+' mean:'+str(round(mean(inverseWomersley.Tauplot),1))+' min:'+str(round(min(inverseWomersley.Tauplot),1)))    
+        legend()
+        
+        if name.__contains__('brachial'):
+            timeImages.append(wdir+'/%s_brachwss.png' % day)
+            savefig(wdir+'/%s_brachwss.png' % day)
+            close()
+            
+        if name.__contains__('radial'):
+            timeImages.append(wdir+'/%s_radwss.png' % day)
+            savefig(wdir+'/%s_radwss.png' % day)
+            close()
+                    
+        return timeImages
+    
+    def PlotDaysRadial(self, wdir, adaptation):
+        '''
+        '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        Flow = {-1:self.SimulationContext.Context['radial_flow']}
+        Diameter = {}
+        t = [-1]
+        x = 0
+        yFlows=[]
+        yDiams=[]
+        
+        for el in self.NetworkMesh.Elements:
+            if el.Name ==  'radial_prox_3':
+                for day,sol in adaptation.solutions.iteritems():
+                    if day != -1:
+                        Flow.update({day:sol.dayFlow[el.Id]})
+                        t.append(x)
+                        x+=1
+                        try:
+                            Diameter.update({day:el.dayRadius[day][0]*2e3})
+                        except:
+                            Diameter.update({day:el.Radius[0]*2e3})
+                            
+        Diameter[-1]=Diameter[0]       
+        tPlot = []
+        for day in sorted(t):
+            yFlows.append(Flow[day])
+            yDiams.append(Diameter[day])
+            tPlot.append(day*10)
+            
+        minY = 0
+        plot(tPlot,yDiams,marker='o', linestyle='-',linewidth = 2)
+        ylim(ymin=minY)
+        xlabel('Time ($days$)')
+        ylabel('Diameter ($mm$)')
+        radDiam = wdir+'/Radial_days_diam.png'
+        savefig(wdir+'/Radial_days_diam.png')
+        close()
+        
+        plot(tPlot,yFlows,marker='o', linestyle='-',linewidth = 2)
+        ylim(ymin=minY)
+        xlabel('Time ($days$)')
+        ylabel('Flow ($mL/min$)')
+        radFlow = wdir+'/Radial_days_flow.png'
+        savefig(wdir+'/Radial_days_flow.png')
+        close()
+        
+        return radDiam, radFlow
+        
+    
     def PlotFlow(self, meshid):
         '''
         This method plots mean flow for a single mesh.
         Flow volume is considered as absolute value.
         Direction of the flow is assumed + if goes from node1 to node2. Instead
         flowDirection is assumed to be -.
-        '''         
+        '''      
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim  
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -354,7 +815,8 @@ class NetworkSolutions(object):
     def PlotVelocity(self, meshid):
         '''
         This method plots mean flow for a single mesh
-        '''           
+        '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -391,6 +853,7 @@ class NetworkSolutions(object):
         This method plots brachial, radial and ulnar mean flow.
         If cycle is not specified, default cycle is the last one
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         FlowBrachial = 0
         FlowRadial = 0
         FlowUlnar = 0
@@ -462,6 +925,7 @@ class NetworkSolutions(object):
         '''
         This method plots different flow volume signals in the same figure.
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -535,6 +999,7 @@ class NetworkSolutions(object):
             Flow = (p1-p2)/el.R
         else:
             Flow = (p2-p1)/el.R
+        
         return Flow
     
     def WriteFlowTot(self, txtpath):
@@ -613,6 +1078,7 @@ class NetworkSolutions(object):
         '''
         This method plots reynolds number for a single mesh
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -642,7 +1108,7 @@ class NetworkSolutions(object):
         '''
         This method plots pressures for a single mesh
         '''
-
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -674,6 +1140,7 @@ class NetworkSolutions(object):
         '''
         This method plots different pressure signals in the same figure.
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -712,7 +1179,7 @@ class NetworkSolutions(object):
         '''
         This method plots pressures for a couple of meshes
         '''
-
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -738,7 +1205,7 @@ class NetworkSolutions(object):
         '''
         This method plots brachial, radial and ulnar pressure signal.
         '''
-    
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         PressureBrachial = 0
         PressureRadial = 0
         PressureUlnar = 0
@@ -788,7 +1255,6 @@ class NetworkSolutions(object):
         '''
         This method returns pressures signal for specific mesh
         '''
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -802,7 +1268,7 @@ class NetworkSolutions(object):
         '''
         This method returns pressure drop for specific mesh
         '''
-
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -826,7 +1292,6 @@ class NetworkSolutions(object):
         '''
         This method writes pressure output values in a .txt file.
         '''
-        
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -846,7 +1311,6 @@ class NetworkSolutions(object):
         '''
         This method writes pressure output values in a .txt file.
         '''
-
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -863,12 +1327,11 @@ class NetworkSolutions(object):
         text_file.close()
         
     # Wall Shear Stress methods    
-    
     def PlotPWSS(self, meshid):
         '''
         This method plots mean WSS (POISEUILLE) for a single mesh 
         '''
-
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -895,7 +1358,7 @@ class NetworkSolutions(object):
         '''
         This method plots different poiseuille's wss signals in the same figure.
         '''
-       
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -931,7 +1394,7 @@ class NetworkSolutions(object):
         '''
         This method plots brachial, radial and ulnar WSS (POISEUILLE) signal.
         '''
-
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         FlowBrachial = 0
         FlowRadial = 0
         FlowUlnar = 0
@@ -1085,7 +1548,7 @@ class NetworkSolutions(object):
         inverseWomersley.SetSimulationContext(self.SimulationContext)
         inverseWomersley.SetNetworkMesh(self.NetworkMesh)
         
-        inverseWomersley.SetFlowSignal(el, self.GetFlowSignal(el))
+        inverseWomersley.SetFlowSignal(self.GetFlowSignal(el))
         inverseWomersley.GetTaoFromQ(el)
         peak = inverseWomersley.PlotWss(el.Id, self.w_images)
         
@@ -1095,6 +1558,7 @@ class NetworkSolutions(object):
         '''
         This method plots different womersley wss signals ino the same figure.
         ''' 
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         
@@ -1272,6 +1736,7 @@ class NetworkSolutions(object):
         '''
         This method gets and plots flow, pressure and WSS for specific entity.
         '''
+        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
         Flow = 0
         WSS = 0
         WSSW = 0
@@ -1330,6 +1795,7 @@ class NetworkSolutions(object):
         '''
         This method writes solutions in XML MeshSolutions File
         '''
+        print "Writing xml Solution file..."
         root = etree.Element("Solutions", id=self.NetworkGraph.Id, version="2.0")
         xmlsolutions = etree.ElementTree(root)
         

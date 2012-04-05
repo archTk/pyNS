@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Elements.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 11:24:22 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -520,10 +520,6 @@ class WavePropagationElement(Element):
                 if value == True and name == 'radiusExp':
                     evaluator.SetAbscissa(self.s1+((self.s2-self.s1)/2))
                     evaluator.Evaluate(self.RadiusExp[s1])
-                    #===========================================================
-                    # print self.Name
-                    # print self.Radius
-                    #===========================================================
                     #Resistance and Inductance are radius dependents
                     R = (8.0*self.eta*self.dz)/(pi*self.Radius**4)
                     R = float(sum(R))
