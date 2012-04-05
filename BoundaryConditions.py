@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    BoundaryConditions.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 10:54:10 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -190,31 +190,29 @@ class BoundaryConditions(object):
         If XML schema is given (and lxml package is installed),
         XML file is validated first.
         '''
-        error = None
-        if xsdBcpath:
-            try:
-                schemabcfile = open(xsdBcpath)
-                xmlschema_doc = etree.parse(schemabcfile)
-                
+        if not xsdBcpath:
+            NoXSDWarning()
+        else:
+            while True:
                 try:
+                    schemabcfile = open(xsdBcpath)
+                except:
+                    WrongXSDPathError()
+                    break  
+                try:
+                    xmlschema_doc = etree.parse(schemabcfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)
-                    
                     docbcfile = open(xmlBcpath)
                     docbc = etree.parse(docbcfile)
                 except:
-                    LXMLError()        
+                    LXMLError() 
+                    break
                 try:
                     xmlschema.assert_(docbc)
-                    print "Boundary Conditions Xml file has been validated."
+                    print "Boundary Conditions Xml File has been validated."
+                    break
                 except AssertionError:   
-                    error = AssertionError
                     XMLValidationError(xmlschema)
-            except:
-                WrongXSDPathError()
-        else:
-            print "Warning, Boundary Conditions Xml schema was not provided."
-        if error:
-            sys.exit()
             
         docbcfile = open(xmlBcpath)
         bctree = etree.parse(docbcfile)
@@ -321,7 +319,16 @@ class XMLValidationError(Error):
     def __init__(self,xmlschema):
         print "Error, Invalid Boundary Condition Xml File."
         print xmlschema.error_log
-
+        sys.exit()
+        
+class NoXSDWarning(Error):
+    '''
+    Exception raised if no xsd file is provided.
+    '''
+    def __init__(self):
+        print "Warning, XML schema file was not provided."
+        print "Boundary Conditions Xml file can not be validated."
+        
 class WrongXSDPathError(Error):
     '''
     Exception raised if a wrong xsd path is provided.

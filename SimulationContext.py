@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    SimulationContext.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:11:24 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,10 +15,7 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
+from xml.etree import ElementTree as etree
 import shutil
 
 class SimulationContext(object):

@@ -99,7 +99,7 @@
       <lower_arm_ratio>0.2</lower_arm_ratio>
       <vein_ratio>0.2</vein_ratio>
       <poisson_ratio>0.5</poisson_ratio>
-      <timestep unit="s">0.001</timestep>
+      <timestep unit="s">0.005</timestep>
       <cycles>10</cycles>
     </simulation_parameters>
   </specificdatasets>

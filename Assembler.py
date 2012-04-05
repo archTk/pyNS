@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Assembler.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 10:54:10 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -67,7 +67,6 @@ class Assembler(object):
         '''
         return self.DofMap.NumberOfGlobalDofs
     
-    
     def AssembleBoundaryConditions(self, simulationContext):
         '''
         This method assembles arrays of prescribed pressures
@@ -75,8 +74,7 @@ class Assembler(object):
         self.DofMap = DofMap()
         self.DofMap.SetNetworkMesh(self.NetworkMesh)
         self.DofMap.Build()
-         
-        
+             
         # Searching for prescribed pressure output
         numberOfElements = 0
         for element in self.NetworkMesh.Elements:  
@@ -86,7 +84,6 @@ class Assembler(object):
             numberOfElements+=1
             
         # Setting Transmural Pressures for windkessel elements and wave propagation elements
-        
         PrescribedPressures = zeros((numberOfElements,2))
         done = 0
         i = 0

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 ## Program:   PyNS
-## Module:    Main.py
+## Module:    pyNS.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 15:50:34 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -27,10 +27,11 @@ from Evaluator import Evaluator
 from Adaptation import Adaptation, linspace
 from optparse import OptionParser
 import os
+import shutil
 
+'''Command-line arguments.'''
 parser = OptionParser()
-
-parser.add_option("-s", "--simType", action="store",dest='simType', type="string", default="generic",
+parser.add_option("-s", "--simType", action="store",dest='simType', type="string", default="specific",
 				  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation.")
 parser.add_option("-w", "--workingDir", action="store", dest='wdir', type='string',default='XML/',
                   help = "Working directory path for xml input files. By default is located in 'XML/' pyNS subfolder.")
@@ -59,7 +60,15 @@ parser.add_option("-k", "--parameters", action="store", dest='parameters', type=
 parser.add_option("-d", "--diameters", action="store", dest='diameters', type='string', default = None,
                   help="Additional .csv file for patient-specific measured diameters. This enhance the patient-specific network generated from a generic template. By default does not exist.")
 parser.add_option("-a", "--adaptation", action="store", dest='adaptation', type='int', default = -1,
-                  help="Turn on adaptation algorithm by setting the number of simulated days. By default simulation is performed for preoperative(-1day)")
+                  help="Turn on adaptation algorithm by setting the number of simulated steps. 1 step represents 10 days. By default simulation is performed for preoperative(-1day)")
+parser.add_option("--xmlSolution", action="store_true", dest='xmlSol', default = False,
+                  help="Network Graph solution XML file will be saved in the Output directory if this feature is active. By default this feature is inactive.")
+parser.add_option("--xmlMesh", action="store_true", dest='xmlMesh', default = False,
+                  help="Network Mesh XML file will be saved in the Output directory if this feature is active. By default this feature is inactive.")
+parser.add_option("--writeCsv", action="store_true", dest='writeCsv', default = False,
+                  help="Adaptation results (flow rate, diameter, pressure and wss) will be saved in separates csv files if this feature is active. By default this feature is inactive.")
+parser.add_option("-p", "--plotImages", action="store_true", dest='plotImages', default = False,
+                  help="Plot images using matplotlib library instead of using results.html. By default this feature is inactive.")
 parser.add_option("--plotPressure", action="store_true", dest='plotPressure', default = False,
                   help="Plot pressure solution for each element of the network. By default this feature is inactive.")
 parser.add_option("--plotFlow", action="store_true", dest='plotFlow', default = False,
@@ -78,22 +87,59 @@ parser.add_option("--writeWss", action="store_true", dest='writeWss', default = 
                   help="Write wall shear stress solution for each element of the network in a .txt file. By default this feature is inactive.")
 parser.add_option("--velocityProfile", action="store_true", dest='velocityProfile', default = False,
                   help="Save velocity profile in a .avi file. By default this feature is inactive.")
-
 (options, args) = parser.parse_args()
 
+'''Setting simulation type and main directories.'''
 simType = options.simType
 wdir = options.wdir
 odir = options.odir
 xsd = options.xsd
-ofdir = os.path.join(odir, 'Flow/')
-opdir = os.path.join(odir, 'Pressure/')
-owdir = os.path.join(odir, 'Wss/')
-oodir = os.path.join(odir, 'Other/')
-images = options.images
-f_images = os.path.join(images, 'Flow/')
-p_images = os.path.join(images, 'Pressure/')
-w_images = os.path.join(images, 'Wss/')
-o_images = os.path.join(images, 'Other/')
+
+'''Create XML and image directories'''
+if not os.path.exists (wdir):
+    os.mkdir(wdir)
+if not os.path.exists (xsd):
+    os.mkdir(xsd)
+
+'''If needed, creating output directory(s).'''
+if options.xmlSol is True or options.xmlMesh is True or options.writeFlow is True or options.writePressure is True or  options.writeWss is True or options.writeReynolds is True:
+    if not os.path.exists (odir):
+        os.mkdir(odir)
+if options.writeFlow is True:
+    ofdir = os.path.join(odir, 'Flow/')
+    if not os.path.exists (ofdir):
+        os.mkdir(ofdir)
+if options.writePressure is True:
+    opdir = os.path.join(odir, 'Pressure/')
+    if not os.path.exists (opdir):
+        os.mkdir(opdir)
+if options.writeWss is True:
+    owdir = os.path.join(odir, 'Wss/')
+    if not os.path.exists (owdir):
+        os.mkdir(owdir)
+if options.writeReynolds is True:
+    oodir = os.path.join(odir, 'Other/')
+    if not os.path.exists (oodir):
+        os.mkdir(oodir)
+
+'''If needed, creating images directory.'''
+if options.plotImages is True:
+    images = options.images
+    f_images = os.path.join(images, 'Flow/')
+    p_images = os.path.join(images, 'Pressure/')
+    w_images = os.path.join(images, 'Wss/')
+    o_images = os.path.join(images, 'Other/')
+    if not os.path.exists (images):
+        os.mkdir(images)
+        os.mkdir(f_images)
+        os.mkdir(p_images)
+        os.mkdir(w_images)
+        os.mkdir(o_images)
+else:
+    shutil.rmtree('Results/json')
+    os.mkdir('Results/json')
+
+'''Setting variables.'''
 mesh = options.mesh
 xmlout = options.xmlout
 net = options.net
@@ -122,7 +168,6 @@ writeFlow = options.writeFlow
 writeWss = options.writeWss
 writeReynolds = options.writeReynolds
 velocityProfile = options.velocityProfile
-
 if template == 'willis':
     simType = 'specific'
     wdir = 'XML/Models/WillisCircle'
@@ -147,33 +192,12 @@ if simType == 'simple':
     xmlnetpath = os.path.join(testSimple,netSimple)
     xmlboundpath = os.path.join(testSimple, boundSimple)
     preRun = False
-
+  
 xmlmeshpath = os.path.join(wdir, mesh)
 xmloutpath = os.path.join(odir, xmlout)
 xsdnetpath = os.path.join(xsd, netSchema)
 xsdboundpath = os.path.join(xsd, boundSchema)
-    
-'''Create XML and image directories'''
-if not os.path.exists (wdir):
-    os.mkdir(wdir)
-if not os.path.exists (xsd):
-    os.mkdir(xsd)
-if not os.path.exists (images):
-    os.mkdir(images)
-    os.mkdir(f_images)
-    os.mkdir(p_images)
-    os.mkdir(w_images)
-    os.mkdir(o_images)
-if not os.path.exists (odir):
-    os.mkdir(odir)   
-if not os.path.exists (ofdir):
-    os.mkdir(ofdir)
-if not os.path.exists (opdir):
-    os.mkdir(opdir)
-if not os.path.exists (owdir):
-    os.mkdir(owdir)
-if not os.path.exists (oodir):
-    os.mkdir(oodir)
+
 '''Setting adaptation and simulation days'''
 adaptation = Adaptation()
 daysList = map(int,list(linspace(-1,days,days+2)))
@@ -272,8 +296,7 @@ for day in daysList:
             else:
                 modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath,diameters)
 
-        '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.
-        If tolerance is not provided, mesh generator uses default value = 0.3'''
+        '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.'''
         meshGenerator = MeshGenerator()
         meshGenerator.SetNetworkGraph(networkGraph)
         networkMesh = NetworkMesh()
@@ -296,7 +319,7 @@ for day in daysList:
     adaptation.SetBoundaryConditions(boundaryConditions)
     adaptation.SetSimulationContext(simulationContext)
     preRun = adaptation.Adapt(day)
-    print "Day %d" %day
+    print "Day %d " %(day*10)  	#1 step represent 10 days
 
     ''' Setting Solver Class'''
     solver = SolverFirstTrapezoid()  
@@ -325,49 +348,61 @@ for day in daysList:
     solver.SetEvaluator(evaluator) 
     solver.SetPulseFlow()
     print "Solving system"
-   
     solver.Solve()
 
     '''Post Processing: Setting Solutions input and plotting some information and/or writing solutions to XML Solutions File'''
-    meshdirpath = os.path.join(odir,str(day))
-    if not os.path.exists(meshdirpath):
-        os.mkdir(meshdirpath)
-    xmlmeshpath = os.path.join(meshdirpath,mesh)
-    outdirpath = os.path.join(odir,str(day))
-    if not os.path.exists(outdirpath):
-        os.mkdir(outdirpath)
-    xmloutpath = os.path.join(outdirpath,xmlout)    
-    daystr = str(day)+'/'
-    f_dayImages = os.path.join(f_images,daystr)   
-    p_dayImages = os.path.join(p_images,daystr)
-    w_dayImages = os.path.join(w_images,daystr)
-    o_dayImages = os.path.join(o_images,daystr)
-    if not os.path.exists(images):
-        os.mkdir(images)
-    if not os.path.exists(f_dayImages):
-        os.mkdir(f_dayImages)
-    if not os.path.exists(p_dayImages):
-        os.mkdir(p_dayImages)
-    if not os.path.exists(w_dayImages):
-        os.mkdir(w_dayImages)
-    if not os.path.exists(o_dayImages):
-        os.mkdir(o_dayImages)
+    '''User can choose two different post processing strategies. Saving images using matplotlib or visualize results in its browser'''
 
-    networkMesh.WriteToXML(xmlmeshpath)
+    '''If needed, pyNS writes xml mesh file'''
+    if options.xmlMesh is True:
+        meshdirpath = os.path.join(odir,str(day))
+        if not os.path.exists(meshdirpath):
+            os.mkdir(meshdirpath)
+        xmlmeshpath = os.path.join(meshdirpath,mesh)
+        outdirpath = os.path.join(odir,str(day))
+        if not os.path.exists(outdirpath):
+            os.mkdir(outdirpath)
+        xmloutpath = os.path.join(outdirpath,xmlout)
+        networkMesh.WriteToXML(xmlmeshpath)
+    
+    '''Setting NetworkSolutions'''
+    print "->100%, Running post-processing"
     networkSolutions = NetworkSolutions()
     networkSolutions.SetNetworkMesh(networkMesh)
     networkSolutions.SetNetworkGraph(networkGraph)
     networkSolutions.SetSimulationContext(simulationContext)
-    networkSolutions.SetSolutions(solver.Solutions)
-    networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})
-    networkSolutions.WriteToXML(xmloutpath)
+    networkSolutions.SetSolutions(solver.Solutions) 
+    networkSolutions.WriteJsonInfo(days,networkMesh.Elements)
     adaptation.SetSolutions(day, networkSolutions)
     adaptation.SetRefValues(day, networkMesh)
     
+    '''If needed, pyNS creates images subdirectory(s) for each adaptation step.'''
+    if options.plotImages is True:
+        daystr = str(day)+'/'
+        f_dayImages = os.path.join(f_images,daystr)   
+        p_dayImages = os.path.join(p_images,daystr)
+        w_dayImages = os.path.join(w_images,daystr)
+        o_dayImages = os.path.join(o_images,daystr)
+        if not os.path.exists(images):
+            os.mkdir(images)
+        if not os.path.exists(f_dayImages):
+            os.mkdir(f_dayImages)
+        if not os.path.exists(p_dayImages):
+            os.mkdir(p_dayImages)
+        if not os.path.exists(w_dayImages):
+            os.mkdir(w_dayImages)
+        if not os.path.exists(o_dayImages):
+            os.mkdir(o_dayImages)
+        networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})    
+        
+    '''If needed, pyNS writes xml Solution file.'''
+    if options.xmlSol is True:
+        networkSolutions.WriteToXML(xmloutpath)
+    
+    '''Post process solution for each element of the network'''  
     for element in networkMesh.Elements:
         if element.Type == 'WavePropagation':
-            print element.Name, " Radius", round(element.Radius[0]*1e3,3), "--", round(element.Radius[len(element.Radius)-1]*1e3,3), "mm"
-            print "######################################################"
+            networkSolutions.WriteJson(element.Id, day)
             if velocityProfile is True:
                 networkSolutions.SaveVelocityProfile(element,str(day))
             if plotFlow is True:
@@ -386,9 +421,12 @@ for day in daysList:
                 networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
             if writeReynolds is True:
                 networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
-          
-networkSolutions.WriteToCsv(adaptation, 'Diameter')
-networkSolutions.WriteToCsv(adaptation, 'Pressure')
-networkSolutions.WriteToCsv(adaptation, 'Flow')
-networkSolutions.WriteToCsv(adaptation, 'Wss')
+                
+'''Adaptation data'''
+networkSolutions.WriteJsonAdapt(adaptation)
+if options.writeCsv is True:
+    networkSolutions.WriteToCsv(adaptation, 'Diameter')
+    networkSolutions.WriteToCsv(adaptation, 'Pressure')
+    networkSolutions.WriteToCsv(adaptation, 'Flow')
+    networkSolutions.WriteToCsv(adaptation, 'Wss')
 print "\nJOB FINISHED"

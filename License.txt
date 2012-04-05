@@ -1,7 +1,7 @@
 COMPLETE LICENSE FOR pyNS
 -------------------------
 
-Copyright (c) 2009-2011, Simone Manini, Luca Antiga
+Copyright (c) 2009-2012, Simone Manini, Luca Antiga
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

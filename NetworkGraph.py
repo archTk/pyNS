@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-import math
-import csv
 
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 14:25:13 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -23,6 +21,8 @@ except:
     from xml.etree import ElementTree as etree
 from numpy.core.numeric import array
 from numpy.core.fromnumeric import mean
+from math import pi
+import csv, sys
 
 class NetworkGraph(object):
     '''
@@ -120,25 +120,30 @@ class NetworkGraph(object):
         XML file is validated first.
         '''
         self.xmlgraphpath = xmlgraphpath
-        if xsdgraphpath:
-            try:
-                schemagraphfile = open(xsdgraphpath)
-                xmlschema_doc = etree.parse(schemagraphfile)
+        
+        if not xsdgraphpath:
+            NoXSDWarning()
+        else:
+            while True:
                 try:
+                    schemagraphfile = open(xsdgraphpath)
+                except:
+                    WrongXSDPathError()
+                    break  
+                try:
+                    xmlschema_doc = etree.parse(schemagraphfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)
                     docgraphfile = open(xmlgraphpath)
                     docgraph = etree.parse(docgraphfile)
                 except:
-                    LXMLError()        
+                    LXMLError() 
+                    break
                 try:
                     xmlschema.assert_(docgraph)
                     print "Network Graph Xml File has been validated."
+                    break
                 except AssertionError:   
                     XMLValidationError(xmlschema)
-            except:
-                WrongXSDPathError()
-        else:
-            print "Warning, Network Graph xml schema was not provided."
             
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
@@ -514,7 +519,7 @@ class NetworkGraph(object):
                         ym = e.YoungModulus['value']
                         rm = ((e.Radius_0+e.Radius_1)/2)*1e3
                         wt = rm * 0.2
-                        C = (((2.0*math.pi*rm**2)*(((2.0*rm**2*(1.0-3.e-3**2))/(wt**2))+((1.0+3.e-3)*(((2.0*rm)/wt)+1.0))))/(ym*(((2.0*rm)/wt)+1.0)))*1e3
+                        C = (((2.0*pi*rm**2)*(((2.0*rm**2*(1.0-3.e-3**2))/(wt**2))+((1.0+3.e-3)*(((2.0*rm)/wt)+1.0))))/(ym*(((2.0*rm)/wt)+1.0)))*1e3
                     else:
                         ym = ''
                     if ellipticGeometry == True:
@@ -913,6 +918,7 @@ class XMLValidationError(Error):
     def __init__(self,xmlschema):
         print "Error, Invalid Network Graph Xml File."
         print xmlschema.error_log
+        sys.exit()
         
 class WrongXSDPathError(Error):
     '''
@@ -920,6 +926,14 @@ class WrongXSDPathError(Error):
     '''
     def __init__(self):
         print "Warning, Xml schema file not found."
+        print "Network Graph Xml file can not be validated."
+        
+class NoXSDWarning(Error):
+    '''
+    Exception raised if no xsd file is provided.
+    '''
+    def __init__(self):
+        print "Warning, XML schema file was not provided."
         print "Network Graph Xml file can not be validated."
         
 class LXMLError(Error):

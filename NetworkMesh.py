@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkMesh.py
 ## Language:  Python
-## Date:      $Date: 2011/09/23 14:37:24 $
-## Version:   $Revision: 0.3 $
+## Date:      $Date: 2012/04/05 10:11:27 $
+## Version:   $Revision: 0.4 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -65,6 +65,7 @@ class NetworkMesh(object):
         '''
         This method writes network_mesh XML file.
         '''
+        print "Writing xml Mesh file..."
         node_list = []
         root = etree.Element("NetworkMesh", id=self.Id, version="2.0")
         xmlmesh = etree.ElementTree(root)
