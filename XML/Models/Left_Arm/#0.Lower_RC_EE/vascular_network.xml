@@ -374,7 +374,7 @@
          <expression>$WallThickness[vertebral] = $Radius[vertebral] * $vertebral_ratio[]</expression>
        </wall_thickness>
        <compliance>
-         <expression>$Compliance{vertebral} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-9</expression>
+         <expression>$Compliance{vertebral} = (((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*$age[]+0.9942)*(1-$gender[]))*(1-$K_C1[])+((-0.0085*$age[]+1.135)*$gender[]+(-0.0108*($age[]+20)+0.9942)*(1-$gender[]))*($K_C1[]))*1e-10</expression>
        </compliance>
      </properties>
    </edge>

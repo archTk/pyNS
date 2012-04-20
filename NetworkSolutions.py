@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkSolutions.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/04/20 16:37:11 $
+## Version:   $Revision: 0.4.1 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -244,25 +244,25 @@ class NetworkSolutions(object):
                 self.dayWssP[element.Name] = (round(max(Wss*10),2))
                 
                 try:
-                    self.dayDiameter[element.Name] = element.dayRadius[time][0]*2e3
+                    self.dayDiameter[element.Name] = (round(element.dayRadius[time][0]*2e3,2))
                 except:
-                    self.dayDiameter[element.Name] = element.Radius[0]*2e3
+                    self.dayDiameter[element.Name] = (round(element.Radius[0]*2e3,2))
                              
         i=0
         for q in Flow:
-            timeValues['flow'].append([self.t[i],q*6e7])
+            timeValues['flow'].append([self.t[i],(round(q*6e7,2))])
             i+=1
         i=0
         for p in p1:
-            timeValues['pressure'].append([self.t[i],p/133.32])
+            timeValues['pressure'].append([self.t[i],(round(p/133.32,2))])
             i+=1
         i=0
         for w in Wss:
-            timeValues['wss'].append([tWss[i],w*10])
+            timeValues['wss'].append([tWss[i],(round(w*10,2))])
             i+=1
         i=0
         for re in Reynolds:
-            timeValues['re'].append([self.t[i],re])
+            timeValues['re'].append([self.t[i],(round(re,2))])
             i+=1
         
         meshInfo['items'].append(timeValues)
@@ -300,9 +300,9 @@ class NetworkSolutions(object):
                             timeValues['pressure'].append([day,sol.dayPressure[element.Name]])
                             timeValues['wssP'].append([day,sol.dayWssP[element.Name]])
                             try:
-                                timeValues['diameter'].append([-1,element.dayRadius[0][0]*2e3])
+                                timeValues['diameter'].append([-1,element.dayRadius[0][0]*2e3],2)
                             except:
-                                timeValues['diameter'].append([-1,element.Radius[0]*2e3])  
+                                timeValues['diameter'].append([-1,element.Radius[0]*2e3])
                         except KeyError:
                             pass
                     if day != -1:
@@ -315,6 +315,11 @@ class NetworkSolutions(object):
                             timeValues['diameter'].append([day*10,element.Radius[0]*2e3])
                    
                 timeValues['flow'].sort()
+                min_q = 0
+                for q in timeValues['flow']:
+                    if q[1] < min_q:
+                        min_q = q[1]
+                meshInfo['min_q'] = str(min_q)
                 timeValues['pressure'].sort()
                 timeValues['wssP'].sort()
                 timeValues['diameter'].sort()
