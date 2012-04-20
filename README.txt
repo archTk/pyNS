@@ -13,12 +13,19 @@ MatPlotLib library http://matplotlib.sourceforge.net/ (Post processing using png
 LXML package http://lxml.de/   (Only for xml validation feature).
 
 How To:
-Open a terminal and type:
-./pyNS --help
+Open a terminal, cd into pyNS directory and type:
+[For Mac/Linux Users]
+./pyNS.py --help  
+[For Windows Users]
+pyNS.py --help
 
 Standard benchmark simulation:
-Open a terminal and type:
-./pyNS
+Open a terminal cd into pyNS directory and type:
+[For Mac/Linux Users]
+./pyNS.py 
+[For Windows Users]
+pyNS.py
+
 By default pyNS runs a vascular network which represents the arterial vasculature of a right arm.
 
 Guidelines for parameters.csv file, needed for arm templates simulations:
