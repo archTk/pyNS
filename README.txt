@@ -15,13 +15,11 @@ LXML package http://lxml.de/   (Only for xml validation feature).
 How To:
 Open a terminal and type:
 ./pyNS --help
-For 
 
+Standard benchmark simulation:
 Open a terminal and type:
 ./pyNS
 By default pyNS runs a vascular network which represents the arterial vasculature of a right arm.
-
-Open results.html located in the Results folder for visualize results.
 
 Guidelines for parameters.csv file, needed for arm templates simulations:
 Date of birth (dob) has to be in dd/mm/yyyy
