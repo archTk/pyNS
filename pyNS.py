@@ -45,12 +45,17 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                     sys.exit('Error: '+results+' directory does not exist.')
             httpd.serve_forever()
     if storeResults is not False:
-        src = 'Results'
+        css = 'Results/css'
+        js = 'Results/js'
+        json = 'Results/json'
         dst = 'Results/'+storeResults
         if os.path.exists(dst):
             sys.exit('Error: '+storeResults+' directory already existing.')
         else:
-            shutil.copytree(src,dst)
+            shutil.copytree(css,dst+'/css')
+            shutil.copytree(js,dst+'/js')
+            shutil.copytree(json,dst+'/json')
+            shutil.copy('Results/results.html', dst+'/results.html')
             sys.exit('Results saved successfully. Type ./pyNS.py --results '+ storeResults+' to see them.')
     
         
@@ -94,7 +99,8 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             os.mkdir(w_images)
             os.mkdir(o_images)
     else:
-        shutil.rmtree('Results/json')
+        if os.path.exists('Results/json'):
+            shutil.rmtree('Results/json')
         os.mkdir('Results/json')
 
     '''Setting variables.'''
