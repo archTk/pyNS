@@ -2,31 +2,33 @@ For a complete documentation please go to http://archtk.github.com
 
 Installation Requirements:
 
-Python 2.6.x or 2.7.x
-Numpy package http://numpy.scipy.org/
-If you intend to use the vascular adaptation algorithm Scipy package is strongly recommended. (http://www.scipy.org)
-A browser for visualizing simulation results (internet connection is not required). Currently supported browser are Firefox, Chrome, Safari, Opera and Internet Explorer
+- Python 2.6.x or 2.7.x
+- Numpy package http://numpy.scipy.org/ (be careful to download the version related to your python version)
+
+- Scipy Package http://www.scipy.org - ONLY FOR WINDOWS USERS
+
+A browser for visualizing simulation results (internet connection is not required). Currently supported browser are Firefox, Chrome, Safari, Opera and Internet Explorer.
 
 For additional features:
 MEncoder library http://www.mplayerhq.hu/design7/dload.html (Only for velocity profile videos)
 MatPlotLib library http://matplotlib.sourceforge.net/ (Post processing using png files instead of default browser visualization and for velocity profile videos.)
-LXML package http://lxml.de/   (Only for xml validation feature).
+LXML package http://lxml.de/   (Only for xml files validation feature).
 
 How To:
 Open a terminal, cd into pyNS directory and type:
 [For Mac/Linux Users]
-./pyNS.py --help  
+python pyNS.py --help  
 [For Windows Users]
 pyNS.py --help
 
 Standard benchmark simulation:
+By default pyNS runs a vascular network which represents the arterial vasculature of a right arm.
 Open a terminal cd into pyNS directory and type:
 [For Mac/Linux Users]
-./pyNS.py 
+python pyNS.py 
 [For Windows Users]
 pyNS.py
 
-By default pyNS runs a vascular network which represents the arterial vasculature of a right arm.
 
 Guidelines for parameters.csv file, needed for arm templates simulations:
 Date of birth (dob) has to be in dd/mm/yyyy

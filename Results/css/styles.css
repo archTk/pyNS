@@ -292,12 +292,23 @@ html {
 	overflow-y:visible;
 }
 
+.content_graph {
+	width: 75%;
+	float:right;
+	margin:10px auto auto auto;
+    background-color: #F6F5F5;
+	border-radius: 10px 10px 10px 10px;
+    text-align: left;
+	overflow-x:hidden;
+	overflow-y:visible;
+}
+
 .content.hide{
 	display:none;
 }
 
 .content_left{
-	width: 35%;
+	width: 45%;
 	float:left;
 	margin: 10px auto auto 20px;
     background-color: #F6F5F5;
@@ -308,7 +319,7 @@ html {
 }
 
 .content_right {
-	width: 35%;
+	width: 45%;
 	float:right;
 	margin: 10px auto auto auto;
     background-color: #F6F5F5;

@@ -28,80 +28,11 @@ percall: is the quotient of cumtime divided by primitive calls
 filename:lineno(function): provides the respective data of each function 
 '''
 
-from NetworkGraph import *
-from NetworkMesh import *
-from MeshGenerator import *
-from BoundaryConditions import *
-from Solver import *
-from NetworkSolutions import *
-from SimulationContext import *
-from Evaluator import *
-from InverseWomersley import *
-from ModelAdaptor import *
+from pyNS import runSimulation
 
 def main():  
     
-    simulationContext = SimulationContext()
-    evaluator = Evaluator()
-    evaluator.SetSimulationContext(simulationContext)
-    simulationContext.SetEvaluator(evaluator)
-    modelAdaptor = ModelAdaptor()
-    modelAdaptor.SetSimulationContext(simulationContext)
-    modelAdaptor.SetEvaluator(evaluator)
-    
-    modelAdaptor.ChoosingTemplate('XML/parameters.csv')
-    simulationContext.ReadFromXML('XML/Models/Right_Arm/#1.Lower_RC_ES/boundary_conditions.xml','XML/XSD/boundary_conditions_v3.1.xsd')
-    modelAdaptor.SettingParameters('XML/parameters.csv')
-    modelAdaptor.AdaptingParameters('XML/Models/Right_Arm/#1.Lower_RC_ES/boundary_conditions.xml','XML/Models/Right_Arm/#1.Lower_RC_ES/boundary_conditions_profiler.xml')
-    
-    networkGraph = NetworkGraph()
-    networkGraph.ReadFromXML('XML/Models/Right_Arm/#1.Lower_RC_ES/vascular_network.xml', 'XML/XSD/vascular_network_v3.2.xsd')
-    modelAdaptor.SetNetworkGraph(networkGraph)
-    evaluator.SetNetworkGraph(networkGraph)
-    modelAdaptor.AdaptingModel('XML/Models/Right_Arm/#1.Lower_RC_ES/vascular_network.xml','XML/Models/Right_Arm/#1.Lower_RC_ES/vascular_network_profiler.xml')
-
-    meshGenerator = MeshGenerator()
-    meshGenerator.SetNetworkGraph(networkGraph)
-    networkMesh = NetworkMesh()
-    meshGenerator.SetNetworkMesh(networkMesh)
-    meshGenerator.SetMaxLength(5.0e-2)
-    meshGenerator.GenerateMesh()
-    
-    boundaryConditions = BoundaryConditions()
-    boundaryConditions.SetSimulationContext(simulationContext)
-    boundaryConditions.SetNetworkMesh(networkMesh)
-    boundaryConditions.ReadFromXML('XML/Models/Right_Arm/#1.Lower_RC_ES/boundary_conditions_profiler.xml','XML/XSD/boundary_conditions_v3.1.xsd')
-    boundaryConditions.SetSpecificCardiacOutput()
-    
-    evaluator.SetNetworkGraph(networkGraph)
-    evaluator.SetNetworkMesh(networkMesh)
-    solver = SolverFirstTrapezoid()  
-    solver.SetNetworkMesh(networkMesh)
-    solver.SetBoundaryConditions(boundaryConditions)
-    solver.SetSimulationContext(simulationContext)
-    solver.SetEvaluator(evaluator)
-    solver.SetSteadyFlow()
-    print "Steady Pre-Run, setting non-linear parameters"
-    solver.Solve() 
-    parameters = ["Radius","Compliance"]
-    for el in networkMesh.Elements:
-        el.SetLinearValues(parameters)
-        
-    evaluator.ExpressionCache = {}
-    solver = SolverFirstTrapezoid()
-    solver.SetNetworkMesh(networkMesh)
-    solver.SetBoundaryConditions(boundaryConditions)
-    solver.SetSimulationContext(simulationContext)
-    solver.SetEvaluator(evaluator) 
-    solver.SetPulseFlow()
-    print "Solving system"
-    solver.Solve()
-    
-    networkSolutions = NetworkSolutions()
-    networkSolutions.SetNetworkMesh(networkMesh)
-    networkSolutions.SetNetworkGraph(networkGraph)
-    networkSolutions.SetSimulationContext(simulationContext)
-    networkSolutions.SetSolutions(solver.Solutions)
+    runSimulation()
    
 
 import hotshot, hotshot.stats

@@ -39,8 +39,8 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             if results == 'last':
                 webbrowser.open_new_tab('http://localhost:8000/Results/results.html')
             else:
-                if os.path.exists('Results/'+results):
-                    webbrowser.open_new_tab('http://localhost:8000/Results/'+results+'/results.html')
+                if os.path.exists('Results/Saved/'+results):
+                    webbrowser.open_new_tab('http://localhost:8000/Results/Saved/'+results+'/results.html')
                 else:
                     sys.exit('Error: '+results+' directory does not exist.')
             httpd.serve_forever()
@@ -48,7 +48,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
         css = 'Results/css'
         js = 'Results/js'
         json = 'Results/json'
-        dst = 'Results/'+storeResults
+        dst = 'Results/Saved/'+storeResults
         if os.path.exists(dst):
             sys.exit('Error: '+storeResults+' directory already existing.')
         else:
@@ -370,7 +370,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 
     '''Adaptation data'''
     networkSolutions.WriteJsonAdapt(adaptation)
-    if options.writeCsv is True:
+    if writeCsv is True:
         networkSolutions.WriteToCsv(adaptation, 'Diameter')
         networkSolutions.WriteToCsv(adaptation, 'Pressure')
         networkSolutions.WriteToCsv(adaptation, 'Flow')
@@ -453,5 +453,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print "\nLocal web server for post processing was shutdown successfully. pyNS is ready for next simulation."
         print "If you want to save these results, type ./pyNS.py --storeResults name"
-        print "If you want to inspect last simulate results, type ./pyNS.py --results last"
-        print "If you want to inspect previously saved simulate results, type ./pyNS.py --results name"
+        print "If you want to inspect last simulation results, type ./pyNS.py --results last"
+        print "If you want to inspect previously saved simulation results, type ./pyNS.py --results name"

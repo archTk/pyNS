@@ -209,7 +209,7 @@ class NetworkMesh(object):
                         r2+=dr
                     r_z = r1+((dr/elLen)*z)
                     self.ElementIdsToElements[str(mesh.keys()[0])].Radius = r_z
-         
+                    
          
 class Entity(object):
     '''

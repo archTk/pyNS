@@ -15,41 +15,58 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-import subprocess
-import os
+import os, sys, inspect, subprocess
 from math import pi, cos, sin
 from numpy.core.numeric import arange, zeros
 from numpy.core.fromnumeric import mean
 from numpy.lib.scimath import sqrt
 from numpy.ma.core import exp
 from numpy.lib.function_base import linspace
-import sys
 
-'''
-Defining Bessel Function. If scipy package is not installed,
-pyNS will use this function instead of scipy.special.jn
-VERY SLOW NOT RECOMMENDED
-'''
+
+def add_bessel(name):
+    cmd_folder = os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0])
+    cmd_folder = cmd_folder+'/includes/%s' % name
+    if cmd_folder not in sys.path:
+            sys.path.insert(0, cmd_folder)
+
+def intepreterArchitecture():
+    is64 = False
+    if sys.maxsize > 2**32:
+        is64 = True
+    return is64
+
 try:
     from scipy.special import jn
 except:
-    import cmath
-    
-    def Bessel(n,arg):
-        z = complex(1.0,0.0)
-        zproduct = complex(1.0,0.0)
-        zarg = -0.25 * (arg * arg)
-        zanswer = complex(1.0,0.0)
-        for i in range(10000):
-            z = 1.0/(float(i+1)*float(i+1+n)) * (z*zarg)
-            if abs(z) < 1E-20:
-                break
-            zanswer += z
-        for i in range(n):
-            zproduct *= 0.5 * arg
-        zanswer *= zproduct
-        return zanswer
-    jn = Bessel
+    if sys.version_info[0:2] == (2, 6):    
+        if sys.platform == 'darwin' and intepreterArchitecture() is False:
+            add_bessel('py26_macOsX_i386')
+        if sys.platform == 'darwin' and intepreterArchitecture() is True:  #not available at the moment
+            add_bessel('py26_macOsX_x8664')
+        if sys.platform == 'linux2' and intepreterArchitecture() is False:
+            add_bessel('py26_linux_i386')
+        if sys.platform == 'linux2' and intepreterArchitecture() is True: #not available at the moment
+            add_bessel('py26_linux_x8664')
+        if sys.platform == 'win32':
+            sys.exit("Windows users have to install scipy package (http://www.scipy.org/Download)")
+           
+    if sys.version_info[0:2] == (2, 7):    
+        if sys.platform == 'darwin' and intepreterArchitecture() is False:
+            add_bessel('py27_macOsX_i386')
+        if sys.platform == 'darwin' and intepreterArchitecture() is True:
+            add_bessel('py27_macOsX_x8664')
+        if sys.platform == 'linux2' and intepreterArchitecture() is False:
+            add_bessel('py27_linux_i386')
+        if sys.platform == 'linux2' and intepreterArchitecture() is True:  #not available at the moment
+            add_bessel('py27_linux_x8664')
+        if sys.platform == 'win32':
+            sys.exit("Windows users have to install scipy package (http://www.scipy.org/Download)")
+                 
+    try:
+        from Bessel import Bessel as jn
+    except ImportError:
+        sys.exit("Bessel function is not supported. Please install scipy (http://www.scipy.org/Download) or install cython and launch python setup.py build_ext --inplace. \n More info at http://docs.cython.org/")
 
 class InverseWomersley(object):
     '''
@@ -257,7 +274,7 @@ class InverseWomersley(object):
             k=1
             while k < self.nHarmonics:  
                 cI = complex(0.,1.)
-                cA = (self.alpha * pow((1.0*k),0.5)) * pow(cI,1.5)      
+                cA = (self.alpha * pow((1.0*k),0.5)) * pow(cI,1.5)  
                 c1 = 2.0 * jn(1, cA)
                 c0 = cA * jn(0, cA)
                 cT = complex(0, -2.0*pi*k*self.t/self.tPeriod)  
