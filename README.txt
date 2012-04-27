@@ -2,7 +2,7 @@ For a complete documentation please go to http://archtk.github.com
 
 Installation Requirements:
 
-- Python 2.6.x or 2.7.x
+- Python 2.6.x or 2.7.x (http://www.python.org/)
 - Numpy package http://numpy.scipy.org/ (be careful to download the version related to your python version)
 
 - Scipy Package http://www.scipy.org - ONLY FOR WINDOWS USERS
