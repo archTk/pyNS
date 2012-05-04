@@ -299,20 +299,14 @@ class NetworkSolutions(object):
                             timeValues['flow'].append([day,sol.dayFlow[element.Name]])
                             timeValues['pressure'].append([day,sol.dayPressure[element.Name]])
                             timeValues['wssP'].append([day,sol.dayWssP[element.Name]])
-                            try:
-                                timeValues['diameter'].append([-1,element.dayRadius[0][0]*2e3],2)
-                            except:
-                                timeValues['diameter'].append([-1,element.Radius[0]*2e3])
+                            timeValues['diameter'].append([day,sol.dayDiameter[element.Name]])
                         except KeyError:
                             pass
                     if day != -1:
                         timeValues['flow'].append([day*10,sol.dayFlow[element.Name]])
                         timeValues['pressure'].append([day*10,sol.dayPressure[element.Name]])
                         timeValues['wssP'].append([day*10,sol.dayWssP[element.Name]])
-                        try:
-                            timeValues['diameter'].append([day*10,element.dayRadius[day][0]*2e3])
-                        except:
-                            timeValues['diameter'].append([day*10,element.Radius[0]*2e3])
+                        timeValues['diameter'].append([day,sol.dayDiameter[element.Name]])
                    
                 timeValues['flow'].sort()
                 min_q = 0
