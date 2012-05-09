@@ -25,11 +25,12 @@ from NetworkSolutions import NetworkSolutions
 from SimulationContext import SimulationContext
 from Evaluator import Evaluator
 from Adaptation import Adaptation, linspace
+from ExportToMatlab import exportToMatlab
 from optparse import OptionParser
 import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser
 
 
-def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, storeResults=False, excludeWss=False):
+def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, storeResults=False, excludeWss=False, export=False):
     
     if results is not False:
         while True:
@@ -57,6 +58,17 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             shutil.copytree(json,dst+'/json')
             shutil.copy('Results/results.html', dst+'/results.html')
             sys.exit('Results saved successfully. Type ./pyNS.py --results '+ storeResults+' to see them.')
+    if export is not False:
+	if export == 'all':
+	    for file in os.listdir('Results/json'):
+		if file == 'info.json':
+		    pass
+		else:
+		    exportToMatlab('Results/json/'+file)
+	    sys.exit('All solutions exported in .mat files successfully')
+	else:
+	    exportToMatlab('Results/json/'+export)
+	    sys.exit(export+' solution exported in .mat file successfully')
     
         
     '''Create XML and image directories'''
@@ -449,11 +461,13 @@ if __name__ == "__main__":
     parser.add_option("--storeResults", action="store", dest='storeResults', default = False,
                       help="If active pyNS will save last simulated results in a subfolder of the Results folder. Please specify the name of the folder.")
     parser.add_option("--excludeWss", action="store_true", dest='excludeWss', default = False,
-                      help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")                  
+                      help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")
+    parser.add_option("--export", action="store", dest='export', default = False,
+                      help="If active pyNS will export to a .mat file the solution relative to the choosen mesh. Please specify a mesh name.")
     (options, args) = parser.parse_args()
     source = "".join(args)
     try:
-        runSimulation(options.simType, options.wdir, options.odir, options.images, options.xsd, options.net, options.mesh, options.xmlout, options.bound, options.netSchema, options.boundSchema, options.template, options.parameters, options.diameters, options.adaptation, options.xmlSol, options.xmlMesh, options.writeCsv, options.plotImages, options.plotPressure, options.plotFlow, options.plotWss, options.plotReynolds, options.writePressure, options.writeFlow, options.writeWss, options.writeReynolds, options.velocityProfile, options.results, options.storeResults, options.excludeWss)
+        runSimulation(options.simType, options.wdir, options.odir, options.images, options.xsd, options.net, options.mesh, options.xmlout, options.bound, options.netSchema, options.boundSchema, options.template, options.parameters, options.diameters, options.adaptation, options.xmlSol, options.xmlMesh, options.writeCsv, options.plotImages, options.plotPressure, options.plotFlow, options.plotWss, options.plotReynolds, options.writePressure, options.writeFlow, options.writeWss, options.writeReynolds, options.velocityProfile, options.results, options.storeResults, options.excludeWss, options.export)
     except KeyboardInterrupt:
         print "\nLocal web server for post processing was shutdown successfully. pyNS is ready for next simulation."
         print "If you want to save these results, type ./pyNS.py --storeResults name"
