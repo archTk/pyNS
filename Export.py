@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ## Program:   PyNS
-## Module:    exportToMatlab.py
+## Module:    export.py
 ## Language:  Python
 ## Date:      $Date: 2012/04/20 16:37:11 $
 ## Version:   $Revision: 0.4.1 $
@@ -19,7 +19,7 @@ from json import load
 from optparse import OptionParser
 import sys,os
 
-def exportToMatlab(fileName):
+def export(fileName):
     '''
     Retrieving information about time, pressure and flow of given mesh
     from json file and writing them in .txt files.
@@ -29,7 +29,7 @@ def exportToMatlab(fileName):
     infos = load(f)
     f.close()
     name = fileName.split('.')[0]
-    text_file = open('%s' % name, "w")
+    text_file = open('%s.txt' % name, "w")
     text_file.write('time[s];pressure[Pa];flow[m3/s]\n')
     data = infos['items'][0]
     time = []
@@ -46,9 +46,6 @@ def exportToMatlab(fileName):
     while i <len(time):
 	text_file.write(str('{:.4e}'.format(time[i]))+';'+str('{:.4e}'.format(pressure[i]))+';'+str('{:.4e}'.format(flow[i])+'\n'))
 	i+=1
-    
-    base = os.path.splitext(name)[0]
-    os.rename(name, base + ".txt")
     text_file.close()
     
 if __name__ == "__main__":
@@ -61,4 +58,4 @@ if __name__ == "__main__":
     fileName = options.fileName
     if fileName is None:
         sys.exit("Please specify json input file path")
-    exportToMatlab(fileName)
+    export(fileName)

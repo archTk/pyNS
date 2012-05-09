@@ -25,7 +25,7 @@ from NetworkSolutions import NetworkSolutions
 from SimulationContext import SimulationContext
 from Evaluator import Evaluator
 from Adaptation import Adaptation, linspace
-from ExportToMatlab import exportToMatlab
+from Export import export as exporting
 from optparse import OptionParser
 import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser
 
@@ -64,11 +64,11 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
 		if file == 'info.json':
 		    pass
 		else:
-		    exportToMatlab('Results/json/'+file)
-	    sys.exit('All solutions exported in .mat files successfully')
+		    exporting('Results/json/'+file)
+	    sys.exit('All solutions exported in .txt files successfully')
 	else:
-	    exportToMatlab('Results/json/'+export)
-	    sys.exit(export+' solution exported in .mat file successfully')
+	    exporting('Results/json/'+export)
+	    sys.exit(export+' solution exported in .txt file successfully')
     
         
     '''Create XML and image directories'''
