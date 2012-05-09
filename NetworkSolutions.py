@@ -190,7 +190,7 @@ class NetworkSolutions(object):
         dump(info, f)
         f.close()
     
-    def WriteJson(self, meshid, time):
+    def WriteJson(self, meshid, time, excludeWss):
         '''
         This method writes a json file for each mesh.
         '''
@@ -204,8 +204,9 @@ class NetworkSolutions(object):
                 Flow = (p1-p2)/element.R
                 Radius = element.Radius
                 Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
-                Wss = self.GetWSSSignal(element)
-                tWss = linspace(0, self.Period, len(Wss))
+                if excludeWss is False:
+		    Wss = self.GetWSSSignal(element)
+		    tWss = linspace(0, self.Period, len(Wss))
                 elName = element.Name
                 meshInfo['meshId']=str(meshid)
                 meshInfo['name']=str(elName)
@@ -222,11 +223,12 @@ class NetworkSolutions(object):
                 min_q = round(min(Flow*6e7),2)
                 if min_q < 0:
                     meshInfo['min_flow'] = str(min_q)
-                meshInfo['mean_wss']=str(round(mean(Wss*10),2))+' dynes/cm<sup>2</sup>'
-                meshInfo['min_wss'] = str(0)
-                min_wss = round(min(Wss*10),2)
-                if min_wss < 0:
-                    meshInfo['min_wss'] = str(min_wss)
+                if excludeWss is False:    
+		    meshInfo['mean_wss']=str(round(mean(Wss*10),2))+' dynes/cm<sup>2</sup>'
+		    meshInfo['min_wss'] = str(0)
+		    min_wss = round(min(Wss*10),2)
+		    if min_wss < 0:
+			meshInfo['min_wss'] = str(min_wss)
                 meshInfo['mean_re']=str(round(mean(Reynolds),1))
                 meshInfo['min_re'] = str(0)
                 min_re = round(min(Reynolds),1)
@@ -241,7 +243,8 @@ class NetworkSolutions(object):
                 
                 self.dayFlow[element.Name] = (round(mean(Flow*6e7),1))
                 self.dayPressure[element.Name] = (round(mean(p1/133.32),1))
-                self.dayWssP[element.Name] = (round(max(Wss*10),2))
+                if excludeWss is False:
+		    self.dayWssP[element.Name] = (round(max(Wss*10),2))
                 
                 try:
                     self.dayDiameter[element.Name] = (round(element.dayRadius[time][0]*2e3,2))
@@ -256,10 +259,11 @@ class NetworkSolutions(object):
         for p in p1:
             timeValues['pressure'].append([self.t[i],(round(p/133.32,2))])
             i+=1
-        i=0
-        for w in Wss:
-            timeValues['wss'].append([tWss[i],(round(w*10,2))])
-            i+=1
+        if excludeWss is False:
+	    i=0
+	    for w in Wss:
+		timeValues['wss'].append([tWss[i],(round(w*10,2))])
+		i+=1
         i=0
         for re in Reynolds:
             timeValues['re'].append([self.t[i],(round(re,2))])
