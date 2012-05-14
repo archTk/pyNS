@@ -58,7 +58,10 @@ class BoundaryConditions(object):
         self.NodeFlow = None
         self.elementOut = None
         self.NodeOut = None
+        self.elementIn = None
+        self.NodeIn = None
         self.OutP = None
+        self.InP = None
         self.PressureValues = {}  # dictionary of external pressures (element:value)
         self.InFlowValue = {} # dictionary of inlet flow (element:value)
         self.A0_v = 0.0
@@ -256,6 +259,28 @@ class BoundaryConditions(object):
                                                         raise EntityDuplicateError(entity)
                                                     else:
                                                         self.PressureValues[mesh.Id] = pressure_v
+            if bc_dict['type'] == 'input pressure':               
+                id = bc_dict['id']
+                for param in bc.findall(".//parameters"):
+                    for data in param:
+                        if data.tag == "pressure": 
+                            for pressure in data.findall(".//scalar"):
+                                pressure_vp = float(pressure.text)
+                                self.InP = pressure_vp
+                                for entities in bc.findall(".//entities"):           
+                                    for ent in entities.findall(".//entity"):
+                                        ent_dict = ent.attrib
+                                        ent_venp = ent_dict['id']                                                                   
+                                        for entities in self.NetworkMesh.Entities.iterkeys():
+                                            if ent_venp == entities.Id:                  
+                                                elNodesList = []         
+                                                for el in self.NetworkMesh.Entities[entities]:
+                                                    elNodesList.append(el.NodeIds[1])                                              
+                                                self.NodeIn = min(elNodesList)                                                                                                                          
+                                                for el in self.NetworkMesh.Elements:
+                                                    if el.NodeIds[1] == self.NodeIn:     
+                                                        self.elementIn = el    
+            
             if bc_dict['type'] == 'outflow pressure':               
                 id = bc_dict['id']
                 for param in bc.findall(".//parameters"):
@@ -276,7 +301,8 @@ class BoundaryConditions(object):
                                                 self.NodeOut = max(elNodesList)                                                                                                                          
                                                 for el in self.NetworkMesh.Elements:
                                                     if el.NodeIds[1] == self.NodeOut:     
-                                                        self.elementOut = el                                          
+                                                        self.elementOut = el  
+                                                  
             if bc_dict['type'] == 'inflow':
                 for param in bc.findall(".//parameters"):
                     for data in param:

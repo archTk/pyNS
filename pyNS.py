@@ -27,7 +27,7 @@ from Evaluator import Evaluator
 from Adaptation import Adaptation, linspace
 from Export import export as exporting
 from optparse import OptionParser
-import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser
+import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser, time
 
 
 def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, storeResults=False, excludeWss=False, export=False):
@@ -36,7 +36,17 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
         while True:
             print "Starting webServer for post-processing results. Close it with CTRL-C."
             Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-            httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
+            try:
+                httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
+            except:
+                pid = None
+                for line in os.popen("lsof -i:8000"):
+                    fields = line.split()
+                    pid = fields[1]
+                if pid:
+                    os.system("kill %s" %pid)
+                    time.sleep(5)
+                httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
             if results == 'last':
                 webbrowser.open_new_tab('http://localhost:8000/Results/results.html')
             else:
@@ -59,18 +69,24 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             shutil.copy('Results/results.html', dst+'/results.html')
             sys.exit('Results saved successfully. Type ./pyNS.py --results '+ storeResults+' to see them.')
     if export is not False:
-	if export == 'all':
-	    for file in os.listdir('Results/json'):
-		if file == 'info.json':
-		    pass
-		else:
-		    exporting('Results/json/'+file)
-	    sys.exit('All solutions exported in .txt files successfully')
-	else:
-	    exporting('Results/json/'+export)
-	    sys.exit(export+' solution exported in .txt file successfully')
+        if export == 'all':
+            for f in os.listdir('Results/json'):
+                if f == 'info.json':
+                    pass
+                else:
+                    exporting('Results/json/'+f)
+                    sys.exit('All solutions exported in .txt files successfully')
+        else:
+            exporting('Results/json/'+export)
+            sys.exit(export+' solution exported in .txt file successfully')
     
-        
+    '''Checking for webserver instance'''
+    pid = None
+    for line in os.popen("lsof -i:8000"):
+        fields = line.split()
+        pid = fields[1]
+    if pid:
+        os.system("kill %s" %pid) 
     '''Create XML and image directories'''
     if not os.path.exists (wdir):
         os.mkdir(wdir)
@@ -125,6 +141,9 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
     testSimple = 'XML/TEST/SimpleNetwork/'
     netSimple = 'vascular_network_simple.xml'
     boundSimple = 'boundary_conditions_simple.xml'
+    testing = 'XML/TEST/Testing/'
+    testingNetwork = 'vascular_network_test.xml'
+    testingBoundary = 'boundary_conditions_test.xml'
 
     if template == 'willis':
         simType = 'specific'
@@ -148,6 +167,10 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
         xmlnetpath = os.path.join(testSimple,netSimple)
         xmlboundpath = os.path.join(testSimple, boundSimple)
         preRun = False
+    if simType == 'testing':
+        xmlnetpath = os.path.join(testing,testingNetwork)
+        xmlboundpath = os.path.join(testing, testingBoundary)
+        preRun = False
   
     xmlmeshpath = os.path.join(wdir, mesh)
     xmloutpath = os.path.join(odir, xmlout)
@@ -158,7 +181,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
     adaptation = Adaptation()
     daysList = map(int,list(linspace(-1,days,days+2)))
     if excludeWss is True and days > 0:
-      sys.exit("Error: You can't exclude Wss computing for adaptation algorithm")
+        sys.exit("Error: You can't exclude Wss computing for adaptation algorithm")
  
     '''Setting Simulation Context Parameters for Simulation'''
     simulationContext = SimulationContext()
@@ -361,7 +384,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
     
         '''Post process solution for each element of the network'''  
         for element in networkMesh.Elements:
-            if element.Type == 'WavePropagation':
+            if element.Type == 'WavePropagation' or element.Type == 'Resistance':
                 networkSolutions.WriteJson(element.Id, day, excludeWss)
                 if velocityProfile is True:
                     networkSolutions.SaveVelocityProfile(element,str(day))
@@ -383,12 +406,13 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                     networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
                 
     '''Adaptation data'''
-    networkSolutions.WriteJsonAdapt(adaptation)
-    if writeCsv is True:
-        networkSolutions.WriteToCsv(adaptation, 'Diameter')
-        networkSolutions.WriteToCsv(adaptation, 'Pressure')
-        networkSolutions.WriteToCsv(adaptation, 'Flow')
-        networkSolutions.WriteToCsv(adaptation, 'Wss')
+    if days > 0:
+        networkSolutions.WriteJsonAdapt(adaptation)
+        if writeCsv is True:
+            networkSolutions.WriteToCsv(adaptation, 'Diameter')
+            networkSolutions.WriteToCsv(adaptation, 'Pressure')
+            networkSolutions.WriteToCsv(adaptation, 'Flow')
+            networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
     print "Starting webServer for post-processing results. Close it with CTRL-C."
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
@@ -401,7 +425,7 @@ if __name__ == "__main__":
     '''Command-line arguments.'''
     parser = OptionParser()
     parser.add_option("-s", "--simType", action="store",dest='simType', type="string", default="specific",
-					  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation.")
+					  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation. 'testing' : simple network of arteries vein and resistances.")
     parser.add_option("-w", "--workingDir", action="store", dest='wdir', type='string',default='XML/',
 	                  help = "Working directory path for xml input files. By default is located in 'XML/' pyNS subfolder.")
     parser.add_option("-o", "--outputDir", action="store", dest='odir', type='string', default='Output/',

@@ -17,7 +17,7 @@
 
 from json import load
 from optparse import OptionParser
-import sys,os
+import sys
 
 def export(fileName):
     '''
@@ -38,14 +38,14 @@ def export(fileName):
     flow_data = data['flow']
     pressure_data = data['pressure']
     for values in pressure_data:
-	pressure.append(values[1]*133.322)
+        pressure.append(values[1]*133.322)
     for values in flow_data:
-	time.append(values[0])
-	flow.append(values[1]/6e7)
+        time.append(values[0])
+        flow.append(values[1]/6e7)
     i = 0
     while i <len(time):
-	text_file.write(str('{:.4e}'.format(time[i]))+';'+str('{:.4e}'.format(pressure[i]))+';'+str('{:.4e}'.format(flow[i])+'\n'))
-	i+=1
+        text_file.write(str('{:.4e}'.format(time[i]))+';'+str('{:.4e}'.format(pressure[i]))+';'+str('{:.4e}'.format(flow[i])+'\n'))
+        i+=1
     text_file.close()
     
 if __name__ == "__main__":

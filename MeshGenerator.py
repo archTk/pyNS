@@ -374,26 +374,26 @@ class MeshGenerator(object):
                     elementParameters['s2'] = 1.0
                     elementParameters['length'] = edgeProperties['length']
                     if self.MeshType.get(edgeId,None) == "Resistance":
-			pass
-		    else:
-			if edgeProperties['radius'] is not None:
-			    if type(edgeProperties['radius'][0]) is str or type(edgeProperties['radius'][1]) is str:
-				elementParameters['radiusAtRest'] = edgeProperties['ScalarRadius']
-				elementParameters['radius'] = edgeProperties['radius']
-			    else:
-				elementParameters['radius'] = edgeProperties['radius']
-			else:
-			    elementParameters['radius'] = {elementParameters['s1']:edgeProperties['xradius'][elementParameters['s1']]*edgeProperties['yradius'][elementParameters['s1']]**0.5, elementParameters['s2']:edgeProperties['xradius'][elementParameters['s2']]*edgeProperties['yradius'][elementParameters['s2']]**0.5}
-			elementParameters['wall_thickness'] = edgeProperties['wallthickness']
-			elementParameters['young_modulus'] = edgeProperties['youngmodulus']                             
-			if edgeProperties['xradius'][0.0] is not None:     
-			    elementParameters['xradius'] = edgeProperties['xradius']
-			else:
-			    elementParameters['xradius'] = None
-			if edgeProperties['yradius'][0.0] is not None:     
-			    elementParameters['yradius'] = edgeProperties['yradius']
-			else:
-			    elementParameters['yradius'] = None  
+                        pass
+                    else:
+                        if edgeProperties['radius'] is not None:
+                            if type(edgeProperties['radius'][0]) is str or type(edgeProperties['radius'][1]) is str:
+                                elementParameters['radiusAtRest'] = edgeProperties['ScalarRadius']
+                                elementParameters['radius'] = edgeProperties['radius']
+                            else:
+                                elementParameters['radius'] = edgeProperties['radius']
+                        else:
+                            elementParameters['radius'] = {elementParameters['s1']:edgeProperties['xradius'][elementParameters['s1']]*edgeProperties['yradius'][elementParameters['s1']]**0.5, elementParameters['s2']:edgeProperties['xradius'][elementParameters['s2']]*edgeProperties['yradius'][elementParameters['s2']]**0.5}
+                        elementParameters['wall_thickness'] = edgeProperties['wallthickness']
+                        elementParameters['young_modulus'] = edgeProperties['youngmodulus']                             
+                        if edgeProperties['xradius'][0.0] is not None:     
+                            elementParameters['xradius'] = edgeProperties['xradius']
+                        else:
+                            elementParameters['xradius'] = None
+                        if edgeProperties['yradius'][0.0] is not None:     
+                            elementParameters['yradius'] = edgeProperties['yradius']
+                        else:
+                            elementParameters['yradius'] = None  
                         
                     
                     elementParameters["resistance"] = edge.Resistance

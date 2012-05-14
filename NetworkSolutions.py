@@ -182,7 +182,7 @@ class NetworkSolutions(object):
         info['time'].sort()
         
         for el in elements:
-            if el.Type == 'WavePropagation':
+            if el.Type == 'WavePropagation' or el.Type == 'Resistance':
                 info['elements'].append(el.Name)
                 info['elements'].sort()
         path = 'Results/json/info.json'
@@ -202,17 +202,11 @@ class NetworkSolutions(object):
                 p1 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[0]]),self.CardiacFreq*(self.Cycles-1):]
                 p2 = self.Solutions[(self.DofMap.DofMap[meshid, dofs[1]]),self.CardiacFreq*(self.Cycles-1):]
                 Flow = (p1-p2)/element.R
-                Radius = element.Radius
-                Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
-                if excludeWss is False:
-		    Wss = self.GetWSSSignal(element)
-		    tWss = linspace(0, self.Period, len(Wss))
+                Wss = []
+                Reynolds = []
                 elName = element.Name
                 meshInfo['meshId']=str(meshid)
                 meshInfo['name']=str(elName)
-                meshInfo['length']=str(round(element.Length*1e2,2))+' cm'
-                meshInfo['diameter_min']=str(round((min(element.Radius)*2e3),2))+' mm'
-                meshInfo['diameter_max']=str(round((max(element.Radius)*2e3),2))+' mm'
                 meshInfo['mean_pressure']=str(round(mean(p1/133.32),2))+' mmHg'
                 meshInfo['min_pressure'] = str(0)
                 min_p = round(min(p1/133.32),2)
@@ -223,33 +217,45 @@ class NetworkSolutions(object):
                 min_q = round(min(Flow*6e7),2)
                 if min_q < 0:
                     meshInfo['min_flow'] = str(min_q)
-                if excludeWss is False:    
-		    meshInfo['mean_wss']=str(round(mean(Wss*10),2))+' dynes/cm<sup>2</sup>'
-		    meshInfo['min_wss'] = str(0)
-		    min_wss = round(min(Wss*10),2)
-		    if min_wss < 0:
-			meshInfo['min_wss'] = str(min_wss)
-                meshInfo['mean_re']=str(round(mean(Reynolds),1))
-                meshInfo['min_re'] = str(0)
-                min_re = round(min(Reynolds),1)
-                if min_re < 0:
-                    meshInfo['min_re'] = str(min_re)
+                    
                 meshInfo['items'] = []
                 timeValues = {}
                 timeValues['flow'] = []
                 timeValues['pressure'] = []
-                timeValues['wss'] = []
-                timeValues['re'] = []
                 
                 self.dayFlow[element.Name] = (round(mean(Flow*6e7),1))
                 self.dayPressure[element.Name] = (round(mean(p1/133.32),1))
-                if excludeWss is False:
-		    self.dayWssP[element.Name] = (round(max(Wss*10),2))
                 
-                try:
-                    self.dayDiameter[element.Name] = (round(element.dayRadius[time][0]*2e3,2))
-                except:
-                    self.dayDiameter[element.Name] = (round(element.Radius[0]*2e3,2))
+                if element.Type != "Resistance":
+                    Radius = element.Radius
+                    Reynolds = (2.0*Flow*self.SimulationContext.Context['blood_density'])/(pi*max(Radius)*self.SimulationContext.Context['dynamic_viscosity'])
+                    if excludeWss is False:
+                        Wss = self.GetWSSSignal(element)
+                        tWss = linspace(0, self.Period, len(Wss))
+                    meshInfo['length']=str(round(element.Length*1e2,2))+' cm'
+                    meshInfo['diameter_min']=str(round((min(element.Radius)*2e3),2))+' mm'
+                    meshInfo['diameter_max']=str(round((max(element.Radius)*2e3),2))+' mm'
+                    if excludeWss is False:    
+                        meshInfo['mean_wss']=str(round(mean(Wss*10),2))+' dynes/cm<sup>2</sup>'
+                        meshInfo['min_wss'] = str(0)
+                        min_wss = round(min(Wss*10),2)
+                        if min_wss < 0:
+                            meshInfo['min_wss'] = str(min_wss)
+                    meshInfo['mean_re']=str(round(mean(Reynolds),1))
+                    meshInfo['min_re'] = str(0)
+                    min_re = round(min(Reynolds),1)
+                    if min_re < 0:
+                        meshInfo['min_re'] = str(min_re)
+                    timeValues['wss'] = []
+                    timeValues['re'] = []
+                    if excludeWss is False:
+                        self.dayWssP[element.Name] = (round(max(Wss*10),2))
+                    try:
+                        self.dayDiameter[element.Name] = (round(element.dayRadius[time][0]*2e3,2))
+                    except:
+                        self.dayDiameter[element.Name] = (round(element.Radius[0]*2e3,2))
+                
+                
                              
         i=0
         for q in Flow:
@@ -260,10 +266,10 @@ class NetworkSolutions(object):
             timeValues['pressure'].append([self.t[i],(round(p/133.32,2))])
             i+=1
         if excludeWss is False:
-	    i=0
-	    for w in Wss:
-		timeValues['wss'].append([tWss[i],(round(w*10,2))])
-		i+=1
+            i=0
+            for w in Wss:
+                timeValues['wss'].append([tWss[i],(round(w*10,2))])
+                i+=1
         i=0
         for re in Reynolds:
             timeValues['re'].append([self.t[i],(round(re,2))])

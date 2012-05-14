@@ -53,6 +53,7 @@
 			<xsd:enumeration value="transmural pressures"/>
 			<xsd:enumeration value="inflow"/>
 			<xsd:enumeration value="outflow pressure"/>
+			<xsd:enumeration value="input pressure"/>
 		</xsd:restriction>
 	</xsd:simpleType>
 	

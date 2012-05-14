@@ -75,13 +75,16 @@ class Assembler(object):
         self.DofMap.SetNetworkMesh(self.NetworkMesh)
         self.DofMap.Build()
              
-        # Searching for prescribed pressure output
+        # Searching for prescribed pressure output/input
         numberOfElements = 0
         for element in self.NetworkMesh.Elements:  
             for dof in element.GetExternalPressureLocalDofs():
                     numberOfElements+=1
         if self.BoundaryConditions.OutP is not None:
             numberOfElements+=1
+        if self.BoundaryConditions.InP is not None:
+            numberOfElements+=1
+      
             
         # Setting Transmural Pressures for windkessel elements and wave propagation elements
         PrescribedPressures = zeros((numberOfElements,2))
@@ -98,6 +101,16 @@ class Assembler(object):
                             PrescribedPressures[i,1] = value2
                             done = 1
                             i+=1
+                if self.BoundaryConditions.InP is not None:
+                    if element.Id == self.BoundaryConditions.elementIn.Id:
+                        if done == 0:
+                            value1 = self.DofMap.DofMap[(self.BoundaryConditions.elementIn.Id,self.BoundaryConditions.elementIn.GetLocalDof(int(self.BoundaryConditions.NodeIn)))]
+                            value2 = self.BoundaryConditions.InP
+                            PrescribedPressures[i,0] = value1
+                            PrescribedPressures[i,1] = value2
+                            done = 1
+                            i+=1
+                            
                 value1 = self.DofMap.DofMap[(element.Id,dof)]
                 value2 = self.BoundaryConditions.PressureValues[element.Id]
                 PrescribedPressures[i,0] = value1
@@ -107,7 +120,6 @@ class Assembler(object):
         self.BoundaryConditions.SetSimulationContext(simulationContext)
         self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
         self.PrescribedPressures = PrescribedPressures.astype(Int32)
-        
         return self.PrescribedPressures
 
     def AssembleInit(self, simulationContext, evaluator):
