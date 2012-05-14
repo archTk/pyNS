@@ -12,10 +12,19 @@
       </parameters>  
       <entities>
         <entity id="testing_network"/>
-        <entity id="end_segment"/>
       </entities>
     </boundary_condition>
-    <boundary_condition id="2" type="inflow" name="heart">
+    <boundary_condition id="2" type="outflow pressure" name="venous">
+      <parameters>
+        <pressure unit="Pa">
+           <scalar>0.0</scalar>
+        </pressure>
+      </parameters>  
+      <entities>
+        <entity id="testing_network"/>
+      </entities>
+    </boundary_condition>
+    <boundary_condition id="3" type="inflow" name="heart">
       <parameters>
         <A0>
           <scalar>9.4770816e-5</scalar>

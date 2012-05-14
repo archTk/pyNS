@@ -13,14 +13,8 @@
    <node id="3"/>
    <node id="4"/>
    <node id="5"/>
-   <node id="6" type="downstream network" name="wk_end_network">
-     <properties>
-       <windkessel>
-         <expression>$WindkesselRel[wk_end_network] = (($mean_pressure[])/($cardiac_output[]))*(133.3223684211*6.0e7)</expression>
-       </windkessel>
-     </properties>
-   </node>
-  </nodes>
+   <node id="6" type="outflow" name="venous"/>
+ </nodes>
  <superedges>  
    <superedge id="1" name="testing_network">
      <edgesIds>
@@ -94,7 +88,7 @@
      </properties>
    </edge>
    <edge id="5" node1_id="5" node2_id="6" side="venous" name="third">
-     <geometry>
+    <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>5e-2</scalar>
 	     </length>
