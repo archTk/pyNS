@@ -1233,6 +1233,7 @@ class ResistanceElement(Element):
         Constructor
         '''
         Element.__init__(self)
+        print "ok"
         self.Type = "Resistance"
         self.Side = side
         self.Id = elId
@@ -1256,6 +1257,7 @@ class ResistanceElement(Element):
         This method sets Resistance.
         '''
         self.R = resistance
+        print self.R
 
     def InputParameters(self, evaluator=None):
         '''
