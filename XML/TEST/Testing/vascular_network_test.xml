@@ -53,7 +53,7 @@
      </geometry>
      <properties>
        <resistance unit="Pa">
-         <scalar>1e10</scalar>
+         <expression>$Resistance[res1] = 0.1**($PressureGradient[res1])</expression>
        </resistance>
      </properties>
    </edge>

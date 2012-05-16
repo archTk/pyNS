@@ -1251,12 +1251,14 @@ class ResistanceElement(Element):
         self.Flow = None
         self.Initialized = False
         
-    def SetResistance(self, resistance):
+    def SetResistance(self, resistance, info=None, timeIndex=0):
         '''
-        This method sets Resistance.
+        This method sets non linear resistance.
         '''
         self.R = resistance
-        print self.R
+        if info['history'] != []:
+            self.LastIncrementNumber = info['history'][0]
+            self.SetParameterInHistory('Resistance', self.R, info['incrementNumber'])   
 
     def InputParameters(self, evaluator=None):
         '''
@@ -1276,6 +1278,66 @@ class ResistanceElement(Element):
         This method return Poiseuille's resistance local dofs
         '''
         return [self.dof[0], self.dof[1]]
+    
+    def GetPressureGradient (self, info, timeIndex=0):
+        '''
+        This method returns pressure gradient on the resistance.
+        If cycle is not specified, default cycle is the last one.
+        '''
+        # t=0, no pressure.
+        if info['solution'] is None:
+            self.Pressure = 1e-12
+            return self.Pressure 
+        try:
+            self.Period = self.simulationContext.Context['period']
+        except KeyError:
+            print "Error, Please set period in Boundary Conditions XML File"
+            raise
+        try:
+            self.Cycles = self.simulationContext.Context['cycles']
+        except KeyError:
+            print "Error, Please set cycles number in Boundary Conditions XML File"
+            raise
+        try:
+            self.TimeStep = self.simulationContext.Context['timestep']
+        except KeyError:
+            print "Error, Please set timestep in Boundary Conditions XML File"
+            raise  
+        try:
+            solution = info['solution'][timeIndex]
+        except KeyError:
+            print "Error, Please provide Solution"
+            raise
+        try:
+            dofmap = info['dofmap']
+        except KeyError:
+            print "Error, Please provide Dofmap"
+            raise
+        try:
+            Cycle = info['cycle']
+        except KeyError:
+            Cycle = self.Cycles
+        
+        dofs = self.GetPoiseuilleDofs()
+        self.Pressure1 = (solution[(dofmap.DofMap[self.Id, dofs[0]]),:])
+        self.Pressure2 = (solution[(dofmap.DofMap[self.Id, dofs[1]]),:])
+        
+        if len(self.Pressure1) != 1:
+            self.Pressure1 = mean(self.Pressure1[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])
+        else:
+            self.Pressure1 = self.Pressure1[0] 
+        if self.Pressure1 <= 0.0:
+            self.Pressure1 = 1e-12
+        if len(self.Pressure2) != 1:
+            self.Pressure2 = mean(self.Pressure2[(int(self.Period/self.TimeStep)*(Cycle-1)):(int(self.Period/self.TimeStep)*(Cycle))])
+        else:
+            self.Pressure2 = self.Pressure2[0] 
+        if self.Pressure2 <= 0.0:
+            self.Pressure2 = 1e-12
+            
+        self.PressureGradient = self.Pressure2-self.Pressure1
+        print self.PressureGradient
+        return self.PressureGradient
     
     def GetCircuitMatrix(self):
         '''

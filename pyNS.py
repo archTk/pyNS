@@ -37,21 +37,36 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             print "Starting webServer for post-processing results. Close it with CTRL-C."
             Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
             try:
-                httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
+                port = 8000
+                httpd = SocketServer.TCPServer(("localhost", port), Handler)
             except:
-                pid = None
-                for line in os.popen("lsof -i:8000"):
-                    fields = line.split()
-                    pid = fields[1]
-                if pid:
-                    os.system("kill %s" %pid)
-                    time.sleep(5)
-                httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
+                try:
+                    pid = None
+                    for line in os.popen("lsof -i:8000"):
+                        fields = line.split()
+                        pid = fields[1]
+                    if pid:
+                        os.system("kill %s" %pid)
+                        time.sleep(5)
+                    httpd = SocketServer.TCPServer(("localhost", port), Handler)
+                except:
+                    connected = False
+                    startPort = 8000
+                    while not connected:
+                        try:
+                            httpd = SocketServer.TCPServer(("localhost", startPort), Handler)
+                            connected = True
+                            port = startPort
+                        except:
+                            startPort+=1
+                    
             if results == 'last':
-                webbrowser.open_new_tab('http://localhost:8000/Results/results.html')
+                ip = "http://localhost:%s" %port
+                webbrowser.open_new_tab(ip+'/Results/results.html')
             else:
                 if os.path.exists('Results/Saved/'+results):
-                    webbrowser.open_new_tab('http://localhost:8000/Results/Saved/'+results+'/results.html')
+                    ip = "http://localhost:%s" %port
+                    webbrowser.open_new_tab(ip+"/Results/Saved/"+results+"/results.html")
                 else:
                     sys.exit('Error: '+results+' directory does not exist.')
             httpd.serve_forever()
@@ -81,12 +96,24 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             sys.exit(export+' solution exported in .txt file successfully')
     
     '''Checking for webserver instance'''
-    pid = None
-    for line in os.popen("lsof -i:8000"):
-        fields = line.split()
-        pid = fields[1]
-    if pid:
-        os.system("kill %s" %pid) 
+    try:
+        pid = None
+        for line in os.popen("lsof -i:8000"):
+            fields = line.split()
+            pid = fields[1]
+        if pid:
+            os.system("kill %s" %pid) 
+    except:
+        connected = False
+        startPort = 8000
+        while not connected:
+            try:
+                httpd = SocketServer.TCPServer(("localhost", startPort), Handler)
+                connected = True
+                port = startPort
+            except:
+                startPort+=1
+        
     '''Create XML and image directories'''
     if not os.path.exists (wdir):
         os.mkdir(wdir)
