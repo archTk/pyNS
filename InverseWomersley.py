@@ -58,7 +58,7 @@ except:
             add_bessel('py27_macOsX_x8664')
         if sys.platform == 'linux2' and intepreterArchitecture() is False:
             add_bessel('py27_linux_i386')
-        if sys.platform == 'linux2' and intepreterArchitecture() is True:  #not available at the moment
+        if sys.platform == 'linux2' and intepreterArchitecture() is True:
             add_bessel('py27_linux_x8664')
         if sys.platform == 'win32':
             sys.exit("Windows users have to install scipy package (http://www.scipy.org/Download)")

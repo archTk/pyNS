@@ -316,7 +316,7 @@ class NetworkSolutions(object):
                         timeValues['flow'].append([day*10,sol.dayFlow[element.Name]])
                         timeValues['pressure'].append([day*10,sol.dayPressure[element.Name]])
                         timeValues['wssP'].append([day*10,sol.dayWssP[element.Name]])
-                        timeValues['diameter'].append([day,sol.dayDiameter[element.Name]])
+                        timeValues['diameter'].append([day*10,sol.dayDiameter[element.Name]])
                    
                 timeValues['flow'].sort()
                 min_q = 0

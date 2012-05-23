@@ -534,7 +534,7 @@ class MeshGenerator(object):
                     for meshId in meshlist:
                         if self.NetworkMesh.MeshToS[meshId][0] == 0.0:
                             vein = self.NetworkMesh.ElementIdsToElements[str(meshId)]
-                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)      
+                            self.NetworkMesh.ElementIdsToElements[self.NetworkMesh.GraphNodeToMesh[node]].SetVein(vein)    
         #SETTING LEAKAGES
         for el in self.NetworkMesh.Elements:
             if el.Type == "WavePropagation":

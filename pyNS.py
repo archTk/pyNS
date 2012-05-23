@@ -97,20 +97,25 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
     
     '''Checking for webserver instance'''
     try:
+        ip = "http://localhost:8000"
         pid = None
         for line in os.popen("lsof -i:8000"):
             fields = line.split()
             pid = fields[1]
         if pid:
-            os.system("kill %s" %pid) 
+            os.system("kill %s" %pid)
+        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
     except:
         connected = False
         startPort = 8000
         while not connected:
             try:
+                Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
                 httpd = SocketServer.TCPServer(("localhost", startPort), Handler)
                 connected = True
                 port = startPort
+                ip = "http://localhost:%s" %port
             except:
                 startPort+=1
         
@@ -442,9 +447,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
     print "Starting webServer for post-processing results. Close it with CTRL-C."
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
-    webbrowser.open_new_tab('http://localhost:8000/Results/results.html')
+    webbrowser.open_new_tab(ip+'/Results/results.html')
     httpd.serve_forever()
 
 if __name__ == "__main__":

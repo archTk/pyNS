@@ -1041,7 +1041,7 @@ class Anastomosis(Element):
         Setting connections, proximal vein.
         '''
         self.Vein = vein
-    
+        
     def SetLinearValues(self,parameters):
         '''
         This method sets linear values computed after a pre-run steady non linear simulation.
