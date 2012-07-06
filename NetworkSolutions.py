@@ -165,7 +165,7 @@ class NetworkSolutions(object):
     
     def WriteJsonInfo(self, days, elements):
         '''
-        '''
+        ''' 
         info = {}
         info['time'] = []
         info['elements'] = []
@@ -185,7 +185,7 @@ class NetworkSolutions(object):
             if el.Type == 'WavePropagation' or el.Type == 'Resistance':
                 info['elements'].append(el.Name)
                 info['elements'].sort()
-        path = 'Results/json/info.json'
+        path = 'Results/' + self.NetworkGraph.PatientId + '/json/info.json'
         f = open(path,'w')
         dump(info, f)
         f.close()
@@ -277,9 +277,9 @@ class NetworkSolutions(object):
         
         meshInfo['items'].append(timeValues)
         if time > 0: 
-            path = 'Results/json/'+str(time*10)+'_'+str(elName)+'.json'
+            path = 'Results/' + self.NetworkGraph.PatientId + '/json/'+str(time*10)+'_'+str(elName)+'.json'
         else:
-            path = 'Results/json/'+str(time)+'_'+str(elName)+'.json'
+            path = 'Results/' + self.NetworkGraph.PatientId + '/json/'+str(time)+'_'+str(elName)+'.json'
         f = open(path,'w')
         dump(meshInfo, f)
         f.close()
@@ -328,7 +328,7 @@ class NetworkSolutions(object):
                 timeValues['wssP'].sort()
                 timeValues['diameter'].sort()
                 meshInfo['items'].append(timeValues)
-                path = 'Results/json/adapt_'+str(elName)+'.json'
+                path = 'Results/' + self.NetworkGraph.PatientId + '/json/adapt_'+str(elName)+'.json'
                 f = open(path,'w')
                 dump(meshInfo, f)
                 f.close()

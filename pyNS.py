@@ -158,10 +158,6 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             os.mkdir(p_images)
             os.mkdir(w_images)
             os.mkdir(o_images)
-    else:
-        if os.path.exists('Results/json'):
-            shutil.rmtree('Results/json')
-        os.mkdir('Results/json')
 
     '''Setting variables.'''
     testTube = 'XML/TEST/CircularStraightTube/'
@@ -288,7 +284,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 simulationContext.ReadFromXML(xmlboundpathGeneric, xsdboundpath)
             else:  
                 simulationContext.ReadFromXML(xmlboundpath, xsdboundpath)
-
+            
             if simType == 'generic':  
                 modelAdaptor.SettingParameters(parameters)
                 modelAdaptor.AdaptingParameters(xmlboundpathGeneric,xmlboundpath)
@@ -299,7 +295,19 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 networkGraph.ReadFromXML(xmlnetpathGeneric, xsdnetpath)
             else:
                 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
-
+            
+            '''Setting results directory based on PatientID in networkGraph XML file'''
+            
+            if plotImages is False:
+                if os.path.exists('Results/%s' % networkGraph.PatientId):
+                    sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
+                else:
+                    os.mkdir('Results/%s' % networkGraph.PatientId)
+                    os.mkdir('Results/%s/json' % networkGraph.PatientId)
+                    shutil.copytree('Results/css','Results/%s/css'  % networkGraph.PatientId)
+                    shutil.copytree('Results/js','Results/%s/js'  % networkGraph.PatientId)
+                    shutil.copy('Results/results.html','Results/%s/results.html'  % networkGraph.PatientId)
+            
             '''NetworkGraph Model Adaptor'''
             if simType == 'generic':
                 modelAdaptor.SetNetworkGraph(networkGraph)
@@ -446,6 +454,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             networkSolutions.WriteToCsv(adaptation, 'Flow')
             networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
+    shutil.copytree('Results/%s/json' % networkGraph.PatientId,'Results/json',symlinks=True)
     print "Starting webServer for post-processing results. Close it with CTRL-C."
     webbrowser.open_new_tab(ip+'/Results/results.html')
     httpd.serve_forever()
