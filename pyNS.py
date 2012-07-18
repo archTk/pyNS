@@ -296,18 +296,6 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             else:
                 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
             
-            '''Setting results directory based on PatientID in networkGraph XML file'''
-            
-            if plotImages is False:
-                if os.path.exists('Results/%s' % networkGraph.PatientId):
-                    sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
-                else:
-                    os.mkdir('Results/%s' % networkGraph.PatientId)
-                    os.mkdir('Results/%s/json' % networkGraph.PatientId)
-                    shutil.copytree('Results/css','Results/%s/css'  % networkGraph.PatientId)
-                    shutil.copytree('Results/js','Results/%s/js'  % networkGraph.PatientId)
-                    shutil.copy('Results/results.html','Results/%s/results.html'  % networkGraph.PatientId)
-            
             '''NetworkGraph Model Adaptor'''
             if simType == 'generic':
                 modelAdaptor.SetNetworkGraph(networkGraph)
@@ -316,6 +304,18 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
                 else:
                     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath,diameters)
+                    
+            '''Setting results directory based on PatientID in networkGraph XML file'''       
+            if plotImages is False:
+                if day <=0:
+                    if os.path.exists('Results/%s' % networkGraph.PatientId):
+                        sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
+                    else:
+                        os.mkdir('Results/%s' % networkGraph.PatientId)
+                        os.mkdir('Results/%s/json' % networkGraph.PatientId)
+                        shutil.copytree('Results/css','Results/%s/css'  % networkGraph.PatientId)
+                        shutil.copytree('Results/js','Results/%s/js'  % networkGraph.PatientId)
+                        shutil.copy('Results/results.html','Results/%s/results.html'  % networkGraph.PatientId)
 
             '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.'''
             meshGenerator = MeshGenerator()
