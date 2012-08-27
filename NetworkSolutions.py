@@ -163,7 +163,7 @@ class NetworkSolutions(object):
                      
     # JSON METHODS
     
-    def WriteJsonInfo(self, days, elements):
+    def WriteJsonInfo(self, days, elements, PatientId):
         '''
         ''' 
         info = {}
@@ -185,12 +185,12 @@ class NetworkSolutions(object):
             if el.Type == 'WavePropagation' or el.Type == 'Resistance':
                 info['elements'].append(el.Name)
                 info['elements'].sort()
-        path = 'Results/' + self.NetworkGraph.PatientId + '/json/info.json'
+        path = 'Results/' + PatientId + '/json/info.json'
         f = open(path,'w')
         dump(info, f)
         f.close()
     
-    def WriteJson(self, meshid, time, excludeWss):
+    def WriteJson(self, meshid, time, excludeWss, PatientId):
         '''
         This method writes a json file for each mesh.
         '''
@@ -277,15 +277,15 @@ class NetworkSolutions(object):
         
         meshInfo['items'].append(timeValues)
         if time > 0: 
-            path = 'Results/' + self.NetworkGraph.PatientId + '/json/'+str(time*10)+'_'+str(elName)+'.json'
+            path = 'Results/' + PatientId + '/json/'+str(time*10)+'_'+str(elName)+'.json'
         else:
-            path = 'Results/' + self.NetworkGraph.PatientId + '/json/'+str(time)+'_'+str(elName)+'.json'
+            path = 'Results/' + PatientId + '/json/'+str(time)+'_'+str(elName)+'.json'
         f = open(path,'w')
         dump(meshInfo, f)
         f.close()
         
         
-    def WriteJsonAdapt(self, adaptation):
+    def WriteJsonAdapt(self, adaptation, PatientId):
         '''
         '''
             
@@ -328,7 +328,7 @@ class NetworkSolutions(object):
                 timeValues['wssP'].sort()
                 timeValues['diameter'].sort()
                 meshInfo['items'].append(timeValues)
-                path = 'Results/' + self.NetworkGraph.PatientId + '/json/adapt_'+str(elName)+'.json'
+                path = 'Results/' + PatientId + '/json/adapt_'+str(elName)+'.json'
                 f = open(path,'w')
                 dump(meshInfo, f)
                 f.close()

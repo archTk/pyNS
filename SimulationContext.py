@@ -327,7 +327,7 @@ class SimulationContext(object):
             self.Context['K_ax'] = 1.34
             self.Context['K_sub'] = 1.675
             self.Context['K_ver'] = 3.3
-        if self.Context['age'] >= 40 and self.Context['age'] < 59: 
+        if self.Context['age'] >= 40 and self.Context['age'] <= 59: 
             self.Context['K_ax'] = 1.43
             self.Context['K_sub'] = 1.788
             self.Context['K_ver'] = 3.3
@@ -345,7 +345,7 @@ class SimulationContext(object):
             else:
                 self.Context['K_C1'] = 0
         if self.Context['hyp'] == 0 and self.Context['diab'] == 0:
-            self.Context['K_C1'] = 0
+            self.Context['K_C1'] = 0	
             
         
 class Error(Exception):

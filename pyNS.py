@@ -296,6 +296,8 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             else:
                 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
             
+            
+            
             '''NetworkGraph Model Adaptor'''
             if simType == 'generic':
                 modelAdaptor.SetNetworkGraph(networkGraph)
@@ -304,18 +306,20 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
                 else:
                     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath,diameters)
-                    
-            '''Setting results directory based on PatientID in networkGraph XML file'''       
+		    
+		    
+	    '''Setting results directory based on PatientID in networkGraph XML file'''
+            
             if plotImages is False:
-                if day <=0:
-                    if os.path.exists('Results/%s' % networkGraph.PatientId):
-                        sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
-                    else:
-                        os.mkdir('Results/%s' % networkGraph.PatientId)
-                        os.mkdir('Results/%s/json' % networkGraph.PatientId)
-                        shutil.copytree('Results/css','Results/%s/css'  % networkGraph.PatientId)
-                        shutil.copytree('Results/js','Results/%s/js'  % networkGraph.PatientId)
-                        shutil.copy('Results/results.html','Results/%s/results.html'  % networkGraph.PatientId)
+                if os.path.exists('Results/%s' % modelAdaptor.Idpat):
+                    #sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
+		    pass
+                else:
+                    os.mkdir('Results/%s' % modelAdaptor.Idpat)
+                    os.mkdir('Results/%s/json' % modelAdaptor.Idpat)
+                    shutil.copytree('Results/css','Results/%s/css'  % modelAdaptor.Idpat)
+                    shutil.copytree('Results/js','Results/%s/js'  % modelAdaptor.Idpat)
+                    shutil.copy('Results/results.html','Results/%s/results.html'  % modelAdaptor.Idpat)
 
             '''Mesh generation, XML Network Graph is needed for creating XML Network Mesh.'''
             meshGenerator = MeshGenerator()
@@ -395,7 +399,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
         networkSolutions.SetNetworkGraph(networkGraph)
         networkSolutions.SetSimulationContext(simulationContext)
         networkSolutions.SetSolutions(solver.Solutions) 
-        networkSolutions.WriteJsonInfo(days,networkMesh.Elements)
+        networkSolutions.WriteJsonInfo(days,networkMesh.Elements,modelAdaptor.Idpat)
         adaptation.SetSolutions(day, networkSolutions)
         adaptation.SetRefValues(day, networkMesh)
     
@@ -425,7 +429,7 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
         '''Post process solution for each element of the network'''  
         for element in networkMesh.Elements:
             if element.Type == 'WavePropagation' or element.Type == 'Resistance':
-                networkSolutions.WriteJson(element.Id, day, excludeWss)
+                networkSolutions.WriteJson(element.Id, day, excludeWss,modelAdaptor.Idpat)
                 if velocityProfile is True:
                     networkSolutions.SaveVelocityProfile(element,str(day))
                 if plotFlow is True:
@@ -447,14 +451,14 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 
     '''Adaptation data'''
     if days > 0:
-        networkSolutions.WriteJsonAdapt(adaptation)
+        networkSolutions.WriteJsonAdapt(adaptation,modelAdaptor.Idpat)
         if writeCsv is True:
             networkSolutions.WriteToCsv(adaptation, 'Diameter')
             networkSolutions.WriteToCsv(adaptation, 'Pressure')
             networkSolutions.WriteToCsv(adaptation, 'Flow')
             networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
-    shutil.copytree('Results/%s/json' % networkGraph.PatientId,'Results/json',symlinks=True)
+    shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
     print "Starting webServer for post-processing results. Close it with CTRL-C."
     webbrowser.open_new_tab(ip+'/Results/results.html')
     httpd.serve_forever()

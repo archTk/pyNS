@@ -218,6 +218,7 @@ class ModelAdaptor(object):
                     self.Evaluator.Evaluate(x)
                     expressionList.remove(x)
                 except:
+		    
                     pass
           
         root = etree.Element("NetworkGraph", id=self.NetworkGraph.Id, version="3.2")
