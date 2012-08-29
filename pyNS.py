@@ -305,15 +305,14 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 if diameters is False:
                     modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath)
                 else:
-                    modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath,diameters)
-		    
-		    
-	    '''Setting results directory based on PatientID in networkGraph XML file'''
+                    modelAdaptor.AdaptingModel(xmlnetpathGeneric,xmlnetpath,diameters)   
+                       
+            '''Setting results directory based on PatientID in networkGraph XML file'''
             
             if plotImages is False:
                 if os.path.exists('Results/%s' % modelAdaptor.Idpat):
                     #sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
-		    pass
+                    pass
                 else:
                     os.mkdir('Results/%s' % modelAdaptor.Idpat)
                     os.mkdir('Results/%s/json' % modelAdaptor.Idpat)
@@ -458,7 +457,11 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             networkSolutions.WriteToCsv(adaptation, 'Flow')
             networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
-    shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
+    try:
+        shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
+    except OSError:
+        shutil.rmtree('Results/json')
+        shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
     print "Starting webServer for post-processing results. Close it with CTRL-C."
     webbrowser.open_new_tab(ip+'/Results/results.html')
     httpd.serve_forever()
