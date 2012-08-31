@@ -28,7 +28,7 @@ def export(fileName):
     infos = load(f)
     f.close()
     name = fileName.split('.')[0]
-    text_file = open('%s.txt' % name, "w")
+    text_file = open(name+'.txt', "w")
     text_file.write('time[s];pressure[Pa];flow[m3/s]\n')
     data = infos['items'][0]
     time = []

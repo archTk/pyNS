@@ -28,9 +28,18 @@ from Adaptation import Adaptation, linspace
 from Export import export as exporting
 import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser, time, argparse
 
+def mylistdir(directory):
+    '''
+    A specialized version of os.listdir() that ignores files that
+    start with a leading period.
+    '''
+    filelist = os.listdir(directory)
+    return [x for x in filelist
+            if not (x.startswith('.'))]
 
-def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, storeResults=False, excludeWss=False, export=False):
+def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, excludeWss=False, export=False, manualResults=False):
     
+    '''Loading previous specific results.'''
     if results is not False:
         while True:
             print "Starting webServer for post-processing results. Close it with CTRL-C."
@@ -63,61 +72,56 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
                 ip = "http://localhost:%s" %port
                 webbrowser.open_new_tab(ip+'/Results/results.html')
             else:
-                if os.path.exists('Results/Saved/'+results):
+                if os.path.exists('Results/'+results):
                     ip = "http://localhost:%s" %port
-                    webbrowser.open_new_tab(ip+"/Results/Saved/"+results+"/results.html")
+                    webbrowser.open_new_tab(ip+"/Results/"+results+"/results.html")
                 else:
                     sys.exit('Error: '+results+' directory does not exist.')
             httpd.serve_forever()
-    if storeResults is not False:
-        css = 'Results/css'
-        js = 'Results/js'
-        json = 'Results/json'
-        dst = 'Results/Saved/'+storeResults
-        if os.path.exists(dst):
-            sys.exit('Error: '+storeResults+' directory already existing.')
-        else:
-            shutil.copytree(css,dst+'/css')
-            shutil.copytree(js,dst+'/js')
-            shutil.copytree(json,dst+'/json')
-            shutil.copy('Results/results.html', dst+'/results.html')
-            sys.exit('Results saved successfully. Type ./pyNS.py --results '+ storeResults+' to see them.')
+                
+                
+    '''Exporting results into txt files'''   
     if export is not False:
-        if export == 'all':
-            for f in os.listdir('Results/json'):
-                if f == 'info.json':
-                    pass
-                else:
-                    exporting('Results/json/'+f)
-                    sys.exit('All solutions exported in .txt files successfully')
-        else:
-            exporting('Results/json/'+export)
-            sys.exit(export+' solution exported in .txt file successfully')
-    
-    '''Checking for webserver instance'''
-    try:
-        ip = "http://localhost:8000"
-        pid = None
-        for line in os.popen("lsof -i:8000"):
-            fields = line.split()
-            pid = fields[1]
-        if pid:
-            os.system("kill %s" %pid)
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
-    except:
-        connected = False
-        startPort = 8000
-        while not connected:
-            try:
-                Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-                httpd = SocketServer.TCPServer(("localhost", startPort), Handler)
-                connected = True
-                port = startPort
-                ip = "http://localhost:%s" %port
-            except:
-                startPort+=1
+        if not os.path.exists ('Results/%s/exportedSolutions' % export):
+            os.mkdir('Results/%s/exportedSolutions' % export)
+        for f in mylistdir('Results/%s/json' % export):
+            if f == 'info.json':
+                pass
+            else:
+                print "exporting Results/%s/json/" % export + f
+                exporting('Results/%s/json/' % export + f)
+                new_file = f.split('.')[0]+'.txt'
+                shutil.move('Results/%s/json/' % export + new_file, 'Results/%s/exportedSolutions/' % export + new_file)
+        sys.exit('All %s solutions exported successfully in Results/%s/exportedSolutions/ folder' % (export,export))
+   
         
+    '''Checking for webserver instance'''
+    if manualResults is not False:
+        try:
+            ip = "http://localhost:8000"
+            pid = None
+            for line in os.popen("lsof -i:8000"):
+                fields = line.split()
+                pid = fields[1]
+            if pid:
+                os.system("kill %s" %pid)
+            Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+            httpd = SocketServer.TCPServer(("localhost", 8000), Handler)
+        except:
+            connected = False
+            startPort = 8000
+            while not connected:
+                try:
+                    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+                    httpd = SocketServer.TCPServer(("localhost", startPort), Handler)
+                    connected = True
+                    port = startPort
+                    ip = "http://localhost:%s" %port
+                except:
+                    startPort+=1
+    
+    '''SIMULATION'''
+    
     '''Create XML and image directories'''
     if not os.path.exists (wdir):
         os.mkdir(wdir)
@@ -295,8 +299,6 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             else:
                 networkGraph.ReadFromXML(xmlnetpath, xsdnetpath)
             
-            
-            
             '''NetworkGraph Model Adaptor'''
             if simType == 'generic':
                 modelAdaptor.SetNetworkGraph(networkGraph)
@@ -309,8 +311,9 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             '''Setting results directory based on PatientID in networkGraph XML file'''
             
             if plotImages is False:
+                shutil.rmtree('Results/json')
+                os.mkdir('Results/json')
                 if os.path.exists('Results/%s' % modelAdaptor.Idpat):
-                    #sys.exit('Error: '+networkGraph.PatientId+' directory already existing.')
                     pass
                 else:
                     os.mkdir('Results/%s' % modelAdaptor.Idpat)
@@ -456,14 +459,16 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
             networkSolutions.WriteToCsv(adaptation, 'Flow')
             networkSolutions.WriteToCsv(adaptation, 'Wss')
     print "\nJOB FINISHED"
-    try:
-        shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
-    except OSError:
-        shutil.rmtree('Results/json')
-        shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
-    print "Starting webServer for post-processing results. Close it with CTRL-C."
-    webbrowser.open_new_tab(ip+'/Results/results.html')
-    httpd.serve_forever()
+    
+    if manualResults is not False:
+        try:
+            shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
+        except OSError:
+            shutil.rmtree('Results/json')
+            shutil.copytree('Results/%s/json' % modelAdaptor.Idpat,'Results/json',symlinks=True)
+        print "Starting webServer for post-processing results. Close it with CTRL-C."
+        webbrowser.open_new_tab(ip+'/Results/results.html')
+        httpd.serve_forever()
 
 if __name__ == "__main__":
         
@@ -528,20 +533,19 @@ if __name__ == "__main__":
     parser.add_argument("--velocityProfile", action="store_true", dest='velocityProfile', default = False,
 	                  help="Save velocity profile in a .avi file. By default this feature is inactive.")
     parser.add_argument("--results", action="store", dest='results', default = False,
-                      help="If active pyNS will be launched in post-processing mode for inspecting existing results. If you want to load a specific result previously saved, please specify the name ")
-    parser.add_argument("--storeResults", action="store", dest='storeResults', default = False,
-                      help="If active pyNS will save last simulated results in a subfolder of the Results folder. Please specify the name of the folder.")
+                      help="If active pyNS will be launched in post-processing mode for inspecting existing results. If you want to load a specific result, please specify the name ")
     parser.add_argument("--excludeWss", action="store_true", dest='excludeWss', default = False,
                       help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")
     parser.add_argument("--export", action="store", dest='export', default = False,
-                      help="If active pyNS will export to a .mat file the solution relative to the choosen mesh. Please specify a mesh name.")
+                      help="If active pyNS will export to a .txt file the solution relative to the choosen mesh. Please specify a mesh name.")
+    parser.add_argument("--manualResults", action="store_true", dest='manualResults', default = False,
+                      help="In case of multiple concurrent simulations it is reccomended to use this flag for avoiding the automatic load of pyNS local web server for postProcessing. User can manually inspect results by open results.html file located in the corresponding folder related to the simulation's patient_id.")
     
     args = parser.parse_args()
         
     try:
-        runSimulation(args.simType, args.wdir, args.odir, args.images, args.xsd, args.net, args.mesh, args.xmlout, args.bound, args.netSchema, args.boundSchema, args.template, args.parameters, args.diameters, args.adaptation, args.xmlSol, args.xmlMesh, args.writeCsv, args.plotImages, args.plotPressure, args.plotFlow, args.plotWss, args.plotReynolds, args.writePressure, args.writeFlow, args.writeWss, args.writeReynolds, args.velocityProfile, args.results, args.storeResults, args.excludeWss, args.export)
+        runSimulation(args.simType, args.wdir, args.odir, args.images, args.xsd, args.net, args.mesh, args.xmlout, args.bound, args.netSchema, args.boundSchema, args.template, args.parameters, args.diameters, args.adaptation, args.xmlSol, args.xmlMesh, args.writeCsv, args.plotImages, args.plotPressure, args.plotFlow, args.plotWss, args.plotReynolds, args.writePressure, args.writeFlow, args.writeWss, args.writeReynolds, args.velocityProfile, args.results, args.excludeWss, args.export, args.manualResults)
     except KeyboardInterrupt:
         print "\nLocal web server for post processing was shutdown successfully. pyNS is ready for next simulation."
-        print "If you want to save these results, type ./pyNS.py --storeResults name"
         print "If you want to inspect last simulation results, type ./pyNS.py --results last"
-        print "If you want to inspect previously saved simulation results, type ./pyNS.py --results name"
+        print "If you want to inspect a specific simulation results, type ./pyNS.py --results folderName"
