@@ -26,8 +26,7 @@ from SimulationContext import SimulationContext
 from Evaluator import Evaluator
 from Adaptation import Adaptation, linspace
 from Export import export as exporting
-from optparse import OptionParser
-import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser, time
+import os, sys, shutil, SimpleHTTPServer, SocketServer, webbrowser, time, argparse
 
 
 def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, storeResults=False, excludeWss=False, export=False):
@@ -469,75 +468,78 @@ def runSimulation(simType='generic', wdir='XML/', odir='Output/', images='Images
 if __name__ == "__main__":
         
     '''Command-line arguments.'''
-    parser = OptionParser()
-    parser.add_option("-s", "--simType", action="store",dest='simType', type="string", default="specific",
+   
+    parser = argparse.ArgumentParser(description='pyNS, The python Network Solver')
+    
+    parser.add_argument("-s", "--simType", action="store",dest='simType', default="specific",
 					  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation. 'testing' : simple network of arteries vein and resistances.")
-    parser.add_option("-w", "--workingDir", action="store", dest='wdir', type='string',default='XML/',
+    parser.add_argument("-w", "--workingDir", action="store", dest='wdir', default='XML/',
 	                  help = "Working directory path for xml input files. By default is located in 'XML/' pyNS subfolder.")
-    parser.add_option("-o", "--outputDir", action="store", dest='odir', type='string', default='Output/',
+    parser.add_argument("-o", "--outputDir", action="store", dest='odir', default='Output/',
 	                  help = "Output directory for subfolders and output files. By default is located in 'Output/' pyNS subfolder.")
-    parser.add_option("-i", "--imagesDir", action="store", dest='images', type='string', default='Images/',
+    parser.add_argument("-i", "--imagesDir", action="store", dest='images', default='Images/',
 					  help = "Images directory for subfolders and output images. By default is located in 'Images/' pyNS subfolder.")
-    parser.add_option("-x", "--xsdDir", action="store", dest='xsd', type='string', default = 'XML/XSD/',
+    parser.add_argument("-x", "--xsdDir", action="store", dest='xsd', default = 'XML/XSD/',
                       help="XML schema files directory. By default is located in XML/XSD/ pyNS subfolder.")
-    parser.add_option("-n", "--net", action="store", dest='net', type='string', default = 'vascular_network_arterial_right_arm.xml',
+    parser.add_argument("-n", "--net", action="store", dest='net', default = 'vascular_network_arterial_right_arm.xml',
 	                  help="PreOperative vascular network xml file. By default a right arm case arterial network is loaded.")
-    parser.add_option("-m", "--mesh", action="store", dest='mesh', type='string', default = 'vascular_mesh_v1.1.xml',
+    parser.add_argument("-m", "--mesh", action="store", dest='mesh', default = 'vascular_mesh_v1.1.xml',
                       help="Vascular network xml mesh file name. By default is specified as 'vascular_mesh_v1.1.xml'.")
-    parser.add_option("-l", "--xmlOut", action="store", dest="xmlout", type="string", default = 'vascular_output.xml',
+    parser.add_argument("-l", "--xmlOut", action="store", dest="xmlout", default = 'vascular_output.xml',
 			          help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
-    parser.add_option("-b", "--bound", action="store", dest='bound', type='string', default = 'boundary_conditions_arterial_right_arm.xml',
+    parser.add_argument("-b", "--bound", action="store", dest='bound', default = 'boundary_conditions_arterial_right_arm.xml',
 			          help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
-    parser.add_option("-c", "--netSchema", action="store", dest='netSchema', type='string', default = 'vascular_network_v3.2.xsd',
+    parser.add_argument("-c", "--netSchema", action="store", dest='netSchema', default = 'vascular_network_v3.2.xsd',
 	                  help="Vascular network xml schema xsd file. By default is defined as 'vascular_network_v3.2.xsd' and located in the XML schema files directory.")
-    parser.add_option("-f", "--boundSchema", action="store", dest='boundSchema', type='string', default = 'boundary_conditions_v3.1.xsd',
+    parser.add_argument("-f", "--boundSchema", action="store", dest='boundSchema', default = 'boundary_conditions_v3.1.xsd',
 	                  help="Boundary conditions xml schema xsd file. By default is defined as 'boundary_conditions_v3.1.xsd' and located in the XML schema files directory.")
-    parser.add_option("-g", "--template", action="store", dest='template', type='string', default = 'arm',
+    parser.add_argument("-g", "--template", action="store", dest='template', default = 'arm',
                       help="Specify a template network by choosing between currently implemented models: 'arm', 'willis'")
-    parser.add_option("-k", "--parameters", action="store", dest='parameters', type='string', default = 'XML/parameters.csv',
+    parser.add_argument("-k", "--parameters", action="store", dest='parameters', default = 'XML/parameters.csv',
 	                  help="Additional .csv file for patient-specific parameters. This allows the generation of a patient-specific network from a generic template. By default is located in 'XML/' pyNS subfolder.")
-    parser.add_option("-d", "--diameters", action="store", dest='diameters', type='string', default = False,
+    parser.add_argument("-d", "--diameters", action="store", dest='diameters', default = False,
 	                  help="Additional .csv file for patient-specific measured diameters. This enhance the patient-specific network generated from a generic template. By default does not exist.")
-    parser.add_option("-a", "--adaptation", action="store", dest='adaptation', type='int', default = -1,
+    parser.add_argument("-a", "--adaptation", action="store", dest='adaptation', default = -1,
 	                  help="Turn on adaptation algorithm by setting the number of simulated steps. 1 step represents 10 days. By default simulation is performed for preoperative(-1day)")
-    parser.add_option("--xmlSolution", action="store_true", dest='xmlSol', default = False,
+    parser.add_argument("--xmlSolution", action="store_true", dest='xmlSol', default = False,
 	                  help="Network Graph solution XML file will be saved in the Output directory if this feature is active. By default this feature is inactive.")
-    parser.add_option("--xmlMesh", action="store_true", dest='xmlMesh', default = False,
+    parser.add_argument("--xmlMesh", action="store_true", dest='xmlMesh', default = False,
 	                  help="Network Mesh XML file will be saved in the Output directory if this feature is active. By default this feature is inactive.")
-    parser.add_option("--writeCsv", action="store_true", dest='writeCsv', default = False,
+    parser.add_argument("--writeCsv", action="store_true", dest='writeCsv', default = False,
 	                  help="Adaptation results (flow rate, diameter, pressure and wss) will be saved in separates csv files if this feature is active. By default this feature is inactive.")
-    parser.add_option("-p", "--plotImages", action="store_true", dest='plotImages', default = False,
+    parser.add_argument("-p", "--plotImages", action="store_true", dest='plotImages', default = False,
 	                  help="Plot images using matplotlib library instead of using results.html. By default this feature is inactive.")
-    parser.add_option("--plotPressure", action="store_true", dest='plotPressure', default = False,
+    parser.add_argument("--plotPressure", action="store_true", dest='plotPressure', default = False,
 	                  help="Plot pressure solution for each element of the network. By default this feature is inactive.")
-    parser.add_option("--plotFlow", action="store_true", dest='plotFlow', default = False,
+    parser.add_argument("--plotFlow", action="store_true", dest='plotFlow', default = False,
 	                  help="Plot flow volume solution for each element of the network. By default this feature is inactive.")
-    parser.add_option("--plotReynolds", action="store_true", dest='plotReynolds', default = False,
+    parser.add_argument("--plotReynolds", action="store_true", dest='plotReynolds', default = False,
 	                  help="Plot Reynolds number solution for each element of the network. By default this feature is inactive.")
-    parser.add_option("--plotWss", action="store_true", dest='plotWss', default = False,
+    parser.add_argument("--plotWss", action="store_true", dest='plotWss', default = False,
 	                  help="Plot wall shear stress solution for each element of the network. By default this feature is inactive.")
-    parser.add_option("--writePressure", action="store_true", dest='writePressure', default = False,
+    parser.add_argument("--writePressure", action="store_true", dest='writePressure', default = False,
 	                  help="Write pressure solution for each element of the network in a .txt file. By default this feature is inactive.")
-    parser.add_option("--writeFlow", action="store_true", dest='writeFlow', default = False,
+    parser.add_argument("--writeFlow", action="store_true", dest='writeFlow', default = False,
 	                  help="Write flow volume solution for each element of the network in a .txt file. By default this feature is inactive.")
-    parser.add_option("--writeReynolds", action="store_true", dest='writeReynolds', default = False,
+    parser.add_argument("--writeReynolds", action="store_true", dest='writeReynolds', default = False,
 	                  help="Write Reynolds number solution for each element of the network in a .txt file. By default this feature is inactive.")
-    parser.add_option("--writeWss", action="store_true", dest='writeWss', default = False,
+    parser.add_argument("--writeWss", action="store_true", dest='writeWss', default = False,
 	                  help="Write wall shear stress solution for each element of the network in a .txt file. By default this feature is inactive.")
-    parser.add_option("--velocityProfile", action="store_true", dest='velocityProfile', default = False,
+    parser.add_argument("--velocityProfile", action="store_true", dest='velocityProfile', default = False,
 	                  help="Save velocity profile in a .avi file. By default this feature is inactive.")
-    parser.add_option("--results", action="store", dest='results', default = False,
+    parser.add_argument("--results", action="store", dest='results', default = False,
                       help="If active pyNS will be launched in post-processing mode for inspecting existing results. If you want to load a specific result previously saved, please specify the name ")
-    parser.add_option("--storeResults", action="store", dest='storeResults', default = False,
+    parser.add_argument("--storeResults", action="store", dest='storeResults', default = False,
                       help="If active pyNS will save last simulated results in a subfolder of the Results folder. Please specify the name of the folder.")
-    parser.add_option("--excludeWss", action="store_true", dest='excludeWss', default = False,
+    parser.add_argument("--excludeWss", action="store_true", dest='excludeWss', default = False,
                       help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")
-    parser.add_option("--export", action="store", dest='export', default = False,
+    parser.add_argument("--export", action="store", dest='export', default = False,
                       help="If active pyNS will export to a .mat file the solution relative to the choosen mesh. Please specify a mesh name.")
-    (options, args) = parser.parse_args()
-    source = "".join(args)
+    
+    args = parser.parse_args()
+        
     try:
-        runSimulation(options.simType, options.wdir, options.odir, options.images, options.xsd, options.net, options.mesh, options.xmlout, options.bound, options.netSchema, options.boundSchema, options.template, options.parameters, options.diameters, options.adaptation, options.xmlSol, options.xmlMesh, options.writeCsv, options.plotImages, options.plotPressure, options.plotFlow, options.plotWss, options.plotReynolds, options.writePressure, options.writeFlow, options.writeWss, options.writeReynolds, options.velocityProfile, options.results, options.storeResults, options.excludeWss, options.export)
+        runSimulation(args.simType, args.wdir, args.odir, args.images, args.xsd, args.net, args.mesh, args.xmlout, args.bound, args.netSchema, args.boundSchema, args.template, args.parameters, args.diameters, args.adaptation, args.xmlSol, args.xmlMesh, args.writeCsv, args.plotImages, args.plotPressure, args.plotFlow, args.plotWss, args.plotReynolds, args.writePressure, args.writeFlow, args.writeWss, args.writeReynolds, args.velocityProfile, args.results, args.storeResults, args.excludeWss, args.export)
     except KeyboardInterrupt:
         print "\nLocal web server for post processing was shutdown successfully. pyNS is ready for next simulation."
         print "If you want to save these results, type ./pyNS.py --storeResults name"

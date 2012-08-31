@@ -16,8 +16,7 @@
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 from json import load
-from optparse import OptionParser
-import sys
+import sys, argparse
 
 def export(fileName):
     '''
@@ -50,12 +49,11 @@ def export(fileName):
     
 if __name__ == "__main__":
     
-    parser = OptionParser()
-    parser.add_option("-f", "--file", action="store", dest='fileName', type="string", default=None, help="Specify pyNS json input file path")
-    (options, args) = parser.parse_args()
-    source = "".join(args)
+    parser = argparse.ArgumentParser(description='Export module for pyNS')
+    parser.add_argument("-f", "--file", action="store", dest='fileName', default=None, help="Specify pyNS json input file path")
+    args = parser.parse_args()
     
-    fileName = options.fileName
+    fileName = args.fileName
     if fileName is None:
         sys.exit("Please specify json input file path")
     export(fileName)
