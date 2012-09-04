@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkGraph.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,10 +15,7 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
+
 from numpy.core.numeric import array
 from numpy.core.fromnumeric import mean
 from math import pi
@@ -121,30 +118,33 @@ class NetworkGraph(object):
         '''
         self.xmlgraphpath = xmlgraphpath
         
-        if not xsdgraphpath:
-            NoXSDWarning()
-        else:
+        try:
+            from lxml import etree
+            lxml = True
+        except:
+            LXMLError()
+            lxml = False
+            from xml.etree import ElementTree as etree
+        
+        if lxml:
+            if not xsdgraphpath:
+                NoXSDWarning()
             while True:
                 try:
                     schemagraphfile = open(xsdgraphpath)
                 except:
                     WrongXSDPathError()
-                    break  
                 try:
                     xmlschema_doc = etree.parse(schemagraphfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)
                     docgraphfile = open(xmlgraphpath)
                     docgraph = etree.parse(docgraphfile)
-                except:
-                    LXMLError() 
-                    break
-                try:
                     xmlschema.assert_(docgraph)
                     print "Network Graph Xml File has been validated."
                     break
                 except AssertionError:   
                     XMLValidationError(xmlschema)
-            
+                            
         docgraphfile = open(xmlgraphpath)
         graphtree=etree.parse(docgraphfile)
         graph=graphtree.getroot()
@@ -925,20 +925,18 @@ class WrongXSDPathError(Error):
     Exception raised if a wrong xsd path is provided.
     '''
     def __init__(self):
-        print "Warning, Xml schema file not found."
-        print "Network Graph Xml file can not be validated."
+        print "Warning, Xml schema file not found.\nNetwork Graph Xml file can not be validated."
         
 class NoXSDWarning(Error):
     '''
     Exception raised if no xsd file is provided.
     '''
     def __init__(self):
-        print "Warning, XML schema file was not provided."
-        print "Network Graph Xml file can not be validated."
+        print "Warning, XML schema file was not provided.\nNetwork Graph Xml file can not be validated."
         
 class LXMLError(Error):
     '''
     Exception raised if lxml package is not installed.
     '''
     def __init__(self):
-        print "Warning, Lxml package was not provided. Network Graph Xml file can not be validated."    
+        print "Warning, Lxml package was not provided.\nNetwork Graph Xml file can not be validated." 

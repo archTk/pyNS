@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Adaptation.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -68,7 +68,7 @@ class Adaptation(object):
             for ent, elList in networkMesh.Entities.iteritems():   
                 if ent.Id == 'radial' or ent.Id == 'ulnar' :
                     for el in elList:                        
-                        #taoRef = max(self.solutions[-1].GetWssPeak(el))
+                        #taoRef = max(self.solutions[-1].GetWssPeak(el)) #instead of using a value from literature taoRef is equal to pre-operative value.
                         taoRef = 4.
                         self.refValues[el.Name] = taoRef
                 if ent.Id == 'axillarian' or ent.Id == 'brachial':
@@ -132,7 +132,7 @@ class Adaptation(object):
                             k = (1.0+(deltaTao*self.Coeff))
                             
                             if el == proximalVein:
-                                #linear adaptation on anastomosis from 0.8*dA to 1.0*dA
+                                #linear adaptation on anastomosis of 20%
                                 k2 = 45./44.
                                 if day > 10:
                                     k2 = 1.
@@ -179,7 +179,7 @@ class Adaptation(object):
                                 kDistA = (k-1.)*((x/len(el.Radius))**2)+1.     #y = (k2-k1)x^2+k1 (quadratic increasing radius)                                
                                 k=kDistA
                             if el == proximalVein:
-                                #linear adaptation on anastomosis from 0.8*dA to 1.0*dA
+                                #linear adaptation on anastomosis of 20%
                                 k2 = 45./44.
                                 if day > 10:
                                     k2 = 1.

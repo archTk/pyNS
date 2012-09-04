@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkMesh.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -16,10 +16,7 @@
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 from numpy.core.numeric import arange
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
+from xml.etree import ElementTree as etree
 
 class NetworkMesh(object):
     '''
@@ -30,6 +27,7 @@ class NetworkMesh(object):
     This class provide the following methods:
     WriteToXML writes network mesh XML file according to its schema.
     BuildNodesToElement builds nodes'dictionary.
+    CheckLinearConsistence checks and fixes the correct proportion between the meshes of each edge.
     '''
    
     def __init__(self):
@@ -181,7 +179,6 @@ class NetworkMesh(object):
         indent(root)                
         xmlmesh.write (xmlmeshpath, encoding='iso-8859-1')       
 
-
     def checkLinearConsistence(self):
         '''
         This method checks and fixes the correct proportion between the meshes of each edge.
@@ -200,7 +197,7 @@ class NetworkMesh(object):
                 for mesh in meshes:
                     if mesh == startingMesh:
                         r1 = startingRadius
-                        r2 = r1+dr      
+                        r2 = r1+dr
                     elif mesh == endingMesh:     
                         r1 = r2
                         r2 = endingRadius

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    ModelAdaptor.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,13 +15,8 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from csv import *
-import csv
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
-import shutil
+import csv, shutil
+from xml.etree import ElementTree as etree
 from math import pi
 
 class ModelAdaptor(object):
@@ -72,7 +67,7 @@ class ModelAdaptor(object):
         This method sets correct template according
         to parameters in .csv file
         '''
-        csv_reader = reader(file(csvfilepath, "rU"))
+        csv_reader = csv.reader(file(csvfilepath, "rU"))
         for row in csv_reader:
             el = row[0].split(";")
             name = el[0]
@@ -92,7 +87,7 @@ class ModelAdaptor(object):
         This method reads parameters from a .csv file and sets them into
         simulation context.
         '''
-        csv_reader = reader(file(csvfilepath, "rU"))
+        csv_reader = csv.reader(file(csvfilepath, "rU"))
         for row in csv_reader:
             el = row[0].split(";")
             name = el[0]
@@ -171,7 +166,7 @@ class ModelAdaptor(object):
 
         if csvfilepath:
             print "Loading Specific Data"
-            csv_reader = reader(file(csvfilepath, "rU"))
+            csv_reader = csv.reader(file(csvfilepath, "rU"))
             for row in csv_reader:
                 el = row[0].split(";")
                 name = el[0]
@@ -387,7 +382,7 @@ class ModelAdaptor(object):
             
         path = self.NetworkGraph.xmlgraphpath+'.csv' 
         ofile  = open(path, "wb")
-        csv_writer = writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
+        csv_writer = csv.writer(ofile, delimiter=",", quoting=csv.QUOTE_ALL)
         
         for edg in edges_list:    
             for e in self.NetworkGraph.Edges.itervalues():
@@ -573,8 +568,8 @@ class ModelAdaptor(object):
             dia = "None"
     
         csv_writer.writerow(['id_'+self.Idpat, gender, age, arm, ftype, heigth, weigth, bsa, meanP, Co, Cf, bflow, rflow, uflow, ht, cp, eta, bd, hyp, dia])
-        
-
+        return path
+    
 def indent(elem, level=0):
     i = "\n" + level*"  "
     if len(elem):

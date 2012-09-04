@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    NetworkSolutions.py
 ## Language:  Python
-## Date:      $Date: 2012/04/20 16:37:11 $
-## Version:   $Revision: 0.4.1 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,7 +15,8 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from DofMap import *
+import csv
+from DofMap import DofMap
 from InverseWomersley import InverseWomersley
 from numpy.core.fromnumeric import mean
 from numpy.core.numeric import array, zeros
@@ -24,11 +25,8 @@ from numpy.lib.function_base import linspace
 from numpy.core.numeric import arange
 from numpy.ma.core import ceil
 from json import dump 
-import csv
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
+from xml.etree import ElementTree as etree
+import sys
 
 
 class NetworkSolutions(object):
@@ -287,6 +285,9 @@ class NetworkSolutions(object):
         
     def WriteJsonAdapt(self, adaptation, PatientId):
         '''
+        If adaptation algorithm is active, this method 
+        will write a json file for each mesh including
+        information about vessel adaptation.
         '''
             
         meshInfo = {}
@@ -340,7 +341,10 @@ class NetworkSolutions(object):
         This method plots Brachial flows, pressure
         and wss (for each segment) in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -384,7 +388,11 @@ class NetworkSolutions(object):
         This method plots Radial flows, pressure
         and wss (for each segment) in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
+            
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -429,7 +437,10 @@ class NetworkSolutions(object):
         This method plots Cephalic flows, pressure
         and wss (for each segment) in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         for ent, el in self.NetworkMesh.Entities.iteritems():
@@ -475,7 +486,10 @@ class NetworkSolutions(object):
         '''
         This method plots inflow function
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         t = linspace(0.0,self.Period+self.TimeStep,self.CardiacFreq).reshape((1,ceil(self.Period/self.TimeStep+1.0)))        
         plot(t[0,:], flow[0,:]*6e7, 'r-',linewidth = 3, label = 'Inlet Flow')   #red line
         xlabel('Time ($s$)')
@@ -488,7 +502,10 @@ class NetworkSolutions(object):
     def PlotDaysBrachial(self, wdir, adaptation):
         '''
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         Flow = {-1:self.SimulationContext.Context['brachial_flow']}
         Diameter = {}
         t = [-1]
@@ -555,7 +572,10 @@ class NetworkSolutions(object):
     def PlotDistalPressure(self, wdir, distalPressures):
         '''
         '''
-        from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        try:
+            from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        except ImportError:
+            MatPlotLibError()
         pressure = []
         ind = arange(4)
         pos = arange(4)
@@ -587,7 +607,10 @@ class NetworkSolutions(object):
     def Compare(self, wdir, compare):
         '''
         '''
-        from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        try:
+            from matplotlib.pyplot import plot, savefig, close, ylim, figure
+        except ImportError:
+            MatPlotLibError()
         flow = []
         std = []
         ind = arange(4)
@@ -620,8 +643,11 @@ class NetworkSolutions(object):
     
     def Plots(self, wdir, day, name):
         '''
-        '''    
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        '''
+        try: 
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         timeImages = []     
         for element in self.NetworkMesh.Elements:
             if element.Name == name:
@@ -691,8 +717,6 @@ class NetworkSolutions(object):
             savefig(wdir+'/%s_radpressure.png' % day)
             close()
             
-        
-        
         inverseWomersley = InverseWomersley()
         inverseWomersley.SetSimulationContext(self.SimulationContext)
         inverseWomersley.SetNetworkMesh(self.NetworkMesh)
@@ -727,7 +751,10 @@ class NetworkSolutions(object):
     def PlotDaysRadial(self, wdir, adaptation):
         '''
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         Flow = {-1:self.SimulationContext.Context['radial_flow']}
         Diameter = {}
         t = [-1]
@@ -773,15 +800,17 @@ class NetworkSolutions(object):
         
         return radDiam, radFlow
         
-    
     def PlotFlow(self, meshid):
         '''
         This method plots mean flow for a single mesh.
         Flow volume is considered as absolute value.
         Direction of the flow is assumed + if goes from node1 to node2. Instead
         flowDirection is assumed to be -.
-        '''      
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim  
+        '''
+        try:  
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -825,7 +854,10 @@ class NetworkSolutions(object):
         '''
         This method plots mean flow for a single mesh
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -862,7 +894,10 @@ class NetworkSolutions(object):
         This method plots brachial, radial and ulnar mean flow.
         If cycle is not specified, default cycle is the last one
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         FlowBrachial = 0
         FlowRadial = 0
         FlowUlnar = 0
@@ -934,7 +969,10 @@ class NetworkSolutions(object):
         '''
         This method plots different flow volume signals in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -1087,7 +1125,10 @@ class NetworkSolutions(object):
         '''
         This method plots reynolds number for a single mesh
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -1117,7 +1158,10 @@ class NetworkSolutions(object):
         '''
         This method plots pressures for a single mesh
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -1149,7 +1193,10 @@ class NetworkSolutions(object):
         '''
         This method plots different pressure signals in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -1188,7 +1235,10 @@ class NetworkSolutions(object):
         '''
         This method plots pressures for a couple of meshes
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -1214,7 +1264,10 @@ class NetworkSolutions(object):
         '''
         This method plots brachial, radial and ulnar pressure signal.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         PressureBrachial = 0
         PressureRadial = 0
         PressureUlnar = 0
@@ -1277,7 +1330,10 @@ class NetworkSolutions(object):
         '''
         This method returns pressure drop for specific mesh
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -1340,7 +1396,10 @@ class NetworkSolutions(object):
         '''
         This method plots mean WSS (POISEUILLE) for a single mesh 
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         meshid = str(meshid)
         for element in self.NetworkMesh.Elements:
             if element.Id == meshid:
@@ -1367,7 +1426,10 @@ class NetworkSolutions(object):
         '''
         This method plots different poiseuille's wss signals in the same figure.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
             
@@ -1403,7 +1465,10 @@ class NetworkSolutions(object):
         '''
         This method plots brachial, radial and ulnar WSS (POISEUILLE) signal.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         FlowBrachial = 0
         FlowRadial = 0
         FlowUlnar = 0
@@ -1567,7 +1632,10 @@ class NetworkSolutions(object):
         '''
         This method plots different womersley wss signals ino the same figure.
         ''' 
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except ImportError:
+            MatPlotLibError()
         colourvector = ['r', 'b', 'g', 'c', 'm', 'y', 'k']
         indexcolour = 0
         
@@ -1745,7 +1813,10 @@ class NetworkSolutions(object):
         '''
         This method gets and plots flow, pressure and WSS for specific entity.
         '''
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        try:
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close
+        except ImportError:
+            MatPlotLibError()
         Flow = 0
         WSS = 0
         WSSW = 0
@@ -2046,7 +2117,19 @@ class NetworkSolutions(object):
                             el_row_list.append(str(tao))
                     el_row = [el_row_list]
                     writer.writerows(el_row)
-            
+
+class Error(Exception):
+    '''
+    A base class for exceptions defined in this module.
+    '''
+    pass
+
+class MatPlotLibError(Error):
+    '''
+    Exception raised if matplotlib package is not installed.
+    '''
+    def __init__(self):
+        sys.exit('Matplotlib package is required for plotting solutions in .png files.\nPlease download matplotlib from matplotlib.sourceforge.net.')        
               
 def indent(elem, level=0):
     i = "\n" + level*"  "

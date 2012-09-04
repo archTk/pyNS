@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Elements.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -103,7 +103,6 @@ class Element(object):
             ind2 = ind1.transpose()
             firstOrderMatrix[ind2, ind1] = firstOrderMatrix[ind2, ind1] + intermediateMatrix
         self.firstOrderMatrix = firstOrderMatrix
-        
         return firstOrderMatrix
             
     def GetSecondOrderMatrix (self):

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    InverseWomersley.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -376,10 +376,14 @@ class InverseWomersley(object):
         '''
         This method plots velocity profile into png files and makes 
         an avi file from png set. Mencoder is required.
-        '''  
-        import matplotlib
-        matplotlib.use('Agg') 
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, savefig, ylim, axis, clf
+        '''
+        try:
+            import matplotlib
+            matplotlib.use('Agg') 
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, savefig, ylim, axis, clf
+        except:
+            sys.exit("VelocityProfile methods require matplotlib package (http://matplotlib.sourceforge.net.\n")
+        
         #Create temporary image and videos directories'''
         if not os.path.exists ('tmp/'):
             os.mkdir('tmp/')
@@ -461,14 +465,16 @@ class InverseWomersley(object):
         This method plots an animated representation of the velocity profile
         evolving in time using wx python library.
         '''
-        import matplotlib
-        matplotlib.use('WXAgg') 
-        from matplotlib.pyplot import xlabel, ylabel, title, close, figure, ylim, show
+        try:
+            import matplotlib
+            matplotlib.use('WXAgg') 
+            from matplotlib.pyplot import xlabel, ylabel, title, close, figure, ylim, show
+        except:
+            sys.exit("VelocityProfile methods require matplotlib package (http://matplotlib.sourceforge.net.\n")
         try:
             from wx import GetApp,EVT_CLOSE, EVT_IDLE
         except:
-            print "ShowVelocityProfile method requires wxpython package (http://www.wxpython.org)"
-            sys.exit("quitting\n")
+            sys.exit("ShowVelocityProfile method requires wxpython package (http://www.wxpython.org).\n")
         self.count = 0
         orderingStep = []
         for step, vel in self.VelocityPlot.iteritems():
@@ -522,9 +528,12 @@ class InverseWomersley(object):
         '''
         This method plots Wss signal and returns peak wss.
         '''
-        import matplotlib
-        matplotlib.use('Agg') #switch to matplotlib.use('WXAgg') if you want to show and not save velocity profile.
-        from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        try:
+            import matplotlib
+            matplotlib.use('Agg') #switch to matplotlib.use('WXAgg') if you want to show and not save velocity profile.
+            from matplotlib.pyplot import plot, xlabel, ylabel, title, legend, savefig, close, ylim
+        except:
+            sys.exit("PlotWss method requires matplotlib package (http://matplotlib.sourceforge.net.\n")
         
         tplot = linspace(0, self.tPeriod, len(self.Tauplot))
         plot(tplot, self.Tauplot,'g-',linewidth = 3, label = 'WSS')

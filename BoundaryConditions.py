@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    BoundaryConditions.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,10 +15,6 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-try:
-    from lxml import etree
-except:
-    from xml.etree import ElementTree as etree
 from numpy.core.numeric import zeros, arange, array
 from math import pi
 from numpy.lib.type_check import real
@@ -193,30 +189,33 @@ class BoundaryConditions(object):
         If XML schema is given (and lxml package is installed),
         XML file is validated first.
         '''
-        if not xsdBcpath:
-            NoXSDWarning()
-        else:
+        try:
+            from lxml import etree
+            lxml = True
+        except:
+            LXMLError()
+            lxml = False
+            from xml.etree import ElementTree as etree
+        
+        if lxml:
+            if not xsdBcpath:
+                NoXSDWarning()
             while True:
                 try:
                     schemabcfile = open(xsdBcpath)
                 except:
                     WrongXSDPathError()
-                    break  
                 try:
                     xmlschema_doc = etree.parse(schemabcfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)
                     docbcfile = open(xmlBcpath)
                     docbc = etree.parse(docbcfile)
-                except:
-                    LXMLError() 
-                    break
-                try:
                     xmlschema.assert_(docbc)
                     print "Boundary Conditions Xml File has been validated."
                     break
                 except AssertionError:   
                     XMLValidationError(xmlschema)
-            
+
         docbcfile = open(xmlBcpath)
         bctree = etree.parse(docbcfile)
         bcgraph = bctree.getroot()
@@ -352,30 +351,28 @@ class NoXSDWarning(Error):
     Exception raised if no xsd file is provided.
     '''
     def __init__(self):
-        print "Warning, XML schema file was not provided."
-        print "Boundary Conditions Xml file can not be validated."
+        print "Warning, XML schema file was not provided.\nBoundary Conditions Xml file can not be validated."
         
 class WrongXSDPathError(Error):
     '''
     Exception raised if a wrong xsd path is provided.
     '''
     def __init__(self):
-        print "Warning, Xml schema file not found."
-        print "Boundary Conditions Xml file can not be validated."
+        print "Warning, Xml schema file not found.\nBoundary Conditions Xml file can not be validated."
         
 class LXMLError(Error):
     '''
     Exception raised if lxml package is not installed.
     '''
     def __init__(self):
-        print "Warning, Lxml package was not provided. Boundary Conditions Xml file can not be validated."    
+        print "Warning, Lxml package was not provided.\nBoundary Conditions Xml file can not be validated."    
 
 class XMLIdError(Error):
     '''
     Exception raised for wrong BoundaryConditions XML File
     '''
     def __init__(self):
-        print "Invalid BoundaryConditions XML File. Check XML Id."
+        print "Invalid BoundaryConditions XML File.\nCheck XML Id."
 
 class EntityDuplicateError(Error):
     '''

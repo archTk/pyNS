@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Assembler.py
 ## Language:  Python
-## Date:      $Date: 2012/04/05 10:11:27 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -171,6 +171,7 @@ class Assembler(object):
         
     def Assemble(self, simulationContext, evaluator, linearZeroOrder, linearFirstOrder, linearSecondOrder):  
         '''
+        This method builds non-linear elements of the global matrices from linear matrices.
         '''
         
         #Building non linear matrices

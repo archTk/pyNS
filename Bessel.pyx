@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    Bessel.py
 ## Language:  Python
-## Date:      $Date: 2012/04/23 14:38:11 $
-## Version:   $Revision: 0.4 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -15,7 +15,6 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-
 cdef extern from "complexobject.h":
     struct Py_complex:
         double real
@@ -24,13 +23,15 @@ cdef extern from "complexobject.h":
         cdef Py_complex cval
 
 def Bessel(int n, double complex arg):
-    """Compute Bessel functions of the first kind (J) for integers order n (0,1,2).
+    '''
+    Compute Bessel functions of the first kind (J) for integers order n (0,1,2).
     This function takes as input the integer order n (0,1,2) and the argument of the function as a complex number a+bj.
     Bessel functions of the first kind, denoted as Ja(x), are solutions of Bessel's differential equation that are finite 
     at the origin (x = 0) for integer a, and diverge as x approaches zero for negative non-integer a. The solution type 
     (e.g., integer or non-integer) and normalization of Ja(x) are defined by its properties below. It is possible to define 
     the function by its Taylor series expansion around x = 0
-    """
+    '''
+    
     cdef double complex z, zproduct, zanswer, zarg
     cdef double k
     cdef int i

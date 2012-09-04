@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    export.py
 ## Language:  Python
-## Date:      $Date: 2012/04/20 16:37:11 $
-## Version:   $Revision: 0.4.1 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.3 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
@@ -22,7 +22,7 @@ def export(fileName):
     '''
     Retrieving information about time, pressure and flow of given mesh
     from json file and writing them in .txt files.
-    time [S];pressure[Pa];flow[m3/s]
+    time [sec];pressure[Pa];flow[m3/s]
     '''
     f = open(fileName)
     infos = load(f)
