@@ -4,7 +4,7 @@
 ## Module:    BoundaryConditions.py
 ## Language:  Python
 ## Date:      $Date: 2012/09/04 10:21:12 $
-## Version:   $Revision: 0.4.3 $
+## Version:   $Revision: 0.4.2 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.

@@ -3,8 +3,8 @@
 ## Program:   PyNS
 ## Module:    pyNS.py
 ## Language:  Python
-## Date:      $Date: 2012/04/20 16:37:11 $
-## Version:   $Revision: 0.4.1 $
+## Date:      $Date: 2012/09/04 10:21:12 $
+## Version:   $Revision: 0.4.2 $
 
 ##   Copyright (c) Simone Manini, Luca Antiga. All rights reserved.
 ##   See LICENCE file for details.
