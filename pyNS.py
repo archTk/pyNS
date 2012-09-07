@@ -37,7 +37,7 @@ def mylistdir(directory):
     return [x for x in filelist
             if not (x.startswith('.'))]
 
-def runSimulation(simType='generic', defaultNet=False,wdir='XML/', odir='Output/', images='Images/', xsd='XML/XSD/', net='vascular_network_arterial_right_arm.xml', mesh='vascular_mesh_v1.1.xml', xmlout='vascular_output.xml', bound='boundary_conditions_arterial_right_arm.xml', netSchema='vascular_network_v3.2.xsd', boundSchema='boundary_conditions_v3.1.xsd', template='arm', parameters='XML/parameters.csv', diameters=False, days=int(-1), xmlSol=False, xmlMesh=False, writeCsv=False, plotImages=False, plotPressure=False, plotFlow=False, plotWss=False, plotReynolds=False, writePressure=False, writeFlow=False, writeWss=False, writeReynolds=False, velocityProfile=False, results=False, excludeWss=False, export=False, automaticResults=True):
+def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlout, bound, netSchema, boundSchema, template, parameters, diameters, days, xmlSol, xmlMesh, writeCsv, plotImages, plotPressure, plotFlow, plotWss, plotReynolds, writePressure, writeFlow, writeWss, writeReynolds, velocityProfile, results, excludeWss, export, automaticResults):
     
     '''Welcome and instructions messages.'''
     
@@ -50,9 +50,12 @@ def runSimulation(simType='generic', defaultNet=False,wdir='XML/', odir='Output/
         simType = 'specific'
         net = 'vascular_network_arterial_right_arm.xml'
         bound = 'boundary_conditions_arterial_right_arm.xml'
-    elif simType == 'generic':
-        pass
-    else:
+    elif template == 'willis':
+        simType = 'specific'
+        wdir = 'XML/Models/WillisCircle'
+        net = 'vascular_network_willis.xml'
+        bound = 'boundary_conditions_willis.xml'
+    elif simType == 'specific':
         if net is None and bound is not None:
             sys.exit("Please provide a network graph XML input file or choose a generic simulation type.")
         elif net is not None and bound is None:
@@ -61,11 +64,11 @@ def runSimulation(simType='generic', defaultNet=False,wdir='XML/', odir='Output/
             sys.exit("Please provide either a network graph XML input file and a boundary conditions XML input file or choose a generic simulation type.")
     
     '''Checking matplotlib module for optional plotting methods.'''
-    if plotImages or plotFlow or plotPressure or plotWss or plotReynolds is True:
+    if plotImages or plotFlow or plotPressure or plotWss or plotReynolds or velocityProfile is True:
         try:
             import matplotlib
         except ImportError:
-            sys.exit('Matplotlib package is required for plotting solutions in .png files.\nPlease download matplotlib from matplotlib.sourceforge.net.')
+            sys.exit('Matplotlib package is required for plotting solutions in .png files or computing velocityProfile videos.\nPlease download matplotlib from matplotlib.sourceforge.net.')
             
     '''Loading previous specific results.'''
     if results is not False:
@@ -203,12 +206,6 @@ def runSimulation(simType='generic', defaultNet=False,wdir='XML/', odir='Output/
     testing = 'XML/TEST/Testing/'
     testingNetwork = 'vascular_network_test.xml'
     testingBoundary = 'boundary_conditions_test.xml'
-
-    if template == 'willis':
-        simType = 'specific'
-        wdir = 'XML/Models/WillisCircle'
-        net = 'vascular_network_willis.xml'
-        bound = 'boundary_conditions_willis.xml'
 
     if simType == 'specific':
         xmlnetpath = os.path.join(wdir, net)
