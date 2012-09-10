@@ -134,6 +134,7 @@ class NetworkGraph(object):
                     schemagraphfile = open(xsdgraphpath)
                 except:
                     WrongXSDPathError()
+                    break
                 try:
                     xmlschema_doc = etree.parse(schemagraphfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)

@@ -205,6 +205,7 @@ class BoundaryConditions(object):
                     schemabcfile = open(xsdBcpath)
                 except:
                     WrongXSDPathError()
+                    break
                 try:
                     xmlschema_doc = etree.parse(schemabcfile)
                     xmlschema = etree.XMLSchema(xmlschema_doc)
