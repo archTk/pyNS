@@ -46,22 +46,23 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
     print "## ./pyNS -h or --help for instructions ##"
     print "##########################################\n"
     
-    if defaultNet is True:
-        simType = 'specific'
-        net = 'vascular_network_arterial_right_arm.xml'
-        bound = 'boundary_conditions_arterial_right_arm.xml'
-    elif template == 'willis':
-        simType = 'specific'
-        wdir = 'XML/Models/WillisCircle'
-        net = 'vascular_network_willis.xml'
-        bound = 'boundary_conditions_willis.xml'
-    elif simType == 'specific':
-        if net is None and bound is not None:
-            sys.exit("Please provide a network graph XML input file or choose a generic simulation type.")
-        elif net is not None and bound is None:
-            sys.exit("Please provide a boundary conditions XML input file or choose a generic simulation type.")
-        elif net is None and bound is None:
-            sys.exit("Please provide either a network graph XML input file and a boundary conditions XML input file or choose a generic simulation type.")
+    if not results:
+        if defaultNet is True:
+            simType = 'specific'
+            net = 'vascular_network_arterial_right_arm.xml'
+            bound = 'boundary_conditions_arterial_right_arm.xml'
+        elif template == 'willis':
+            simType = 'specific'
+            wdir = 'XML/Models/WillisCircle'
+            net = 'vascular_network_willis.xml'
+            bound = 'boundary_conditions_willis.xml'
+        elif simType == 'specific':
+            if net is None and bound is not None:
+                sys.exit("Please provide a network graph XML input file or choose a generic simulation type.")
+            elif net is not None and bound is None:
+                sys.exit("Please provide a boundary conditions XML input file or choose a generic simulation type.")
+            elif net is None and bound is None:
+                sys.exit("Please provide either a network graph XML input file and a boundary conditions XML input file or choose a generic simulation type.")
     
     '''Checking matplotlib module for optional plotting methods.'''
     if plotImages or plotFlow or plotPressure or plotWss or plotReynolds or velocityProfile is True:
