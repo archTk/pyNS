@@ -337,8 +337,11 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             '''Setting results directory based on PatientID in networkGraph XML file'''
             
             if plotImages is False:
-                shutil.rmtree('Results/json')
-                os.mkdir('Results/json')
+	        try:
+		   shutil.rmtree('Results/json')
+                except:
+		   pass
+		os.mkdir('Results/json')
                 if simType == 'generic':
                     idPat = modelAdaptor.Idpat
                 elif template == 'willis':
