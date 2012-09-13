@@ -46,6 +46,20 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
     print "## ./pyNS -h or --help for instructions ##"
     print "##########################################\n"
     
+    '''Exporting results into txt files'''   
+    if export is not False:
+        if not os.path.exists ('Results/%s/exportedSolutions' % export):
+            os.mkdir('Results/%s/exportedSolutions' % export)
+        for f in mylistdir('Results/%s/json' % export):
+            if f == 'info.json':
+                pass
+            else:
+                print "exporting Results/%s/json/" % export + f
+                exporting('Results/%s/json/' % export + f)
+                new_file = f.split('.')[0]+'.txt'
+                shutil.move('Results/%s/json/' % export + new_file, 'Results/%s/exportedSolutions/' % export + new_file)
+        sys.exit('All %s solutions exported successfully in Results/%s/exportedSolutions/ folder' % (export,export))
+    
     if not results:
         if defaultNet is True:
             simType = 'specific'
@@ -110,22 +124,6 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 else:
                     sys.exit('Error: '+results+' directory does not exist.')
             httpd.serve_forever()
-                
-                
-    '''Exporting results into txt files'''   
-    if export is not False:
-        if not os.path.exists ('Results/%s/exportedSolutions' % export):
-            os.mkdir('Results/%s/exportedSolutions' % export)
-        for f in mylistdir('Results/%s/json' % export):
-            if f == 'info.json':
-                pass
-            else:
-                print "exporting Results/%s/json/" % export + f
-                exporting('Results/%s/json/' % export + f)
-                new_file = f.split('.')[0]+'.txt'
-                shutil.move('Results/%s/json/' % export + new_file, 'Results/%s/exportedSolutions/' % export + new_file)
-        sys.exit('All %s solutions exported successfully in Results/%s/exportedSolutions/ folder' % (export,export))
-   
         
     '''Checking for webserver instance'''
     if automaticResults:
