@@ -378,10 +378,14 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             shutil.move(xmlnetpath,('Results/%s/%s_pre_vascular_network.xml' % (idPat,idPat)))
             shutil.move(xmlboundpath,('Results/%s/%s_pre_boundary_conditions.xml' % (idPat,idPat)))
             shutil.move(csvfilepath,('Results/%s/%s_pre_patient_specific.csv' % (idPat,idPat)))
-        if simType == 'generic' and day >= 0:
-            shutil.move(xmlnetpath,('Results/%s/%s_post_vascular_network.xml' % (idPat,idPat)))
-            shutil.move(xmlboundpath,('Results/%s/%s_post_boundary_conditions.xml' % (idPat,idPat)))
-            shutil.move(csvfilepath,('Results/%s/%s_post_patient_specific.csv' % (idPat,idPat)))
+        if simType == 'generic' and day == 0:
+            shutil.copy(xmlnetpath,('Results/%s/%s_post_vascular_network.xml' % (idPat,idPat)))
+            shutil.copy(xmlboundpath,('Results/%s/%s_post_boundary_conditions.xml' % (idPat,idPat)))
+            shutil.copy(csvfilepath,('Results/%s/%s_post_patient_specific.csv' % (idPat,idPat)))
+	if simType == 'generic' and day == days:
+	    shutil.move(xmlnetpath,('Results/%s/%s_adapted_vascular_network.xml' % (idPat,idPat)))
+            shutil.move(xmlboundpath,('Results/%s/%s_adapted_boundary_conditions.xml' % (idPat,idPat)))
+            shutil.move(csvfilepath,('Results/%s/%s_adapted_patient_specific.csv' % (idPat,idPat)))
         
         '''Setting Evaluator'''
         evaluator.SetNetworkGraph(networkGraph)

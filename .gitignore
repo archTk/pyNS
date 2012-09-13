@@ -2,7 +2,7 @@
 Images/*
 Output/*
 build/*
-Results/json/*
+*.json
 Results/Saved/*
 *.csv
 *.project
