@@ -41,7 +41,7 @@
   <specificdatasets>
     <patient_data id="1">
       <mean_pressure unit="mmHg">
-        <scalar>110</scalar>
+        <scalar>90</scalar>
       </mean_pressure>
       <cardiac_output unit="mL/min">
         <scalar>5.686e3</scalar>
