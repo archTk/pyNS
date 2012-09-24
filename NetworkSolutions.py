@@ -23,11 +23,11 @@ from numpy.core.numeric import array, zeros
 from math import pi
 from numpy.lib.function_base import linspace
 from numpy.core.numeric import arange
+from numpy.lib.scimath import sqrt
 from numpy.ma.core import ceil
 from json import dump 
 from xml.etree import ElementTree as etree
 import sys
-
 
 class NetworkSolutions(object):
     '''
@@ -158,7 +158,56 @@ class NetworkSolutions(object):
                 self.p_images = path
             if name == 'w':
                 self.w_images = path
-                     
+    
+    #INPUT GNUID
+    
+    def GetGnuidInformation(self, PatientId, mesh_radius):
+        '''help to do'''
+        ro = self.SimulationContext.Context['blood_density']/1000
+        mu = self.SimulationContext.Context['dynamic_viscosity']*10
+        period_pyns = self.SimulationContext.Context['period']
+        frequency_pyns = 1./period_pyns
+        
+        #find mesh
+        
+        for element in self.NetworkMesh.Elements:
+            if element.Type == 'Anastomosis':
+                anastomosis = element
+                prox_artery = anastomosis.Proximal
+                
+                dofs = prox_artery.GetPoiseuilleDofs()
+                prox_artery_p1 = self.Solutions[(self.DofMap.DofMap[prox_artery.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] #pressure [Pa]
+                prox_artery_p2 = self.Solutions[(self.DofMap.DofMap[prox_artery.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):] #pressure [Pa]
+                prox_artery_q = mean(((prox_artery_p1-prox_artery_p2)/prox_artery.R))*6e7  #flow [mL/min] 
+                prox_artery_radius = (max(prox_artery.Radius))*100  # radius [cm]
+                      
+                dist_artery = anastomosis.Distal
+                dofs = dist_artery.GetPoiseuilleDofs()
+                dist_artery_p1 = self.Solutions[(self.DofMap.DofMap[dist_artery.Id, dofs[0]]),self.CardiacFreq*(self.Cycles-1):] #pressure [Pa]
+                dist_artery_p2 = self.Solutions[(self.DofMap.DofMap[dist_artery.Id, dofs[1]]),self.CardiacFreq*(self.Cycles-1):] #pressure [Pa]
+                dist_artery_q = mean(((dist_artery_p1-dist_artery_p2)/dist_artery.R))*6e7  #flow [mL/min] 
+                
+                
+        prox_artery_mass_flow = (prox_artery_q * ro)/60  #mass flow [g/s]
+        dist_artery_mass_flow = (dist_artery_q * ro)/60  #mass flow [g/s]
+        womersley = prox_artery_radius*sqrt((2*pi*frequency_pyns*ro)/mu) #womersley number
+        gnuid_frequency = ((womersley**2)*mu)/((float(mesh_radius)**2)*2*pi*ro) #frequency for gnuid
+        gnuid_period = 1./gnuid_frequency  #period for gnuid
+        gnuid_scaling_factor = dist_artery_mass_flow/prox_artery_mass_flow #gnuid scaling factor
+        
+        txtpath = 'Results/' + PatientId + '/gnuid_parameters.txt'
+        text_file = open(txtpath, "w")
+        text_file.write("GNUID Parameters\n")
+        text_file.write("Proximal artery mass flow " + str(prox_artery_mass_flow) + "\n")
+        text_file.write("Distal artery mass flow " +  str(dist_artery_mass_flow) + "\n")
+        text_file.write("Womersley number " +  str(womersley) + "\n")
+        text_file.write("Blood Density " +  str(ro) + "\n")
+        text_file.write("Blood Viscosity " +  str(mu) + "\n")
+        text_file.write("Gnuid frequency " +  str(gnuid_frequency) + "\n")
+        text_file.write("Gnuid period " +  str(gnuid_period) + "\n")
+        text_file.write("Gnuid scaling factor " + str(gnuid_scaling_factor) + "\n")
+        text_file.close()      
+                   
     # JSON METHODS
     
     def WriteJsonInfo(self, days, elements, PatientId):

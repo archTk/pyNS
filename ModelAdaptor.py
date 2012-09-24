@@ -18,6 +18,7 @@
 import csv, shutil
 from xml.etree import ElementTree as etree
 from math import pi
+import sys
 
 class ModelAdaptor(object):
     '''
@@ -67,7 +68,10 @@ class ModelAdaptor(object):
         This method sets correct template according
         to parameters in .csv file
         '''
-        csv_reader = csv.reader(file(csvfilepath, "rU"))
+        try:
+            csv_reader = csv.reader(file(csvfilepath, "rU"))
+        except IOError:
+            sys.exit("Error, Please specify a valid path for parameters csv file.")
         for row in csv_reader:
             el = row[0].split(";")
             name = el[0]
@@ -87,7 +91,10 @@ class ModelAdaptor(object):
         This method reads parameters from a .csv file and sets them into
         simulation context.
         '''
-        csv_reader = csv.reader(file(csvfilepath, "rU"))
+        try:
+            csv_reader = csv.reader(file(csvfilepath, "rU"))
+        except IOError:
+            sys.exit("Error, Please specify a valid path for parameters csv file.")
         for row in csv_reader:
             el = row[0].split(";")
             name = el[0]
@@ -166,7 +173,10 @@ class ModelAdaptor(object):
 
         if csvfilepath:
             print "Loading Specific Data"
-            csv_reader = csv.reader(file(csvfilepath, "rU"))
+            try:
+                csv_reader = csv.reader(file(csvfilepath, "rU"))
+            except IOError:
+                sys.exit("Error, Please specify a valid path for diameters csv file.")
             for row in csv_reader:
                 el = row[0].split(";")
                 name = el[0]
