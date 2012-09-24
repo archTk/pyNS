@@ -510,8 +510,7 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
     '''Export GNUID'''
     if inputGnuid:
         networkSolutions.GetGnuidInformation(idPat, inputGnuid)
-    
-           
+     
     print "\nJOB FINISHED"
     if automaticResults:
         try:

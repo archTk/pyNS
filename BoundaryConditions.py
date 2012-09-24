@@ -50,8 +50,8 @@ class BoundaryConditions(object):
         self.NetworkMesh = None
         self.SimulationContext = None
         self.Flow = None
-        self.elementFlow = None
-        self.NodeFlow = None
+        self.elementFlow = []
+        self.NodeFlow = {} #element:NodeFlow
         self.elementOut = None
         self.NodeOut = None
         self.elementIn = None
@@ -59,7 +59,7 @@ class BoundaryConditions(object):
         self.OutP = None
         self.InP = None
         self.PressureValues = {}  # dictionary of external pressures (element:value)
-        self.InFlowValue = {} # dictionary of inlet flow (element:value)
+        self.InFlows = {} # dictionary of inlet flows (element:{name:name, A0:value, f_coeff:value, signal:value)
         self.A0_v = 0.0
         self.f_coeff = None
         self.signal = None
@@ -79,24 +79,33 @@ class BoundaryConditions(object):
     def SetSpecificCardiacOutput(self):
         '''
         Adapting cardiac inflow according to specific mean cardiac output value.
-        '''                                                            
-        if self.signal is None:
-            if int(self.A0_v*6e7) != int(self.SimulationContext.Context['cardiac_output']):
-                print "Adapting Cardiac Inflow"
-                A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)#*0.95 #5% coronarie
-                shift = 9.18388663e-06
-                k =((A1+shift)/(self.A0_v+shift))
-                self.A0_v = A1
-                self.f_coeff  = self.f_coeff*k     
+        '''
+        
+        for data in self.InFlows.itervalues():
+            if data['name'] == 'heart':
+                try:
+                    data['signal']
+                except KeyError:
+                    f_coeff = data['f_coeff']
+                    A0 = data['A0']
+                    if int(A0*6e7) != int(self.SimulationContext.Context['cardiac_output']):
+                      print "Adapting Cardiac Inflow"
+                      A1 = (self.SimulationContext.Context['cardiac_output']/6.0e7)#*0.95 #5% coronarie
+                      shift = 9.18388663e-06
+                      k =((A1+shift)/(A0+shift))
+                      A0 = A1
+                      data['f_coeff'] = f_coeff*k     
+
     
-    def GetSteadyFlow(self, timestep, time):
+    def GetSteadyFlow(self, el, timestep, time):
         '''
         Calculating flow as steady (mean A0 value)
-        '''
+        '''      
+        A0 = self.InFlows[el]['A0']
         if time < (10*timestep):
-            Flow = self.A0_v*((time/timestep)/10)
+            Flow = A0*((time/timestep)/10)
         else:
-            Flow = self.A0_v
+            Flow = A0
         self.Flow = Flow
         return Flow
       
@@ -126,7 +135,7 @@ class BoundaryConditions(object):
         self.Flow = Flow 
         return Flow
                 
-    def GetTimeFlow(self,time):
+    def GetTimeFlow(self, el, time):
         '''
         Calculating inlet flow (coefficients of the FFT  x(t)=A0+sum(2*Ck*exp(j*k*2*pi*f*t)))
         for a specific time value.
@@ -137,7 +146,9 @@ class BoundaryConditions(object):
         except KeyError:
             print "Error, Please set period in Simulation Context XML File"
             raise
-        if self.signal is not None:
+          
+        try:
+            signal = self.InFlows[el]['signal']
             try:
                 timestep = self.SimulationContext.Context['timestep']
             except KeyError:
@@ -145,13 +156,15 @@ class BoundaryConditions(object):
                 raise
             t = arange(0.0,period+timestep,timestep)
             t2 = list(t)
-            Flow = float(self.signal[t2.index(time)])/6.0e7
+            Flow = float(signal[t2.index(time)])/6.0e7
             self.Flow = Flow
             return Flow
-        if self.signal is None:
-            Cc = self.f_coeff*1.0/2.0*1e-6
-            Flow = self.A0_v
-            for k in arange(0,self.f_coeff.shape[0]):
+        except KeyError:
+            f_coeff = self.InFlows[el]['f_coeff']
+            A0 = self.InFlows[el]['A0']
+            Cc = f_coeff*1.0/2.0*1e-6
+            Flow = A0
+            for k in arange(0,f_coeff.shape[0]):
                 Flow += real(2.0*complex(Cc[k,0],Cc[k,1])*exp(1j*(k+1)*2.0*pi*time/period))
             self.Flow = Flow
             return Flow
@@ -304,21 +317,7 @@ class BoundaryConditions(object):
                                                         self.elementOut = el  
                                                   
             if bc_dict['type'] == 'inflow':
-                for param in bc.findall(".//parameters"):
-                    for data in param:
-                        if data.tag == "A0":
-                            for A0 in data.findall(".//scalar"):
-                                self.A0_v = float(A0.text)   
-                        if data.tag == "fourier_coeffs":
-                            f_dict = data.attrib
-                            n = int(f_dict['n'])
-                            m = int(f_dict['m'])
-                            self.f_coeff = zeros((n,m))
-                            for fourier_coeffs in data.findall(".//matrix_nxm"):                          
-                                self.f_coeff = array(fourier_coeffs.text.split(), dtype = float).reshape(m,n)
-                        if data.tag == "signal":
-                            for values in data.findall(".//values"):
-                                self.signal = values.text.split()
+                
                 for entities in bc.findall(".//entities"):           
                     for ent in entities.findall(".//entity"):
                         ent_dict = ent.attrib
@@ -327,11 +326,33 @@ class BoundaryConditions(object):
                         for entities in self.NetworkMesh.Entities.iterkeys():
                             if ent_flow == entities.Id:
                                 for el in self.NetworkMesh.Entities[entities]:
-                                    if str(el.NodeIds[0]) == str(self.NetworkMesh.meshToEdges[int(node_flow)]):                                    
-                                        self.elementFlow = el
-                                        self.NodeFlow = el.NodeIds[0]
-        
-            
+                                    if self.NetworkMesh.meshToEdges[int(node_flow)] in el.NodeIds:
+                                        self.NodeFlow[el.Id] = self.NetworkMesh.meshToEdges[int(node_flow)]
+                                        self.elementFlow.append(el)
+                                        self.InFlows[el]={}
+                                        self.InFlows[el]['name'] = bc_dict['name']
+                                        for param in bc.findall(".//parameters"):
+                                            for data in param:
+                                                if data.tag == "A0":
+                                                    for A0 in data.findall(".//scalar"):
+                                                        
+                                                        self.InFlows[el]['A0'] = float(A0.text)
+                                                          
+                                                if data.tag == "fourier_coeffs":
+                                                    f_dict = data.attrib
+                                                    n = int(f_dict['n'])
+                                                    m = int(f_dict['m'])
+                                                    f_coeff = zeros((n,m))
+                                                    for fourier_coeffs in data.findall(".//matrix_nxm"):                          
+                                                        f_coeff = array(fourier_coeffs.text.split(), dtype = float).reshape(m,n)
+                                                        self.InFlows[el]['f_coeff'] = f_coeff
+                                                        
+                                                if data.tag == "signal":
+                                                    for values in data.findall(".//values"):
+                                                        self.InFlows[el]['signal'] = values.text.split()
+                                                        
+                
+                    
 class Error(Exception):
     '''
     A base class for exceptions defined in this module.
