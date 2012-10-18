@@ -23,6 +23,7 @@ from numpy.linalg.linalg import solve
 from numpy.linalg import norm
 from numpy.core.numeric import Inf, dot
 from numpy.ma.core import ceil
+import sys
 
 class Solver(object):
     '''
@@ -185,13 +186,15 @@ class SolverFirstTrapezoid(Solver):
             icc = (self.IncrementNumber%self.TimeStepFreq)
             if icc == 0:
                 icc = self.TimeStepFreq
-            if self.steady == True:
-                self.Flow = assembler.BoundaryConditions.GetSteadyFlow(self.TimeStep,icc*self.TimeStep)
-            else:  
-                self.Flow = assembler.BoundaryConditions.GetTimeFlow(icc*self.TimeStep)
                 
-            self.fe[assembler.FlowDof]= self.Flow                            # in flow in first node                     
-            
+            #for flow in self.BoundaryConditions.elementFlow:
+            for el in self.BoundaryConditions.elementFlow:
+              if self.steady == True:
+                  self.Flow = assembler.BoundaryConditions.GetSteadyFlow(el, self.TimeStep,icc*self.TimeStep)
+              else:  
+                  self.Flow = assembler.BoundaryConditions.GetTimeFlow(el, icc*self.TimeStep)
+              self.fe[assembler.FlowDof[el.Id]]= self.Flow
+
             CoeffRelax = 0.9
             nltol = self.nltol
             self.pi = None

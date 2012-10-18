@@ -38,7 +38,7 @@ class Assembler(object):
         self.BoundaryConditions = None
         self.PrescribedPressures = None
         self.Flow = None
-        self.FlowDof = None
+        self.FlowDof = {}
         self.DofMap = None
         self.LinearZeroOrderGlobalMatrix = None
         self.LinearFirstOrderGlobalMatrix = None
@@ -118,7 +118,8 @@ class Assembler(object):
                 i+=1
         
         self.BoundaryConditions.SetSimulationContext(simulationContext)
-        self.FlowDof = self.DofMap.DofMap[(self.BoundaryConditions.elementFlow.Id,self.BoundaryConditions.elementFlow.GetLocalDof(int(self.BoundaryConditions.NodeFlow)))]
+        for el in self.BoundaryConditions.elementFlow:
+            self.FlowDof[el.Id] = self.DofMap.DofMap[(el.Id,el.GetLocalDof(int(self.BoundaryConditions.NodeFlow[el.Id])))]
         self.PrescribedPressures = PrescribedPressures.astype(Int32)
         return self.PrescribedPressures
 

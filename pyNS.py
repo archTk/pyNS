@@ -37,7 +37,7 @@ def mylistdir(directory):
     return [x for x in filelist
             if not (x.startswith('.'))]
 
-def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlout, bound, netSchema, boundSchema, template, parameters, diameters, days, xmlSol, xmlMesh, writeCsv, plotImages, plotPressure, plotFlow, plotWss, plotReynolds, writePressure, writeFlow, writeWss, writeReynolds, velocityProfile, results, excludeWss, export, automaticResults):
+def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlout, bound, netSchema, boundSchema, template, parameters, diameters, days, xmlSol, xmlMesh, writeCsv, plotImages, plotPressure, plotFlow, plotWss, plotReynolds, writePressure, writeFlow, writeWss, writeReynolds, velocityProfile, results, excludeWss, export, automaticResults, inputGnuid):
     
     '''Welcome and instructions messages.'''
     
@@ -45,7 +45,7 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
     print "############ Welcome to pyNS #############"
     print "## ./pyNS -h or --help for instructions ##"
     print "##########################################\n"
-    
+            
     '''Exporting results into txt files'''   
     if export is not False:
         if not os.path.exists ('Results/%s/exportedSolutions' % export):
@@ -335,8 +335,8 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             '''Setting results directory based on PatientID in networkGraph XML file'''
             
             if plotImages is False:
-	        try:
-		   shutil.rmtree('Results/json')
+                try:
+                    shutil.rmtree('Results/json')
                 except:
 		   pass
 		try:
@@ -383,8 +383,8 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             shutil.copy(xmlnetpath,('Results/%s/%s_post_vascular_network.xml' % (idPat,idPat)))
             shutil.copy(xmlboundpath,('Results/%s/%s_post_boundary_conditions.xml' % (idPat,idPat)))
             shutil.copy(csvfilepath,('Results/%s/%s_post_patient_specific.csv' % (idPat,idPat)))
-	if simType == 'generic' and day == days:
-	    shutil.move(xmlnetpath,('Results/%s/%s_adapted_vascular_network.xml' % (idPat,idPat)))
+        if simType == 'generic' and day == days:
+            shutil.move(xmlnetpath,('Results/%s/%s_adapted_vascular_network.xml' % (idPat,idPat)))
             shutil.move(xmlboundpath,('Results/%s/%s_adapted_boundary_conditions.xml' % (idPat,idPat)))
             shutil.move(csvfilepath,('Results/%s/%s_adapted_patient_specific.csv' % (idPat,idPat)))
         
@@ -511,7 +511,11 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             networkSolutions.WriteToCsv(adaptation, 'Pressure')
             networkSolutions.WriteToCsv(adaptation, 'Flow')
             networkSolutions.WriteToCsv(adaptation, 'Wss')
-            
+    
+    '''Export GNUID'''
+    if inputGnuid:
+        networkSolutions.GetGnuidInformation(idPat, inputGnuid)
+     
     print "\nJOB FINISHED"
     if automaticResults:
         try:
@@ -531,31 +535,31 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='pyNS, The python Network Solver')
     
     parser.add_argument("-s", "--simType", action="store",dest='simType', default="specific",
-					  help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation. 'testing' : simple network of arteries vein and resistances.")
+					          help="Simulation type, 'generic': fromGenericTemplate. 'specific':from specific xml file. 'tube':circular straight tube simulation. 'tape':circular tapered tube simulation. 'simple': simple network simulation. 'testing' : simple network of arteries vein and resistances.")
     parser.add_argument("--default", action="store_true", dest='defaultNet', default=False,
-                      help = "Turn on this flag for simulating an example network representing an arterial network of a right arm.")
+                    help = "Turn on this flag for simulating an example network representing an arterial network of a right arm.")
     parser.add_argument("-w", "--workingDir", action="store", dest='wdir', default='XML/',
 	                  help = "Working directory path for xml input files. By default is located in 'XML/' pyNS subfolder.")
     parser.add_argument("-o", "--outputDir", action="store", dest='odir', default='Output/',
 	                  help = "Output directory for subfolders and output files. By default is located in 'Output/' pyNS subfolder.")
     parser.add_argument("-i", "--imagesDir", action="store", dest='images', default='Images/',
-					  help = "Images directory for subfolders and output images. By default is located in 'Images/' pyNS subfolder.")
+					          help = "Images directory for subfolders and output images. By default is located in 'Images/' pyNS subfolder.")
     parser.add_argument("-x", "--xsdDir", action="store", dest='xsd', default = 'XML/XSD/',
-                      help="XML schema files directory. By default is located in XML/XSD/ pyNS subfolder.")
+                    help="XML schema files directory. By default is located in XML/XSD/ pyNS subfolder.")
     parser.add_argument("-n", "--net", action="store", dest='net', default = None,
 	                  help="PreOperative vascular network xml file. By default a right arm case arterial network is loaded.")
     parser.add_argument("-m", "--mesh", action="store", dest='mesh', default = 'vascular_mesh_v1.1.xml',
-                      help="Vascular network xml mesh file name. By default is specified as 'vascular_mesh_v1.1.xml'.")
+                    help="Vascular network xml mesh file name. By default is specified as 'vascular_mesh_v1.1.xml'.")
     parser.add_argument("-l", "--xmlOut", action="store", dest="xmlout", default = 'vascular_output.xml',
-			          help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
+			              help="Vascular network xml output solutions file name. By default is specified as 'vascular_output.xml'.")
     parser.add_argument("-b", "--bound", action="store", dest='bound', default = None,
-			          help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
+			              help="Boundary conditions xml file for a preOperative simulation. By default a standard preOperative boundary condition file associated to default right arm case arterial network is loaded.")
     parser.add_argument("-c", "--netSchema", action="store", dest='netSchema', default = 'vascular_network_v3.2.xsd',
 	                  help="Vascular network xml schema xsd file. By default is defined as 'vascular_network_v3.2.xsd' and located in the XML schema files directory.")
     parser.add_argument("-f", "--boundSchema", action="store", dest='boundSchema', default = 'boundary_conditions_v3.1.xsd',
 	                  help="Boundary conditions xml schema xsd file. By default is defined as 'boundary_conditions_v3.1.xsd' and located in the XML schema files directory.")
     parser.add_argument("-g", "--template", action="store", dest='template', default = 'arm',
-                      help="Specify a template network by choosing between currently implemented models: 'arm', 'willis'")
+                    help="Specify a template network by choosing between currently implemented models: 'arm', 'willis'")
     parser.add_argument("-k", "--parameters", action="store", dest='parameters', default = 'XML/parameters.csv',
 	                  help="Additional .csv file for patient-specific parameters. This allows the generation of a patient-specific network from a generic template. By default is located in 'XML/' pyNS subfolder.")
     parser.add_argument("-d", "--diameters", action="store", dest='diameters', default = False,
@@ -589,18 +593,20 @@ if __name__ == "__main__":
     parser.add_argument("--velocityProfile", action="store_true", dest='velocityProfile', default = False,
 	                  help="Save velocity profile in a .avi file. By default this feature is inactive.")
     parser.add_argument("--results", action="store", dest='results', default = False,
-                      help="If active pyNS will be launched in post-processing mode for inspecting existing results. If you want to load a specific result, please specify the name ")
+                    help="If active pyNS will be launched in post-processing mode for inspecting existing results. If you want to load a specific result, please specify the name ")
     parser.add_argument("--excludeWss", action="store_true", dest='excludeWss', default = False,
-                      help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")
+                    help="If active pyNS will not compute wall shear stress improving computational time. For vascular adaptation algorithm excluding wss calculation is not admitted.")
     parser.add_argument("--export", action="store", dest='export', default = False,
-                      help="If active pyNS will export to a .txt file the solution relative to the choosen mesh. Please specify a mesh name.")
+                    help="If active pyNS will export to a .txt file the solution relative to the choosen mesh. Please specify a mesh name.")
     parser.add_argument("--noAutomaticResults", action="store_false", dest='automaticResults', default = True,
-                      help="In case of multiple concurrent simulations it is reccomended to use this flag for avoiding the automatic load of pyNS local web server for postProcessing. User can manually inspect results by open results.html file located in the corresponding folder related to the simulation's patient_id.")
-    
+                    help="In case of multiple concurrent simulations it is reccomended to use this flag for avoiding the automatic load of pyNS local web server for postProcessing. User can manually inspect results by open results.html file located in the corresponding folder related to the simulation's patient_id.")
+    parser.add_argument("--inputGnuid", action="store", dest='inputGnuid', default = None,
+                    help="If active pyNS will compute information for Gnuid solver in a txt file for properly setting boundaryConditions for 3D CFD simulations using gnuid. Please specify the radius of the 3D mesh [cm]. By default this feature is Inactive.")
+                      
     args = parser.parse_args()
         
     try:
-        runSimulation(args.simType, args.defaultNet, args.wdir, args.odir, args.images, args.xsd, args.net, args.mesh, args.xmlout, args.bound, args.netSchema, args.boundSchema, args.template, args.parameters, args.diameters, args.adaptation, args.xmlSol, args.xmlMesh, args.writeCsv, args.plotImages, args.plotPressure, args.plotFlow, args.plotWss, args.plotReynolds, args.writePressure, args.writeFlow, args.writeWss, args.writeReynolds, args.velocityProfile, args.results, args.excludeWss, args.export, args.automaticResults)
+        runSimulation(args.simType, args.defaultNet, args.wdir, args.odir, args.images, args.xsd, args.net, args.mesh, args.xmlout, args.bound, args.netSchema, args.boundSchema, args.template, args.parameters, args.diameters, args.adaptation, args.xmlSol, args.xmlMesh, args.writeCsv, args.plotImages, args.plotPressure, args.plotFlow, args.plotWss, args.plotReynolds, args.writePressure, args.writeFlow, args.writeWss, args.writeReynolds, args.velocityProfile, args.results, args.excludeWss, args.export, args.automaticResults, args.inputGnuid)
     except KeyboardInterrupt:
         print "\nLocal web server for post processing was shutdown successfully. pyNS is ready for next simulation."
         print "If you want to inspect last simulation results, type ./pyNS.py --results last"
