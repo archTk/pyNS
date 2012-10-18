@@ -1352,7 +1352,27 @@ class NetworkSolutions(object):
         close()
         
         return (PressureIN-PressureOUT)/length
-            
+    
+    def WritePressureDrop(self, meshid, txtpath):
+        '''
+        This method writes pressure drop values in a .txt file.
+        '''
+        meshid = str(meshid)
+        for element in self.NetworkMesh.Elements:
+            if element.Id == meshid:
+                length = element.Length
+                dof = element.GetNodeLocalDofs()
+                PressureDrop = ((self.Solutions[(self.DofMap.DofMap[meshid, dof[0]]),self.CardiacFreq*(self.Cycles-1):])-(self.Solutions[(self.DofMap.DofMap[meshid, dof[1]]),self.CardiacFreq*(self.Cycles-1):]))/length
+                meanP = mean(PressureDrop)
+        text_file = open(txtpath, "w")
+        text_file.write("Pressure Drop over length (Pa)\n")
+        for word in PressureDrop:     
+            text_file.write(str(word))
+            text_file.write("\n")
+        text_file.write("MEAN\n")
+        text_file.write(str(meanP))
+        text_file.close()
+        
     def WritePressureInput(self, meshid, txtpath):
         '''
         This method writes pressure output values in a .txt file.

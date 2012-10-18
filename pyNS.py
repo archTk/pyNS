@@ -339,7 +339,10 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
 		   shutil.rmtree('Results/json')
                 except:
 		   pass
-		os.mkdir('Results/json')
+		try:
+		    os.mkdir('Results/json')
+		except:
+		   pass
                 if simType == 'generic':
                     idPat = modelAdaptor.Idpat
                 elif template == 'willis':
@@ -492,7 +495,9 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 if writeFlow is True:
                     networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
                 if writePressure is True:
-                    networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Id+'.txt')
+		    networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Name+'.txt')
+                    networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Name+'.txt')
+	            networkSolutions.WritePressureDrop(element.Id,opdir+'/p_drop_'+element.Name+'.txt')
                 if writeWss is True:
                     networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
                 if writeReynolds is True:
