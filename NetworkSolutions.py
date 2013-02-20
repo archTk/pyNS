@@ -162,7 +162,7 @@ class NetworkSolutions(object):
     #INPUT GNUID
     
     def GetGnuidInformation(self, PatientId, mesh_radius):
-        '''help to do'''
+        '''This method provides information to be used as Gnuid input.'''
         ro = self.SimulationContext.Context['blood_density']/1000
         mu = self.SimulationContext.Context['dynamic_viscosity']*10
         period_pyns = self.SimulationContext.Context['period']

@@ -338,11 +338,11 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 try:
                     shutil.rmtree('Results/json')
                 except:
-		   pass
-		try:
-		    os.mkdir('Results/json')
-		except:
-		   pass
+                    pass
+                try:
+                    os.mkdir('Results/json')
+                except:
+                    pass
                 if simType == 'generic':
                     idPat = modelAdaptor.Idpat
                 elif template == 'willis':
@@ -479,7 +479,7 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
             networkSolutions.WriteToXML(xmloutpath)
     
         '''Post process solution for each element of the network'''  
-        for element in networkMesh.Elements:
+        for element in networkMesh.Elements:  
             if element.Type == 'WavePropagation' or element.Type == 'Resistance':
                 networkSolutions.WriteJson(element.Id, day, excludeWss, idPat)
                 if velocityProfile is True:
@@ -495,9 +495,9 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 if writeFlow is True:
                     networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
                 if writePressure is True:
-		    networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Name+'.txt')
+                    networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Name+'.txt')
                     networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Name+'.txt')
-	            networkSolutions.WritePressureDrop(element.Id,opdir+'/p_drop_'+element.Name+'.txt')
+                    networkSolutions.WritePressureDrop(element.Id,opdir+'/p_drop_'+element.Name+'.txt')
                 if writeWss is True:
                     networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
                 if writeReynolds is True:
