@@ -474,6 +474,40 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 os.mkdir(o_dayImages)
             networkSolutions.SetImagesPath({'im':images,'f':f_dayImages,'p':p_dayImages,'w':w_dayImages,'o':o_dayImages})    
         
+        '''If needed, pyNS creates output subdirectory(s) for each adaptation step.'''       
+        if writeFlow is True:
+            if day == -1:
+                daystr = 'pre/'
+            else:
+                daystr = str(day)+'/'
+            f_dayOutput = os.path.join(ofdir,daystr) 
+            if not os.path.exists(f_dayOutput):
+                os.mkdir(f_dayOutput)
+        if writePressure is True:
+            if day == -1:
+                daystr = 'pre/'
+            else:
+                daystr = str(day)+'/'
+            p_dayOutput = os.path.join(opdir,daystr) 
+            if not os.path.exists(p_dayOutput):
+                os.mkdir(p_dayOutput)
+        if writeWss is True:
+            if day == -1:
+                daystr = 'pre/'
+            else:
+                daystr = str(day)+'/'
+            w_dayOutput = os.path.join(owdir,daystr)
+            if not os.path.exists(w_dayOutput):
+                os.mkdir(w_dayOutput)
+        if writeReynolds is True:
+            if day == -1:
+                daystr = 'pre/'
+            else:
+                daystr = str(day)+'/'
+            o_dayOutput = os.path.join(oodir,daystr) 
+            if not os.path.exists(o_dayOutput):
+                os.mkdir(o_dayOutput)
+        
         '''If needed, pyNS writes xml Solution file.'''
         if xmlSol is True:
             networkSolutions.WriteToXML(xmloutpath)
@@ -493,15 +527,15 @@ def runSimulation(simType, defaultNet, wdir, odir, images, xsd, net, mesh, xmlou
                 if plotReynolds is True:
                     networkSolutions.PlotReynolds(element.Id)
                 if writeFlow is True:
-                    networkSolutions.WriteFlowOutput(element.Id,ofdir+'Flow_'+element.Id+'.txt')
+                    networkSolutions.WriteFlowOutput(element.Id,f_dayOutput+'Flow_'+element.Name+'.txt')
                 if writePressure is True:
-                    networkSolutions.WritePressureInput(element.Id,opdir+'/p_in_'+element.Name+'.txt')
-                    networkSolutions.WritePressureOutput(element.Id,opdir+'/p_out_'+element.Name+'.txt')
-                    networkSolutions.WritePressureDrop(element.Id,opdir+'/p_drop_'+element.Name+'.txt')
+                    networkSolutions.WritePressureInput(element.Id,p_dayOutput+'/p_in_'+element.Name+'.txt')
+                    networkSolutions.WritePressureOutput(element.Id,p_dayOutput+'/p_out_'+element.Name+'.txt')
+                    networkSolutions.WritePressureDrop(element.Id,p_dayOutput+'/p_drop_'+element.Name+'.txt')
                 if writeWss is True:
-                    networkSolutions.WriteWSSOutput(element.Id,ofdir+'WSS_'+element.Id+'.txt')
+                    networkSolutions.WriteWSSOutput(element.Id,w_dayOutput+'WSS_'+element.Name+'.txt')
                 if writeReynolds is True:
-                    networkSolutions.WriteReynolds(element.Id,ofdir+'Reynolds'+element.Id+'.txt')
+                    networkSolutions.WriteReynolds(element.Id,o_dayOutput+'Reynolds'+element.Name+'.txt')
                 
     '''Adaptation data'''
     if days > 0:
