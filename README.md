@@ -92,6 +92,13 @@ If any parameter is not specified, pyNS assumes default values:
 * Hypertension No
 * Diabetes No
 
+Guidelines for radii.csv file, needed for arm templates simulations:
+
+Each specific value has to be expressed in [m]
+name_of_the_edge;radius[s=0];radius[s=1]
+
+where s is the curvilinear abscissa
+
 ## License
 
 Copyright (c) Simone Manini, Luca Antiga. 
