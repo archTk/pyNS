@@ -80,7 +80,7 @@ class Assembler(object):
         for element in self.NetworkMesh.Elements:
             for dof in element.GetExternalPressureLocalDofs():
                     numberOfElements+=1
-        if self.BoundaryConditions.OutP is not None:
+        if self.BoundaryConditions.OutsP is not None:
             numberOfElements+=len(self.BoundaryConditions.PressureOut)
         if self.BoundaryConditions.InP is not None:
             numberOfElements+=1
