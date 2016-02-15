@@ -13,6 +13,11 @@ pyNS has been designed with an object-oriented approach, which allows to abstrac
 - [Numpy package](http://numpy.scipy.org/) (be careful to download the version related to your python version)
 - [Scipy package](http://www.scipy.org)  ONLY FOR WINDOWS USERS
 
+Numpy removed support for NumArray, on which pins depends, starting from version 1.9.0. 
+Source : http://docs.scipy.org/doc/numpy/release.html
+
+The last supported version is Numpy 1.8.2. I'm opening an issue since I didn't find any explicit reference in the README to this problem.
+
 A browser for visualizing simulation results (internet connection is not required). Currently supported browser are Firefox, Chrome, Safari, Opera and Internet Explorer.
 
 For additional features:
