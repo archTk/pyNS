@@ -10,87 +10,93 @@
  <nodes>
    <node id="1" type="inflow" name="heart"/>
    <node id="2"/>
-   <node id="3"/>
-   <node id="4" type="downstream network" name="wk_left_carotid">
+   <node id="3" type="downstream network" name="wk_innominate">
+     <properties>
+       <windkessel>
+         <expression>$WindkesselRel[wk_innominate] = (($mean_pressure[])/(0.075*$cardiac_output[]+$brachial_flow[]))*(133.3223684211*6.0e7)</expression>
+       </windkessel>
+     </properties>
+   </node>   
+   <node id="4"/>
+   <node id="5" type="downstream network" name="wk_left_carotid">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_left_carotid] = (($mean_pressure[])/(0.07*$cardiac_output[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="5"/>
-   <node id="6" type="downstream network" name="wk_aorta">
+   <node id="6"/>
+   <node id="7" type="downstream network" name="wk_aorta">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_aorta] = (($mean_pressure[])/($cardiac_output[]-(2*$brachial_flow[]+0.15*$cardiac_output[])))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>  
-   <node id="7"/>
-   <node id="8" type="downstream network" name="wk_vertebral">
+   <node id="8"/>
+   <node id="9" type="downstream network" name="wk_vertebral">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_vertebral] = (($mean_pressure[])/(0.005*$cardiac_output[]))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="9"/>
    <node id="10"/>
    <node id="11"/>
    <node id="12"/>
    <node id="13"/>
    <node id="14"/>
-   <node id="15"/>
+   <node id="15" type="downstream network" name="wk_interosseous">
+     <properties>
+       <windkessel>
+         <expression>$WindkesselRel[wk_interosseous] = (($mean_pressure[])/(0.39*$ulnar_flow[]))*(133.3223684211*6.0e7)</expression>
+       </windkessel>
+     </properties>
+   </node>
    <node id="16"/>
    <node id="17"/>
-   <node id="18" type="downstream network" name="wk_innominate">
+   <node id="18"/>
+   <node id="19" type="downstream network" name="wk_little_finger">
      <properties>
        <windkessel>
-         <expression>$WindkesselRel[wk_innominate] = (($mean_pressure[])/(0.075*$cardiac_output[]+$brachial_flow[]))*(133.3223684211*6.0e7)</expression>
+         <expression>$WindkesselRel[wk_little_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
-   </node>
-  <node id="19"/>
-  <node id="20"/>
-  <node id="21"/>
-  <node id="22"/>
-  <node id="23"/>
-  <node id="24"/>
-  <node id="25" type="downstream network" name="wk_thumb_finger">
+   </node>   <node id="19"/>
+   <node id="20"/>
+   <node id="21" type="downstream network" name="wk_ring_finger">
      <properties>
        <windkessel>
-         <expression>$WindkesselRel[wk_thumb_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+         <expression>$WindkesselRel[wk_ring_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
-   </node>
-   <node id="26" type="downstream network" name="wk_index_finger">
-     <properties>
-       <windkessel>
-         <expression>$WindkesselRel[wk_index_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
-       </windkessel>
-     </properties>
-   </node>
-   <node id="27" type="downstream network" name="wk_middle_finger">
+   </node>   
+   <node id="22"/>
+   <node id="23" type="downstream network" name="wk_middle_finger">
      <properties>
        <windkessel>
          <expression>$WindkesselRel[wk_middle_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="28" type="downstream network" name="wk_ring_finger">
+   <node id="24"/>
+   <node id="25" type="downstream network" name="wk_index_finger">
      <properties>
        <windkessel>
-         <expression>$WindkesselRel[wk_ring_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+         <expression>$WindkesselRel[wk_index_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
-   <node id="29" type="downstream network" name="wk_little_finger">
+   <node id="26"/>
+   <node id="27" type="downstream network" name="wk_thumb_finger">
      <properties>
        <windkessel>
-         <expression>$WindkesselRel[wk_little_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
+         <expression>$WindkesselRel[wk_thumb_finger] = (($mean_pressure[])/(($radial_flow[]+0.61*$ulnar_flow[])*0.2))*(133.3223684211*6.0e7)</expression>
        </windkessel>
      </properties>
    </node>
+   <node id="28"/>
+   <node id="29"/>
  </nodes>
  <superedges>  
    <superedge id="1" name="body">
@@ -98,30 +104,30 @@
        <superedge id="2" name="aorta">
          <edgesIds>
            <edgeIds edge_id="1"/>
-           <edgeIds edge_id="2"/>
-           <edgeIds edge_id="4"/>
+           <edgeIds edge_id="3"/>
            <edgeIds edge_id="5"/>
+           <edgeIds edge_id="6"/>
          </edgesIds>
        </superedge>
        <superedge id="6" name="innominate">
          <edgesIds>
-           <edgeIds edge_id="18"/>
+           <edgeIds edge_id="2"/>
          </edgesIds>
        </superedge> 
        <superedge id="7" name="carotid">
          <edgesIds>
-           <edgeIds edge_id="3"/>
+           <edgeIds edge_id="4"/>
          </edgesIds>
        </superedge>
        <superedge id="9" name="subclavian">
          <edgesIds>
-           <edgeIds edge_id="6"/>
-      	   <edgeIds edge_id="8"/>
+           <edgeIds edge_id="7"/>
+      	   <edgeIds edge_id="9"/>
          </edgesIds>
        </superedge>
        <superedge id="12" name="vertebral">
          <edgesIds>
-           <edgeIds edge_id="7"/>
+           <edgeIds edge_id="8"/>
          </edgesIds>
        </superedge> 
      </superedges>
@@ -130,31 +136,31 @@
      <superedges>
        <superedge id="14" name="axillarian">
        <edgesIds>
-           <edgeIds edge_id="9"/>
+           <edgeIds edge_id="10"/>
          </edgesIds>
        </superedge>
        <superedge id="15" name="brachial">
        <edgesIds>
-           <edgeIds edge_id="10"/>
            <edgeIds edge_id="11"/>
+           <edgeIds edge_id="12"/>
          </edgesIds>
        </superedge>
        <superedge id="16" name="radial">
        <edgesIds>
-           <edgeIds edge_id="12"/>
-           <edgeIds edge_id="13"/>
+           <edgeIds edge_id="28"/>
+           <edgeIds edge_id="29"/>
          </edgesIds>
        </superedge>
        <superedge id="17" name="ulnar">
          <edgesIds>
-       		<edgeIds edge_id="14"/>
+       	    <edgeIds edge_id="13"/>
             <edgeIds edge_id="15"/>
             <edgeIds edge_id="16"/>
          </edgesIds>
        </superedge>
        <superedge id="18" name="interosseous">
          <edgesIds>
-           <edgeIds edge_id="17"/>
+           <edgeIds edge_id="14"/>
          </edgesIds>
        </superedge>
      </superedges>
@@ -163,21 +169,21 @@
      <superedges>
        <superedge id="20" name="palmar_arch">
          <edgesIds>
+           <edgeIds edge_id="17"/>
            <edgeIds edge_id="19"/>
-           <edgeIds edge_id="20"/>
            <edgeIds edge_id="21"/>
-           <edgeIds edge_id="22"/>
            <edgeIds edge_id="23"/>
-           <edgeIds edge_id="24"/>
+           <edgeIds edge_id="25"/>
+           <edgeIds edge_id="27"/>
          </edgesIds>
        </superedge>
        <superedge id="21" name="fingers">
          <edgesIds>
-           <edgeIds edge_id="25"/>
+           <edgeIds edge_id="18"/>
+           <edgeIds edge_id="20"/>
+           <edgeIds edge_id="22"/>
+           <edgeIds edge_id="24"/>
            <edgeIds edge_id="26"/>
-           <edgeIds edge_id="27"/>
-           <edgeIds edge_id="28"/>
-           <edgeIds edge_id="29"/>
          </edgesIds>
        </superedge>
      </superedges>
@@ -207,7 +213,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="2" node1_id="2" node2_id="3" side="arterial" name="aortich_arch_A_1">
+   <edge id="3" node1_id="2" node2_id="4" side="arterial" name="aortich_arch_A_1">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{aortich_arch_A_1} = (0.018*$age[]+0.522)*1e-2</expression>
@@ -230,7 +236,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="3" node1_id="3" node2_id="4" side="arterial" name="left_carotid">
+   <edge id="4" node1_id="4" node2_id="5" side="arterial" name="left_carotid">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{left_carotid} = (0.126*$height[])*1e-2</expression>
@@ -248,7 +254,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="4" node1_id="3" node2_id="5" side="arterial" name="aortich_arch_A_2">
+   <edge id="5" node1_id="4" node2_id="6" side="arterial" name="aortich_arch_A_2">
     <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{aortich_arch_A_2} = (0.0108*$age[]+0.3132)*1e-2</expression>
@@ -271,7 +277,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="5" node1_id="5" node2_id="6" side="arterial" name="aortich_Arch_B_and_thoracic_aorta">
+   <edge id="6" node1_id="6" node2_id="7" side="arterial" name="aortich_Arch_B_and_thoracic_aorta">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{aortich_Arch_B_and_thoracic_aorta} = (-1.59138+0.09042*$height[])*1e-2</expression>
@@ -294,7 +300,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="6" node1_id="5" node2_id="7" side="arterial" name="left_subclavian_A">
+   <edge id="7" node1_id="6" node2_id="8" side="arterial" name="left_subclavian_A">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{left_subclavian_A} = (0.01935*$height[])*1e-2</expression>
@@ -317,7 +323,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="7" node1_id="7" node2_id="8" side="arterial" name="vertebral">
+   <edge id="8" node1_id="8" node2_id="9" side="arterial" name="vertebral">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{vertebral} = (0.0882*$height[])*1e-2</expression>
@@ -340,7 +346,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="8" node1_id="7" node2_id="9" side="arterial" name="left_subclavian_B">
+   <edge id="9" node1_id="8" node2_id="10" side="arterial" name="left_subclavian_B">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{left_subclavian_B} = (0.0496*$height[])*1e-2</expression>
@@ -363,7 +369,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="9" node1_id="9" node2_id="10" side="arterial" name="axillarian">
+   <edge id="10" node1_id="10" node2_id="11" side="arterial" name="axillarian">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{axillarian} = (0.0608715*$height[])*1e-2</expression>
@@ -386,7 +392,7 @@
        </compliance>
      </properties>
    </edge>
-   <edge id="10" node1_id="10" node2_id="11" side="arterial" name="brachial_prox">
+   <edge id="11" node1_id="11" node2_id="12" side="arterial" name="brachial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{brachial_prox} = (0.08625*$height[])*1e-2</expression>
@@ -412,7 +418,7 @@
        </leakage>
      </properties>
    </edge>
-   <edge id="11" node1_id="11" node2_id="12" side="arterial" name="brachial_dist">
+   <edge id="12" node1_id="12" node2_id="13" side="arterial" name="brachial_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{brachial_dist} = (0.02875*$height[])*1e-2</expression>
@@ -438,7 +444,7 @@
        </leakage>
      </properties>
    </edge>   
-   <edge id="12" node1_id="12" node2_id="16" side="arterial" name="radial_prox">
+   <edge id="29" node1_id="13" node2_id="29" side="arterial" name="radial_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{radial_prox} = (0.09855*$height[])*1e-2</expression>
@@ -461,7 +467,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="13" node1_id="16" node2_id="17" side="arterial" name="radial_dist">
+   <edge id="28" node1_id="29" node2_id="28" side="arterial" name="radial_dist">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{radial_dist} = (0.03285*$height[])*1e-2</expression>
@@ -484,7 +490,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="14" node1_id="12" node2_id="13" side="arterial" name="ulnar_prox">
+   <edge id="13" node1_id="13" node2_id="14" side="arterial" name="ulnar_prox">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{ulnar_prox} = (0.02628*$height[])*1e-2</expression>
@@ -502,7 +508,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="15" node1_id="13" node2_id="15" side="arterial" name="ulnar_dist_1">
+   <edge id="15" node1_id="14" node2_id="16" side="arterial" name="ulnar_dist_1">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{ulnar_dist_1} = (0.0526*$height[])*1e-2</expression>
@@ -525,7 +531,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="16" node1_id="15" node2_id="19" side="arterial" name="ulnar_dist_2">
+   <edge id="16" node1_id="16" node2_id="17" side="arterial" name="ulnar_dist_2">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{ulnar_dist_2} = (0.0526*$height[])*1e-2</expression>
@@ -548,7 +554,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="17" node1_id="13" node2_id="14" side="arterial" name="interosseous">
+   <edge id="14" node1_id="14" node2_id="15" side="arterial" name="interosseous">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{interosseous} = (0.07884*$height[])*1e-2</expression>
@@ -566,7 +572,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="18" node1_id="2" node2_id="18" side="arterial" name="innominate">
+   <edge id="2" node1_id="2" node2_id="3" side="arterial" name="innominate">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <expression>$Length{innominate} = (0.021*$height[])*1e-2</expression>
@@ -584,7 +590,7 @@
        </compliance>
      </properties>
    </edge>
- <edge id="19" node1_id="17" node2_id="20" side="arterial" name="palm_1">
+ <edge id="27" node1_id="26" node2_id="28" side="arterial" name="palm_1">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>2.0e-2</scalar>
@@ -602,7 +608,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="20" node1_id="20" node2_id="21" side="arterial" name="palm_2">
+   <edge id="25" node1_id="24" node2_id="26" side="arterial" name="palm_2">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>1.5e-2</scalar>
@@ -620,7 +626,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="21" node1_id="21" node2_id="22" side="arterial" name="palm_3">
+   <edge id="23" node1_id="22" node2_id="24" side="arterial" name="palm_3">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>1.5e-2</scalar>
@@ -638,7 +644,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="22" node1_id="23" node2_id="22" side="arterial" name="palm_4">
+   <edge id="21" node1_id="20" node2_id="22" side="arterial" name="palm_4">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>1.5e-2</scalar>
@@ -656,7 +662,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="23" node1_id="24" node2_id="23" side="arterial" name="palm_5">
+   <edge id="19" node1_id="18" node2_id="20" side="arterial" name="palm_5">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>1.5e-2</scalar>
@@ -674,7 +680,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="24" node1_id="19" node2_id="24" side="arterial" name="palm_6">
+   <edge id="17" node1_id="17" node2_id="18" side="arterial" name="palm_6">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>2.0e-2</scalar>
@@ -692,7 +698,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="25" node1_id="20" node2_id="25" side="arterial" name="thumb_finger">
+   <edge id="26" node1_id="26" node2_id="27" side="arterial" name="thumb_finger">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.0e-2</scalar>
@@ -710,7 +716,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="26" node1_id="21" node2_id="26" side="arterial" name="index_finger">
+   <edge id="24" node1_id="24" node2_id="25" side="arterial" name="index_finger">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.0e-2</scalar>
@@ -728,7 +734,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="27" node1_id="22" node2_id="27" side="arterial" name="middle_finger">
+   <edge id="22" node1_id="22" node2_id="23" side="arterial" name="middle_finger">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.0e-2</scalar>
@@ -746,7 +752,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="28" node1_id="23" node2_id="28" side="arterial" name="ring_finger">
+   <edge id="20" node1_id="20" node2_id="21" side="arterial" name="ring_finger">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.0e-2</scalar>
@@ -764,7 +770,7 @@
        </young_modulus>
      </properties>
    </edge>
-   <edge id="29" node1_id="24" node2_id="29" side="arterial" name="little_finger">
+   <edge id="18" node1_id="18" node2_id="19" side="arterial" name="little_finger">
      <geometry>
 	     <length unit="m" accuracy="10%" source="US">
 	       <scalar>3.0e-2</scalar>
