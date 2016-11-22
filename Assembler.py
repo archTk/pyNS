@@ -16,8 +16,7 @@
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
 from DofMap import DofMap
-from numpy.core.numeric import zeros
-from numpy.numarray.numerictypes import Int32
+from numpy.core.numeric import zeros, int32
 
 class Assembler(object):
     '''
@@ -122,7 +121,7 @@ class Assembler(object):
         self.BoundaryConditions.SetSimulationContext(simulationContext)
         for el in self.BoundaryConditions.elementFlow:
             self.FlowDof[el.Id] = self.DofMap.DofMap[(el.Id,el.GetLocalDof(int(self.BoundaryConditions.NodeFlow[el.Id])))]
-        self.PrescribedPressures = PrescribedPressures.astype(Int32)
+        self.PrescribedPressures = PrescribedPressures.astype(int32)
         return self.PrescribedPressures
 
     def AssembleInit(self, simulationContext, evaluator):
