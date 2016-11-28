@@ -15,8 +15,7 @@
 
 ##   Developed with support from the EC FP7/2007-2013: ARCH, Project n. 224390
 
-from numpy.core.numeric import arange, array, zeros, dot
-from numpy.numarray.numerictypes import Int32
+from numpy.core.numeric import arange, array, zeros, dot, int32
 from math import pi
 from numpy.core.fromnumeric import sum, mean
 from numpy.lib.scimath import sqrt
@@ -69,7 +68,7 @@ class Element(object):
         '''
         circuitMatrix = self.GetCircuitMatrix()      
         numberOfEdges = circuitMatrix.shape[0]
-        elementNodes = array(circuitMatrix[:,:2].astype(Int32))
+        elementNodes = array(circuitMatrix[:,:2].astype(int32))
         elementData = circuitMatrix[:,2:]              
         zeroOrderMatrix = zeros((numberOfEdges+1, numberOfEdges+1))
         reverse = array([[1,-1],[-1,1]])
@@ -90,7 +89,7 @@ class Element(object):
         '''
         circuitMatrix = self.GetCircuitMatrix()       
         numberOfEdges = circuitMatrix.shape[0]
-        elementNodes = array(circuitMatrix[:,:2].astype(Int32))
+        elementNodes = array(circuitMatrix[:,:2].astype(int32))
         elementData = circuitMatrix[:,2:]              
         firstOrderMatrix = zeros((numberOfEdges+1, numberOfEdges+1))
         reverse = array([[1,-1],[-1,1]])
@@ -111,7 +110,7 @@ class Element(object):
         '''
         circuitMatrix = self.GetCircuitMatrix()   
         numberOfEdges = circuitMatrix.shape[0]
-        elementNodes = array(circuitMatrix[:,:2].astype(Int32))
+        elementNodes = array(circuitMatrix[:,:2].astype(int32))
         elementData = circuitMatrix[:,2:]              
         secondOrderMatrix = zeros((numberOfEdges+1, numberOfEdges+1))
         reverse = array([[1,-1],[-1,1]])
