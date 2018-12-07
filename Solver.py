@@ -225,7 +225,7 @@ class SolverFirstTrapezoid(Solver):
                 if not nonLinear :
                     break
 
-                if self.pi == None:
+                if self.pi is None:
                     self.pi = zeros((NumberOfGlobalDofs,1))
                     self.pi[:,:] = self.pt[:,:]
                 pI = CoeffRelax * self.p + self.pi * (1.0-CoeffRelax)
